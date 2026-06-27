@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dom.project.mapper.DormitoryMapper">
+
+    <resultMap id="DormitoryMap" type="com.dom.project.entity.Dormitory">
+        <id column="dormitory_id" property="dormitoryId"/>
+        <result column="name" property="name"/>
+        <result column="region" property="region"/>
+        <result column="postal_code" property="postalCode"/>
+        <result column="address" property="address"/>
+        <result column="layout_type" property="layoutType"/>
+        <result column="gender_type" property="genderType"/>
+        <result column="nearest_station_1" property="nearestStation1"/>
+        <result column="nearest_station_2" property="nearestStation2"/>
+        <result column="nearest_station_3" property="nearestStation3"/>
+        <result column="remarks" property="remarks"/>
+        <result column="created_at" property="createdAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+        <result column="updated_at" property="updatedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+        <result column="deleted_at" property="deletedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+    </resultMap>
+
+    <sql id="BaseColumns">
+        dormitory_id, name, region, postal_code, address, layout_type, gender_type, nearest_station_1, nearest_station_2, nearest_station_3, remarks, created_at, updated_at, deleted_at
+    </sql>
+
+    <insert id="insert" parameterType="com.dom.project.entity.Dormitory">
+        INSERT INTO dormitory (dormitory_id, name, region, postal_code, address, layout_type, gender_type, nearest_station_1, nearest_station_2, nearest_station_3, remarks, created_at, updated_at)
+        VALUES (#{dormitoryId}, #{name}, #{region}, #{postalCode}, #{address}, #{layoutType}, #{genderType}, #{nearestStation1}, #{nearestStation2}, #{nearestStation3}, #{remarks}, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <update id="update" parameterType="com.dom.project.entity.Dormitory">
+        UPDATE dormitory
+        SET name = #{name}, region = #{region}, postal_code = #{postalCode}, address = #{address}, layout_type = #{layoutType},
+            gender_type = #{genderType}, nearest_station_1 = #{nearestStation1}, nearest_station_2 = #{nearestStation2},
+            nearest_station_3 = #{nearestStation3}, remarks = #{remarks}, updated_at = #{updatedAt}
+        WHERE dormitory_id = #{dormitoryId} AND deleted_at IS NULL
+    </update>
+
+    <update id="logicalDelete">
+        UPDATE dormitory SET deleted_at = #{deletedAt}, updated_at = #{deletedAt}
+        WHERE dormitory_id = #{dormitoryId} AND deleted_at IS NULL
+    </update>
+
+    <select id="findById" resultMap="DormitoryMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM dormitory
+        WHERE dormitory_id = #{dormitoryId} AND deleted_at IS NULL
+    </select>
+
+    <select id="searchList" resultMap="DormitoryMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM dormitory
+        WHERE deleted_at IS NULL
+        <if test="dormitoryId != null and dormitoryId != ''">
+            AND dormitory_id = #{dormitoryId}
+        </if>
+        <if test="name != null and name != ''">
+            AND name ILIKE CONCAT('%', #{name}, '%')
+        </if>
+        <if test="genderType != null and genderType != ''">
+            AND gender_type = #{genderType}
+        </if>
+        <if test="region != null and region != ''">
+            AND region = #{region}
+        </if>
+        <if test="address != null and address != ''">
+            AND address ILIKE CONCAT('%', #{address}, '%')
+        </if>
+        ORDER BY dormitory_id
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countSearch" resultType="long">
+        SELECT COUNT(1)
+        FROM dormitory
+        WHERE deleted_at IS NULL
+        <if test="dormitoryId != null and dormitoryId != ''">
+            AND dormitory_id = #{dormitoryId}
+        </if>
+        <if test="name != null and name != ''">
+            AND name ILIKE CONCAT('%', #{name}, '%')
+        </if>
+        <if test="genderType != null and genderType != ''">
+            AND gender_type = #{genderType}
+        </if>
+        <if test="region != null and region != ''">
+            AND region = #{region}
+        </if>
+        <if test="address != null and address != ''">
+            AND address ILIKE CONCAT('%', #{address}, '%')
+        </if>
+    </select>
+
+    <select id="listForCalendar" resultMap="DormitoryMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM dormitory
+        WHERE deleted_at IS NULL
+        <if test="regions != null and regions.size() > 0">
+            AND region IN
+            <foreach collection="regions" item="region" open="(" separator="," close=")">
+                #{region}
+            </foreach>
+        </if>
+        <if test="dormitoryId != null and dormitoryId != ''">
+            AND dormitory_id = #{dormitoryId}
+        </if>
+        <if test="genderType != null and genderType != ''">
+            AND gender_type = #{genderType}
+        </if>
+        ORDER BY name
+    </select>
+</mapper>

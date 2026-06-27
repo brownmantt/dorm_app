@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dom.project.mapper.DormitoryManagerMapper">
+
+    <resultMap id="DormitoryManagerMap" type="com.dom.project.entity.DormitoryManager">
+        <id column="dormitory_id" property="dormitoryId"/>
+        <result column="employee_id" property="employeeId"/>
+        <result column="residence_history_id" property="residenceHistoryId"/>
+        <result column="assigned_at" property="assignedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+        <result column="version" property="version"/>
+    </resultMap>
+
+    <select id="findByDormitoryId" resultMap="DormitoryManagerMap">
+        SELECT dormitory_id, employee_id, residence_history_id, assigned_at, version
+        FROM dormitory_manager
+        WHERE dormitory_id = #{dormitoryId}
+    </select>
+
+    <insert id="upsert" parameterType="com.dom.project.entity.DormitoryManager">
+        INSERT INTO dormitory_manager (dormitory_id, employee_id, residence_history_id, assigned_at, version)
+        VALUES (#{dormitoryId}, #{employeeId}, #{residenceHistoryId}, #{assignedAt}, COALESCE(#{version}, 0))
+        ON CONFLICT (dormitory_id) DO UPDATE
+        SET employee_id = EXCLUDED.employee_id,
+            residence_history_id = EXCLUDED.residence_history_id,
+            assigned_at = EXCLUDED.assigned_at,
+            version = dormitory_manager.version + 1
+    </insert>
+
+    <delete id="deleteByDormitoryId">
+        DELETE FROM dormitory_manager
+        WHERE dormitory_id = #{dormitoryId}
+    </delete>
+
+    <delete id="deleteByResidenceHistoryId">
+        DELETE FROM dormitory_manager
+        WHERE residence_history_id = #{residenceHistoryId}
+    </delete>
+</mapper>

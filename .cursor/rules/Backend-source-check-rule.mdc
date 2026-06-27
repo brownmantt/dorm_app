@@ -1,0 +1,261 @@
+---
+description: 後端業務コード生成前の func_server.md 確認・層別チェック・再利用優先ルール
+alwaysApply: true
+---
+
+# Backend source check rule
+
+## 1. 核心原則
+
+**厳格要求：**  
+後端の業務コードを生成する前に、AI は必ず `read_file` ツールを使用して **func_server.md** を読み込み、  
+既存の Controller、Service、Mapper、Entity、Enum、Util クラスが存在するかを全面的に確認しなければならない。
+
+審査の際、**func_server.md を唯一の事実ソースとし、推測・独自判断は禁止**。
+
+---
+
+## 2. 強制チェックフロー
+
+### 2.1 第一步：func_server.md を必ず確認（存在しない場合のみ直接生成）
+
+#### 強制要件
+- `read_file` ツールで **func_server.md 全文を確認**すること
+
+#### チェック対象
+- Controller（コントローラ層）
+- Service / ServiceImpl（業務層）
+- Mapper（永続層）
+- Entity / DTO / VO（エンティティ層）
+- Enum（業務列挙）
+- Util（ツールクラス）
+- Constant（定数）
+
+#### チェック目的
+- 既存のインターフェース、業務ロジック、データ構造が存在するか確認するため
+
+---
+
+### 2.2 第二步：既存機能を層ごとに分析
+
+1. **Controller 層**：同じ業務 API が存在しないか  
+2. **Service 層**：同じ業務ロジックが存在しないか  
+3. **Mapper 層**：同じテーブル操作が存在しないか  
+4. **Entity 層**：同じフィールド定義が存在しないか  
+5. **Enum**：業務状態・タイプが既に定義されていないか  
+6. **Util / Constant**：既存の共通ロジック・定数がないか  
+7. **その他**：キャッシュ、トランザクション、権限、エクスポート/インポートなど
+
+---
+
+### 2.3 第三步：コード再利用の判断
+
+1. **優先度 1：完全一致 → 既存コードをそのまま再利用**  
+2. **優先度 2：類似 → 既存クラスにメソッドを追加**  
+3. **優先度 3：関連あり → リファクタリングして再利用可能か検討**  
+4. **最終手段：func_server.md に何も存在しない場合のみ、新規クラス/メソッドを作成**
+
+---
+
+## 3. 典型的な業務シナリオの呼び出しチェーン例
+
+バックエンド機能を作成する場合、必ず以下形式で呼び出しチェーンを明記する：
+
+```
+Controller → Service → Mapper → Entity / VO / Enum
+```
+
+### ページ初期化データ取得
+```
+Controller /api/order/page
+    ↓
+Service OrderService.getOrderList()
+    ↓
+Mapper OrderMapper.selectOrderList()
+    ↓
+Entity Order / OrderVO
+```
+
+### 新規追加
+```
+Controller /api/user/add
+    ↓
+Service UserService.createUser()
+    ↓
+Mapper UserMapper.insertUser()
+    ↓
+Entity User
+```
+
+### 更新
+```
+Controller /api/goods/update
+    ↓
+Service GoodsService.updateGoods()
+    ↓
+Mapper GoodsMapper.updateById()
+    ↓
+Entity Goods
+```
+
+### 削除
+```
+Controller /api/order/delete
+    ↓
+Service OrderService.removeOrder()
+    ↓
+Mapper OrderMapper.deleteById()
+    ↓
+Entity Order
+```
+
+### 状態変更
+```
+Controller /api/role/changeStatus
+    ↓
+Service RoleService.updateStatus()
+    ↓
+Mapper RoleMapper.updateStatus()
+    ↓
+Enum RoleStatusEnum
+```
+
+### データ連動（例：店舗 → 従業員）
+```
+Controller /api/shop/staff
+    ↓
+Service ShopService.getStaffList()
+    ↓
+Mapper ShopMapper.selectStaffByShopId()
+    ↓
+VO StaffVO
+```
+
+### ダッシュボード / 統計
+```
+Controller /api/dashboard/data
+    ↓
+Service DashboardService.getDashboardData()
+    ↓
+Mapper DashboardMapper.selectStatistics()
+    ↓
+VO DashboardVO / EchartsVO
+```
+
+---
+
+## 4. 違反チェックメカニズム
+
+重複開発を発見した場合：
+
+1. **即時停止**  
+2. **既存機能の再分析**  
+3. **再利用 / 拡張 / リファクタリング の方針決定**  
+4. **方針に基づき再実装**
+
+---
+
+## 5. チェック不足の悪影響
+
+- コード重複（Controller / Service / Mapper）
+- メンテナンス困難（ロジックが分散）
+- データ不整合（状態・Enum・フィールド不統一）
+- 開発効率低下（重複開発・重複テスト）
+
+---
+
+## 6. 層別の詳細審査ルール
+
+### 6.1 Controller 層
+- 同一業務モジュールの Controller 重複禁止
+- ルート重複禁止
+- 必須 API：一覧、追加、更新、削除、バッチ削除、エクスポート、無効化/有効化、パスワードリセット、ロール割当、単据の保存/提出/審核/確認、状態変更
+- リクエスト方式・ルート命名・レスポンス形式・権限注解が func_server.md と一致すること
+- フロントに機能があるのに後端に API がない状況を禁止
+
+### 6.2 Service / ServiceImpl 層
+- 同業務サービスの重複作成禁止
+- 業務ロジックの完全性チェック：非空、業務判断、トランザクション、状態遷移、データ連動
+- 仕入/入庫/出庫/調貨などの単据は必ずフロー完結：  
+  **保存 → 提出 → 審核 → 確認 → 状態更新**
+
+### 6.3 Mapper 層
+- 同テーブルの Mapper 重複禁止
+- CRUD、条件検索、ページング、関連検索が揃っているか
+- DB フィールド（作成時間/更新時間/状態）を漏れなくマッピング
+
+### 6.4 Entity / Enum / Util
+- Entity の重複作成禁止
+- フィールド注解、主鍵戦略、時間型が文書と一致
+- 状態 Enum の重複定義禁止
+- ページング、Excel、日付、キャッシュ、権限などの共通 Util は再利用
+
+---
+
+## 7. 問題レベル分類
+
+### 致命的（即やり直し）
+- Controller / Service / Mapper / Entity / Enum の重複作成
+- 必須業務ロジックの欠落
+- 単据の審核・確認・状態遷移の欠落
+- DB の重要フィールド欠落
+
+### 重大（修正必須）
+- 命名・パッケージ構造が func_server.md と不一致
+- 非空チェック・トランザクション不足
+- ページング・条件検索・バッチ操作の欠落
+
+### 軽微（改善推奨）
+- コード整形不足、注釈不足、ログ不統一、冗長変数
+
+---
+
+## 8. 後端統一命名規約（func_server.md に準拠）
+
+- Controller：業務名 + Controller  
+- Service：業務名 + Service  
+- ServiceImpl：業務名 + ServiceImpl  
+- Mapper：テーブル名 + Mapper  
+- Entity：テーブル名（キャメル）  
+- DTO：業務名 + DTO  
+- VO：業務名 + VO  
+- Enum：業務意味 + Enum  
+- Util：機能名 + Util  
+- Constant：業務名 + Constant  
+
+---
+
+## 9. 文書同期ルール
+
+新規追加・変更を行った場合、必ず func_server.md を更新する：
+
+- Controller 追加 → func_server.md に API 説明を追加  
+- Service メソッド追加 → 業務ロジック説明を追加  
+- Mapper 追加 → SQL 説明を追加  
+- Entity フィールド追加 → フィールド説明・デフォルト値を追加  
+- Enum 追加 → 状態値と意味を追加  
+- Util 追加 → メソッド用途・パラメータ説明を追加  
+- 呼び出しチェーン：Controller → Service → Mapper → Entity / VO / Enum を追記  
+
+---
+
+## 10. 実行前チェックリスト
+
+- [ ] read_file で func_server.md を確認した  
+- [ ] Controller / Service / Mapper / Entity / Enum / Util を全て確認  
+- [ ] 重複・類似機能がないことを確認  
+- [ ] 呼び出しチェーン（Controller → Service → Mapper → Entity）を把握  
+- [ ] 完了後 func_server.md を更新する準備がある  
+
+---
+
+## 11. 重要注意
+
+このチェックフローを守らないと：
+
+- コード重複  
+- 業務ロジック分散  
+- 状態定義の混乱  
+- 工業化規範違反  
+
+となるため、**必ず厳守すること**。

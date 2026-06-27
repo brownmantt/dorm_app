@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dom.project.mapper.RegionMapper">
+
+    <resultMap id="RegionMap" type="com.dom.project.entity.Region">
+        <id column="region_id" property="regionId"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="display_order" property="displayOrder"/>
+        <result column="created_at" property="createdAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+        <result column="updated_at" property="updatedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+        <result column="deleted_at" property="deletedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+    </resultMap>
+
+    <sql id="BaseColumns">
+        region_id, code, name, display_order, created_at, updated_at, deleted_at
+    </sql>
+
+    <insert id="insert" parameterType="com.dom.project.entity.Region">
+        INSERT INTO region (region_id, code, name, display_order, created_at, updated_at)
+        VALUES (#{regionId}, #{code}, #{name}, #{displayOrder}, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <update id="update" parameterType="com.dom.project.entity.Region">
+        UPDATE region
+        SET code = #{code}, name = #{name}, display_order = #{displayOrder}, updated_at = #{updatedAt}
+        WHERE region_id = #{regionId} AND deleted_at IS NULL
+    </update>
+
+    <update id="logicalDelete">
+        UPDATE region
+        SET deleted_at = #{deletedAt}, updated_at = #{deletedAt}
+        WHERE region_id = #{regionId} AND deleted_at IS NULL
+    </update>
+
+    <select id="findById" resultMap="RegionMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM region
+        WHERE region_id = #{regionId} AND deleted_at IS NULL
+    </select>
+
+    <select id="findByCode" resultMap="RegionMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM region
+        WHERE code = #{code} AND deleted_at IS NULL
+    </select>
+
+    <select id="searchList" resultMap="RegionMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM region
+        WHERE deleted_at IS NULL
+        <if test="code != null and code != ''">
+            AND code ILIKE CONCAT('%', #{code}, '%')
+        </if>
+        <if test="name != null and name != ''">
+            AND name ILIKE CONCAT('%', #{name}, '%')
+        </if>
+        ORDER BY display_order NULLS LAST, code
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countSearch" resultType="long">
+        SELECT COUNT(1)
+        FROM region
+        WHERE deleted_at IS NULL
+        <if test="code != null and code != ''">
+            AND code ILIKE CONCAT('%', #{code}, '%')
+        </if>
+        <if test="name != null and name != ''">
+            AND name ILIKE CONCAT('%', #{name}, '%')
+        </if>
+    </select>
+
+    <select id="countDormitoriesByRegionCode" resultType="long">
+        SELECT COUNT(1)
+        FROM dormitory
+        WHERE region = #{code}
+          AND deleted_at IS NULL
+    </select>
+</mapper>

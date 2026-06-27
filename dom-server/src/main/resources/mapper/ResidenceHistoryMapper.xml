@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dom.project.mapper.ResidenceHistoryMapper">
+
+    <resultMap id="ResidenceHistoryMap" type="com.dom.project.entity.ResidenceHistory">
+        <id column="residence_history_id" property="residenceHistoryId"/>
+        <result column="employee_id" property="employeeId"/>
+        <result column="dormitory_id" property="dormitoryId"/>
+        <result column="room_id" property="roomId"/>
+        <result column="move_in_date" property="moveInDate"/>
+        <result column="move_out_date" property="moveOutDate"/>
+        <result column="move_out_reason" property="moveOutReason"/>
+        <result column="created_at" property="createdAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+        <result column="updated_at" property="updatedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+        <result column="deleted_at" property="deletedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+    </resultMap>
+
+    <resultMap id="ResidenceHistoryViewMap" type="com.dom.project.entity.view.ResidenceHistoryView">
+        <result column="residence_history_id" property="residenceHistoryId"/>
+        <result column="employee_id" property="employeeId"/>
+        <result column="employee_name" property="employeeName"/>
+        <result column="dormitory_id" property="dormitoryId"/>
+        <result column="dormitory_name" property="dormitoryName"/>
+        <result column="room_id" property="roomId"/>
+        <result column="room_name" property="roomName"/>
+        <result column="move_in_date" property="moveInDate"/>
+        <result column="move_out_date" property="moveOutDate"/>
+        <result column="move_out_reason" property="moveOutReason"/>
+    </resultMap>
+
+    <resultMap id="AllocationResidenceViewMap" type="com.dom.project.entity.view.AllocationResidenceView">
+        <result column="dormitory_id" property="dormitoryId"/>
+        <result column="dormitory_name" property="dormitoryName"/>
+        <result column="address" property="address"/>
+        <result column="postal_code" property="postalCode"/>
+        <result column="region" property="region"/>
+        <result column="room_id" property="roomId"/>
+        <result column="room_name" property="roomName"/>
+        <result column="room_detail" property="roomDetail"/>
+        <result column="has_air_conditioner" property="hasAirConditioner"/>
+        <result column="residence_history_id" property="residenceHistoryId"/>
+        <result column="employee_id" property="employeeId"/>
+        <result column="employee_name" property="employeeName"/>
+        <result column="affiliation_name" property="affiliationName"/>
+        <result column="is_manager" property="isManager"/>
+        <result column="move_in_date" property="moveInDate"/>
+        <result column="move_out_date" property="moveOutDate"/>
+    </resultMap>
+
+    <resultMap id="MoveOutWarningMap" type="com.dom.project.entity.vo.MoveOutWarningVO">
+        <result column="residence_history_id" property="residenceHistoryId"/>
+        <result column="employee_id" property="employeeId"/>
+        <result column="employee_name" property="employeeName"/>
+        <result column="dormitory_name" property="dormitoryName"/>
+        <result column="room_name" property="roomName"/>
+        <result column="move_out_date" property="moveOutDate"/>
+        <result column="days_remaining" property="daysRemaining"/>
+    </resultMap>
+
+    <resultMap id="FirstUseDateViewMap" type="com.dom.project.entity.view.FirstUseDateView">
+        <result column="first_use_date" property="firstUseDate"/>
+        <result column="employee_category" property="employeeCategory"/>
+        <result column="employee_name" property="employeeName"/>
+    </resultMap>
+
+    <resultMap id="LongTermAlertMap" type="com.dom.project.entity.view.LongTermUsageAlertView">
+        <result column="employee_id" property="employeeId"/>
+        <result column="employee_name" property="employeeName"/>
+        <result column="first_use_date" property="firstUseDate"/>
+        <result column="elapsed_years" property="elapsedYears"/>
+        <result column="dormitory_name" property="dormitoryName"/>
+        <result column="room_name" property="roomName"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.dom.project.entity.ResidenceHistory">
+        INSERT INTO residence_history
+        (residence_history_id, employee_id, dormitory_id, room_id, move_in_date, move_out_date, move_out_reason, created_at, updated_at)
+        VALUES (#{residenceHistoryId}, #{employeeId}, #{dormitoryId}, #{roomId}, #{moveInDate}, #{moveOutDate}, #{moveOutReason}, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <update id="update" parameterType="com.dom.project.entity.ResidenceHistory">
+        UPDATE residence_history
+        SET employee_id = #{employeeId}, dormitory_id = #{dormitoryId}, room_id = #{roomId},
+            move_in_date = #{moveInDate}, move_out_date = #{moveOutDate}, move_out_reason = #{moveOutReason},
+            updated_at = #{updatedAt}
+        WHERE residence_history_id = #{residenceHistoryId} AND deleted_at IS NULL
+    </update>
+
+    <update id="logicalDelete">
+        UPDATE residence_history SET deleted_at = #{deletedAt}, updated_at = #{deletedAt}
+        WHERE residence_history_id = #{residenceHistoryId} AND deleted_at IS NULL
+    </update>
+
+    <select id="findById" resultMap="ResidenceHistoryMap">
+        SELECT residence_history_id, employee_id, dormitory_id, room_id, move_in_date, move_out_date,
+               move_out_reason, created_at, updated_at, deleted_at
+        FROM residence_history
+        WHERE residence_history_id = #{residenceHistoryId} AND deleted_at IS NULL
+    </select>
+
+    <select id="searchList" resultMap="ResidenceHistoryViewMap">
+        SELECT rh.residence_history_id, rh.employee_id, e.name AS employee_name,
+               rh.dormitory_id, d.name AS dormitory_name, rh.room_id, r.room_name,
+               rh.move_in_date, rh.move_out_date, rh.move_out_reason
+        FROM residence_history rh
+        JOIN employee e ON e.employee_id = rh.employee_id AND e.deleted_at IS NULL
+        JOIN dormitory d ON d.dormitory_id = rh.dormitory_id AND d.deleted_at IS NULL
+        JOIN room r ON r.room_id = rh.room_id AND r.deleted_at IS NULL
+        WHERE rh.deleted_at IS NULL
+        <if test="name != null and name != ''">
+            AND e.name ILIKE CONCAT('%', #{name}, '%')
+        </if>
+        <if test="employeeId != null and employeeId != ''">
+            AND rh.employee_id ILIKE CONCAT('%', #{employeeId}, '%')
+        </if>
+        <if test="dormitoryName != null and dormitoryName != ''">
+            AND d.name ILIKE CONCAT('%', #{dormitoryName}, '%')
+        </if>
+        <if test="moveInDateFrom != null">
+            AND rh.move_in_date &gt;= #{moveInDateFrom}
+        </if>
+        <if test="moveInDateTo != null">
+            AND rh.move_in_date &lt;= #{moveInDateTo}
+        </if>
+        ORDER BY rh.move_in_date DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countSearch" resultType="long">
+        SELECT COUNT(1)
+        FROM residence_history rh
+        JOIN employee e ON e.employee_id = rh.employee_id AND e.deleted_at IS NULL
+        JOIN dormitory d ON d.dormitory_id = rh.dormitory_id AND d.deleted_at IS NULL
+        WHERE rh.deleted_at IS NULL
+        <if test="name != null and name != ''">
+            AND e.name ILIKE CONCAT('%', #{name}, '%')
+        </if>
+        <if test="employeeId != null and employeeId != ''">
+            AND rh.employee_id ILIKE CONCAT('%', #{employeeId}, '%')
+        </if>
+        <if test="dormitoryName != null and dormitoryName != ''">
+            AND d.name ILIKE CONCAT('%', #{dormitoryName}, '%')
+        </if>
+        <if test="moveInDateFrom != null">
+            AND rh.move_in_date &gt;= #{moveInDateFrom}
+        </if>
+        <if test="moveInDateTo != null">
+            AND rh.move_in_date &lt;= #{moveInDateTo}
+        </if>
+    </select>
+
+    <select id="countActiveResidents" resultType="int">
+        SELECT COUNT(1) FROM residence_history
+        WHERE room_id = #{roomId} AND deleted_at IS NULL
+          AND move_in_date &lt;= COALESCE(#{asOfDate}, CURRENT_DATE)
+          AND (move_out_date IS NULL OR move_out_date &gt;= COALESCE(#{asOfDate}, CURRENT_DATE))
+    </select>
+
+    <select id="countActiveResidentsByDormitoryId" resultType="int">
+        SELECT COUNT(1) FROM residence_history
+        WHERE dormitory_id = #{dormitoryId} AND deleted_at IS NULL
+          AND move_in_date &lt;= COALESCE(#{asOfDate}, CURRENT_DATE)
+          AND (move_out_date IS NULL OR move_out_date &gt;= COALESCE(#{asOfDate}, CURRENT_DATE))
+    </select>
+
+    <select id="countOverlap" resultType="int">
+        SELECT COUNT(1) FROM residence_history
+        WHERE room_id = #{roomId} AND deleted_at IS NULL
+          AND daterange(move_in_date, COALESCE(move_out_date, 'infinity'::date), '[]')
+              &amp;&amp; daterange(#{moveInDate}, COALESCE(#{moveOutDate}, 'infinity'::date), '[]')
+        <if test="excludeId != null and excludeId != ''">
+            AND residence_history_id &lt;&gt; #{excludeId}
+        </if>
+    </select>
+
+    <select id="findOverlappingInPeriod" resultMap="ResidenceHistoryMap">
+        SELECT residence_history_id, employee_id, dormitory_id, room_id, move_in_date, move_out_date,
+               move_out_reason, created_at, updated_at, deleted_at
+        FROM residence_history
+        WHERE room_id = #{roomId} AND deleted_at IS NULL
+          AND daterange(move_in_date, COALESCE(move_out_date, 'infinity'::date), '[]')
+              &amp;&amp; daterange(#{moveInDate}, COALESCE(#{moveOutDate}, 'infinity'::date), '[]')
+        <if test="excludeId != null and excludeId != ''">
+            AND residence_history_id &lt;&gt; #{excludeId}
+        </if>
+        ORDER BY move_in_date, residence_history_id
+    </select>
+
+    <select id="findFirstUseDate" resultMap="FirstUseDateViewMap">
+        SELECT f.first_use_date, e.employee_category, e.name AS employee_name
+        FROM employee e
+        LEFT JOIN employee_first_dorm_use f ON f.employee_id = e.employee_id
+        WHERE e.employee_id = #{employeeId} AND e.deleted_at IS NULL
+    </select>
+
+    <select id="countTotalUsageDays" resultType="int">
+        SELECT COALESCE(SUM(
+            (COALESCE(move_out_date, CURRENT_DATE) - move_in_date + 1)
+        ), 0)::int
+        FROM residence_history
+        WHERE employee_id = #{employeeId} AND deleted_at IS NULL
+    </select>
+
+    <select id="searchLongTermAlerts" resultMap="LongTermAlertMap">
+        SELECT e.employee_id, e.name AS employee_name, f.first_use_date,
+               EXTRACT(YEAR FROM AGE(CURRENT_DATE, f.first_use_date))::int AS elapsed_years,
+               d.name AS dormitory_name, r.room_name
+        FROM employee_first_dorm_use f
+        JOIN employee e ON e.employee_id = f.employee_id AND e.deleted_at IS NULL
+        LEFT JOIN residence_history rh ON rh.employee_id = e.employee_id
+            AND rh.deleted_at IS NULL AND rh.move_out_date IS NULL
+        LEFT JOIN dormitory d ON d.dormitory_id = rh.dormitory_id AND d.deleted_at IS NULL
+        LEFT JOIN room r ON r.room_id = rh.room_id AND r.deleted_at IS NULL
+        WHERE EXTRACT(YEAR FROM AGE(CURRENT_DATE, f.first_use_date)) &gt;= #{thresholdYears}
+        ORDER BY f.first_use_date
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countLongTermAlerts" resultType="long">
+        SELECT COUNT(1)
+        FROM employee_first_dorm_use f
+        WHERE EXTRACT(YEAR FROM AGE(CURRENT_DATE, f.first_use_date)) &gt;= #{thresholdYears}
+    </select>
+
+    <select id="findForCalendar" resultMap="AllocationResidenceViewMap">
+        SELECT d.dormitory_id, d.name AS dormitory_name, d.address, d.postal_code, d.region,
+               r.room_id, r.room_name, r.room_detail, r.has_air_conditioner,
+               rh.residence_history_id, rh.employee_id, e.name AS employee_name,
+               COALESCE(a.name,
+                        CASE
+                            WHEN e.employee_category = 'JAPAN' THEN '日本社員'
+                            WHEN e.employee_category = 'CHINA_ASSIGN' THEN '中国出張'
+                            ELSE '-'
+                        END) AS affiliation_name,
+               CASE WHEN dm.dormitory_id IS NULL THEN FALSE ELSE TRUE END AS is_manager,
+               rh.move_in_date, rh.move_out_date
+        FROM residence_history rh
+        JOIN dormitory d ON d.dormitory_id = rh.dormitory_id AND d.deleted_at IS NULL
+        JOIN room r ON r.room_id = rh.room_id AND r.deleted_at IS NULL
+        JOIN employee e ON e.employee_id = rh.employee_id AND e.deleted_at IS NULL
+        LEFT JOIN affiliation a ON a.affiliation_id = e.affiliation_id AND a.deleted_at IS NULL
+        LEFT JOIN dormitory_manager dm ON dm.residence_history_id = rh.residence_history_id
+        WHERE rh.deleted_at IS NULL
+          AND rh.move_in_date &lt;= #{monthEnd}
+          AND (rh.move_out_date IS NULL OR rh.move_out_date &gt;= #{monthStart})
+        <if test="name != null and name != ''">
+            AND (e.name ILIKE CONCAT('%', #{name}, '%') OR rh.employee_id ILIKE CONCAT('%', #{name}, '%'))
+        </if>
+        ORDER BY d.name, r.room_name, e.name
+    </select>
+
+    <select id="searchMoveOutWarnings" resultMap="MoveOutWarningMap">
+        SELECT rh.residence_history_id, rh.employee_id, e.name AS employee_name,
+               d.name AS dormitory_name, COALESCE(r.room_name, r.room_detail) AS room_name, rh.move_out_date,
+               (rh.move_out_date - #{asOfDate})::int AS days_remaining
+        FROM residence_history rh
+        JOIN employee e ON e.employee_id = rh.employee_id AND e.deleted_at IS NULL
+        JOIN dormitory d ON d.dormitory_id = rh.dormitory_id AND d.deleted_at IS NULL
+        JOIN room r ON r.room_id = rh.room_id AND r.deleted_at IS NULL
+        WHERE rh.deleted_at IS NULL
+          AND rh.move_out_date IS NOT NULL
+          AND rh.move_out_date &gt;= #{asOfDate}
+          AND rh.move_out_date &lt;= (#{asOfDate} + (#{warningDays} * INTERVAL '1 day'))
+        ORDER BY rh.move_out_date, rh.residence_history_id
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countMoveOutWarnings" resultType="long">
+        SELECT COUNT(1)
+        FROM residence_history rh
+        WHERE rh.deleted_at IS NULL
+          AND rh.move_out_date IS NOT NULL
+          AND rh.move_out_date &gt;= #{asOfDate}
+          AND rh.move_out_date &lt;= (#{asOfDate} + (#{warningDays} * INTERVAL '1 day'))
+    </select>
+
+    <select id="countByEmployeeId" resultType="long">
+        SELECT COUNT(1)
+        FROM residence_history
+        WHERE employee_id = #{employeeId}
+          AND deleted_at IS NULL
+    </select>
+
+    <select id="findFirstByDormitoryId" resultMap="ResidenceHistoryMap">
+        SELECT residence_history_id, employee_id, dormitory_id, room_id, move_in_date, move_out_date,
+               move_out_reason, created_at, updated_at, deleted_at
+        FROM residence_history
+        WHERE dormitory_id = #{dormitoryId}
+          AND deleted_at IS NULL
+        ORDER BY move_in_date ASC, residence_history_id ASC
+        LIMIT 1
+    </select>
+
+    <select id="findFirstActiveByDormitoryId" resultMap="ResidenceHistoryMap">
+        SELECT residence_history_id, employee_id, dormitory_id, room_id, move_in_date, move_out_date,
+               move_out_reason, created_at, updated_at, deleted_at
+        FROM residence_history
+        WHERE dormitory_id = #{dormitoryId}
+          AND deleted_at IS NULL
+          AND move_in_date &lt;= #{asOfDate}
+          AND (move_out_date IS NULL OR move_out_date &gt;= #{asOfDate})
+        ORDER BY move_in_date ASC, residence_history_id ASC
+        LIMIT 1
+    </select>
+
+    <select id="findActiveByDormitoryAndEmployee" resultMap="ResidenceHistoryMap">
+        SELECT residence_history_id, employee_id, dormitory_id, room_id, move_in_date, move_out_date,
+               move_out_reason, created_at, updated_at, deleted_at
+        FROM residence_history
+        WHERE dormitory_id = #{dormitoryId}
+          AND employee_id = #{employeeId}
+          AND deleted_at IS NULL
+          AND move_in_date &lt;= #{asOfDate}
+          AND (move_out_date IS NULL OR move_out_date &gt;= #{asOfDate})
+        ORDER BY move_in_date DESC, residence_history_id DESC
+        LIMIT 1
+    </select>
+</mapper>

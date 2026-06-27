@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dom.project.mapper.UnitPriceMapper">
+
+    <resultMap id="UnitPriceMap" type="com.dom.project.entity.UnitPrice">
+        <id column="unit_price_id" property="unitPriceId"/>
+        <result column="code" property="code"/>
+        <result column="region" property="region"/>
+        <result column="dormitory_id" property="dormitoryId"/>
+        <result column="room_id" property="roomId"/>
+        <result column="usage_type_code" property="usageTypeCode"/>
+        <result column="daily_unit_price" property="dailyUnitPrice"/>
+        <result column="max_usage_days" property="maxUsageDays"/>
+        <result column="created_at" property="createdAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+        <result column="updated_at" property="updatedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+        <result column="deleted_at" property="deletedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+    </resultMap>
+
+    <resultMap id="UnitPriceListViewMap" type="com.dom.project.entity.view.UnitPriceListView">
+        <id column="unit_price_id" property="unitPriceId"/>
+        <result column="code" property="code"/>
+        <result column="region" property="region"/>
+        <result column="region_name" property="regionName"/>
+        <result column="dormitory_id" property="dormitoryId"/>
+        <result column="dormitory_name" property="dormitoryName"/>
+        <result column="room_id" property="roomId"/>
+        <result column="room_name" property="roomName"/>
+        <result column="usage_type_code" property="usageTypeCode"/>
+        <result column="usage_type_name" property="usageTypeName"/>
+        <result column="daily_unit_price" property="dailyUnitPrice"/>
+        <result column="max_usage_days" property="maxUsageDays"/>
+        <result column="created_at" property="createdAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+        <result column="updated_at" property="updatedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+    </resultMap>
+
+    <sql id="BaseColumns">
+        unit_price_id, code, region, dormitory_id, room_id, usage_type_code,
+        daily_unit_price, max_usage_days, created_at, updated_at, deleted_at
+    </sql>
+
+    <insert id="insert" parameterType="com.dom.project.entity.UnitPrice">
+        INSERT INTO unit_price (
+            unit_price_id, code, region, dormitory_id, room_id, usage_type_code,
+            daily_unit_price, max_usage_days, created_at, updated_at
+        ) VALUES (
+            #{unitPriceId}, #{code}, #{region}, #{dormitoryId}, #{roomId}, #{usageTypeCode},
+            #{dailyUnitPrice}, #{maxUsageDays}, #{createdAt}, #{updatedAt}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.dom.project.entity.UnitPrice">
+        UPDATE unit_price
+        SET code = #{code},
+            region = #{region},
+            dormitory_id = #{dormitoryId},
+            room_id = #{roomId},
+            usage_type_code = #{usageTypeCode},
+            daily_unit_price = #{dailyUnitPrice},
+            max_usage_days = #{maxUsageDays},
+            updated_at = #{updatedAt}
+        WHERE unit_price_id = #{unitPriceId} AND deleted_at IS NULL
+    </update>
+
+    <update id="logicalDelete">
+        UPDATE unit_price
+        SET deleted_at = #{deletedAt}, updated_at = #{deletedAt}
+        WHERE unit_price_id = #{unitPriceId} AND deleted_at IS NULL
+    </update>
+
+    <select id="findById" resultMap="UnitPriceMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM unit_price
+        WHERE unit_price_id = #{unitPriceId} AND deleted_at IS NULL
+    </select>
+
+    <select id="findByCode" resultMap="UnitPriceMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM unit_price
+        WHERE code = #{code} AND deleted_at IS NULL
+    </select>
+
+    <select id="searchList" resultMap="UnitPriceListViewMap">
+        SELECT up.unit_price_id, up.code, up.region,
+               rg.name AS region_name,
+               up.dormitory_id, d.name AS dormitory_name,
+               up.room_id, r.room_name,
+               up.usage_type_code, ut.name AS usage_type_name,
+               up.daily_unit_price, up.max_usage_days,
+               up.created_at, up.updated_at
+        FROM unit_price up
+        LEFT JOIN region rg ON rg.code = up.region AND rg.deleted_at IS NULL
+        LEFT JOIN dormitory d ON d.dormitory_id = up.dormitory_id AND d.deleted_at IS NULL
+        LEFT JOIN room r ON r.room_id = up.room_id AND r.deleted_at IS NULL
+        LEFT JOIN usage_type ut ON ut.code = up.usage_type_code AND ut.deleted_at IS NULL
+        WHERE up.deleted_at IS NULL
+        <if test="code != null and code != ''">
+            AND up.code ILIKE CONCAT('%', #{code}, '%')
+        </if>
+        <if test="region != null and region != ''">
+            AND up.region = #{region}
+        </if>
+        <if test="dormitoryId != null and dormitoryId != ''">
+            AND up.dormitory_id = #{dormitoryId}
+        </if>
+        <if test="usageTypeCode != null and usageTypeCode != ''">
+            AND up.usage_type_code = #{usageTypeCode}
+        </if>
+        ORDER BY up.code
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countSearch" resultType="long">
+        SELECT COUNT(1)
+        FROM unit_price up
+        WHERE up.deleted_at IS NULL
+        <if test="code != null and code != ''">
+            AND up.code ILIKE CONCAT('%', #{code}, '%')
+        </if>
+        <if test="region != null and region != ''">
+            AND up.region = #{region}
+        </if>
+        <if test="dormitoryId != null and dormitoryId != ''">
+            AND up.dormitory_id = #{dormitoryId}
+        </if>
+        <if test="usageTypeCode != null and usageTypeCode != ''">
+            AND up.usage_type_code = #{usageTypeCode}
+        </if>
+    </select>
+</mapper>

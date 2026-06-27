@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build outputs
+dom-dev/dist/
+dom-server/target/
+
+# Local / secrets
+.env
+.env.*
+!.env*.example
+*.local
+
+# IDE / tooling
+.trae/
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*

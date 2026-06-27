@@ -1,0 +1,24 @@
+{
+  "cases": [
+    {
+      "module": "認証・ログイン1.0",
+      "requirement": "PRD 3.1 / 16_セキュリティ設計",
+      "name": "正常ログイン_ホーム画面へ遷移することを確認",
+      "preconditions": "1. フロントエンド（http://localhost:5173）およびバックエンド（http://localhost:8080/api/v1）が起動している\n2. データベース dormitory に正常接続できる\n3. 管理者アカウント admin/123456 が存在する",
+      "type": "機能",
+      "steps": "1. [遷移] /login\n2. [入力] input[autocomplete=\"username\"]::admin\n3. [入力] input[type=\"password\"]::123456\n4. [クリック] ログイン\n5. [待機] 2000\n6. [URL確認] /allocation\n7. [確認] 寮割カレンダー 可視\n8. [DB] SELECT id, username FROM sys_user WHERE username='admin'\n9. [撮影] ログイン成功-寮割カレンダー画面",
+      "expected": "1. ログインページが正常に表示される\n2. ユーザー名欄に admin が入力されている\n3. パスワード欄がマスク表示される\n4. ログインリクエストが送信される\n5. ページが遷移する\n6. URL に /allocation が含まれる\n7. 「寮割カレンダー」が表示される\n8. DB に admin ユーザーのレコードが存在する\n9. スクリーンショットが保存される",
+      "priority": "P1"
+    },
+    {
+      "module": "認証・ログイン1.0",
+      "requirement": "PRD 3.1 / 16_セキュリティ設計",
+      "name": "異常ログイン_誤ったパスワードでエラー表示を確認",
+      "preconditions": "1. フロントエンド（http://localhost:5173）およびバックエンド（http://localhost:8080/api/v1）が起動している\n2. データベース dormitory に正常接続できる\n3. 管理者アカウント admin/123456 が存在する",
+      "type": "機能",
+      "steps": "1. [遷移] /login\n2. [入力] input[autocomplete=\"username\"]::admin\n3. [入力] input[type=\"password\"]::wrongpass\n4. [クリック] ログイン\n5. [待機] 2000\n6. [URL確認] /login",
+      "expected": "1. ログインページが正常に表示される\n2. admin が入力されている\n3. 誤パスワードが入力されている\n4. ログインリクエストが送信される\n5. エラーレスポンスを待つ\n6. ログインページに留まり、認証失敗となる",
+      "priority": "P2"
+    }
+  ]
+}

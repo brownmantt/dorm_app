@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dom.project.mapper.EquipmentStorageMapper">
+
+    <resultMap id="StorageViewMap" type="com.dom.project.entity.view.EquipmentStorageView">
+        <result column="storage_id" property="storageId"/>
+        <result column="equipment_name" property="equipmentName"/>
+        <result column="storage_location" property="storageLocation"/>
+        <result column="status" property="status"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.dom.project.entity.EquipmentStorage">
+        INSERT INTO equipment_storage (storage_id, equipment_id, storage_location, status, linked_moveout_id, created_at, updated_at)
+        VALUES (#{storageId}, #{equipmentId}, #{storageLocation}, #{status}, #{linkedMoveoutId}, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <select id="searchList" resultMap="StorageViewMap">
+        SELECT s.storage_id, e.name AS equipment_name, s.storage_location, s.status
+        FROM equipment_storage s
+        JOIN equipment e ON e.equipment_id = s.equipment_id AND e.deleted_at IS NULL
+        ORDER BY s.created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countSearch" resultType="long">
+        SELECT COUNT(1) FROM equipment_storage
+    </select>
+</mapper>

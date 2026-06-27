@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dom.project.mapper.IdSequenceMapper">
+
+    <select id="selectMaxSequenceForDate" resultType="java.lang.Integer">
+        SELECT MAX(seq) FROM (
+            SELECT CAST(RIGHT(dormitory_id, 4) AS INTEGER) AS seq
+            FROM dormitory
+            WHERE LENGTH(dormitory_id) &gt;= 13
+              AND SUBSTRING(dormitory_id FROM LENGTH(dormitory_id) - 11 FOR 8) = #{datePart}
+              AND RIGHT(dormitory_id, 4) ~ '^[0-9]{4}$'
+            UNION ALL
+            SELECT CAST(RIGHT(room_id, 4) AS INTEGER)
+            FROM room
+            WHERE LENGTH(room_id) &gt;= 13
+              AND SUBSTRING(room_id FROM LENGTH(room_id) - 11 FOR 8) = #{datePart}
+              AND RIGHT(room_id, 4) ~ '^[0-9]{4}$'
+            UNION ALL
+            SELECT CAST(RIGHT(residence_history_id, 4) AS INTEGER)
+            FROM residence_history
+            WHERE LENGTH(residence_history_id) &gt;= 13
+              AND SUBSTRING(residence_history_id FROM LENGTH(residence_history_id) - 11 FOR 8) = #{datePart}
+              AND RIGHT(residence_history_id, 4) ~ '^[0-9]{4}$'
+            UNION ALL
+            SELECT CAST(RIGHT(affiliation_id, 4) AS INTEGER)
+            FROM affiliation
+            WHERE LENGTH(affiliation_id) &gt;= 13
+              AND SUBSTRING(affiliation_id FROM LENGTH(affiliation_id) - 11 FOR 8) = #{datePart}
+              AND RIGHT(affiliation_id, 4) ~ '^[0-9]{4}$'
+            UNION ALL
+            SELECT CAST(RIGHT(dorm_fee_id, 4) AS INTEGER)
+            FROM dorm_fee
+            WHERE LENGTH(dorm_fee_id) &gt;= 13
+              AND SUBSTRING(dorm_fee_id FROM LENGTH(dorm_fee_id) - 11 FOR 8) = #{datePart}
+              AND RIGHT(dorm_fee_id, 4) ~ '^[0-9]{4}$'
+            UNION ALL
+            SELECT CAST(RIGHT(job_id, 4) AS INTEGER)
+            FROM excel_import_job
+            WHERE LENGTH(job_id) &gt;= 13
+              AND SUBSTRING(job_id FROM LENGTH(job_id) - 11 FOR 8) = #{datePart}
+              AND RIGHT(job_id, 4) ~ '^[0-9]{4}$'
+            UNION ALL
+            SELECT CAST(RIGHT(equipment_id, 4) AS INTEGER)
+            FROM equipment
+            WHERE LENGTH(equipment_id) &gt;= 13
+              AND SUBSTRING(equipment_id FROM LENGTH(equipment_id) - 11 FOR 8) = #{datePart}
+              AND RIGHT(equipment_id, 4) ~ '^[0-9]{4}$'
+            UNION ALL
+            SELECT CAST(RIGHT(moveout_id, 4) AS INTEGER)
+            FROM equipment_moveout
+            WHERE LENGTH(moveout_id) &gt;= 13
+              AND SUBSTRING(moveout_id FROM LENGTH(moveout_id) - 11 FOR 8) = #{datePart}
+              AND RIGHT(moveout_id, 4) ~ '^[0-9]{4}$'
+            UNION ALL
+            SELECT CAST(RIGHT(storage_id, 4) AS INTEGER)
+            FROM equipment_storage
+            WHERE LENGTH(storage_id) &gt;= 13
+              AND SUBSTRING(storage_id FROM LENGTH(storage_id) - 11 FOR 8) = #{datePart}
+              AND RIGHT(storage_id, 4) ~ '^[0-9]{4}$'
+        ) sequences
+    </select>
+</mapper>

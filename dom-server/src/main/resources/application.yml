@@ -1,0 +1,60 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api/v1
+
+spring:
+  application:
+    name: dom-server
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/dormitory
+    username: dorm_app
+    password: "0708"
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+  # Redis は任意：ローカルで Redis を起動していない場合は dom.redis.enabled を false に設定
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 3000ms
+
+dom:
+  redis:
+    enabled: false
+  auth:
+    users:
+      - username: admin
+        password: admin123
+        roles:
+          - ROLE_ADMIN
+          - ROLE_USER
+      - username: user
+        password: user123
+        roles:
+          - ROLE_USER
+
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  type-aliases-package: com.dom.project.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    default-fetch-size: 100
+    default-statement-timeout: 30
+    jdbc-type-for-null: "NULL"
+
+logging:
+  level:
+    root: info
+    com.dom.project: debug
+    com.dom.project.mapper: debug

@@ -1,0 +1,87 @@
+---
+description: 
+alwaysApply: true
+---
+
+# Frontend source check rule
+
+## 1. 生成前の強制ルール
+- `read_file` を使い **func_front.md を全文確認すること（必須）**
+- api / components / layout/ router/ store / utils /views を **階層的にチェック**し、既存・類似・再利用可能な機能を確認する  
+- **func_front.md が存在しない場合のみ新規生成を開始してよい**
+
+---
+
+## 2. 階層別チェック
+1. views：同一・類似ページの有無  
+2. components：再利用可能なフォーム・表・モーダル等の有無  
+3. api：既存 API の有無  
+4. store：関連 Pinia Store の有無  
+5. utils：同様の処理を行う関数・定数の有無  
+6. その他：責務が重複するコードの有無  
+
+---
+
+## 3. コード生成の優先順位
+1. **完全一致 → 既存コードを再利用**  
+2. **類似 → 既存コードを拡張**  
+3. **関連 → リファクタリングして共通化**  
+4. **関連なし → 新規ファイル作成（最終手段）**
+
+---
+
+## 4. 呼び出しチェーンの明記（必須）
+```
+views/... → components/...（任意） → api/... → store/...（任意） → backend
+```
+
+例：
+```
+views/order/list.vue onMounted()
+    ↓
+api/order/index.js getOrderList()
+    ↓
+store/modules/order.js fetchOrderList()
+    ↓
+OrderController.getOrderList()
+```
+
+---
+
+## 5. 命名規約（func_front.md 準拠）
+- views：`views/{domain}/{feature}.vue`
+- components：`{Domain}{Component}.vue`
+- api：`api/{domain}/index.js`
+- store：`store/modules/{domain}.js`
+- utils：`utils/{function}.js`
+
+---
+
+## 6. func_front.md の更新義務
+- views：ページ構造を追記  
+- components：Props / Events を記載  
+- api：パラメータ・レスポンスを記載  
+- 呼び出しチェーン：A → B → C → Backend を追記  
+
+---
+
+## 7. 実装前チェックリスト
+- [ ] func_front.md を全文確認した  
+- [ ] views / components / api / store / utils を確認した  
+- [ ] 重複・類似機能が存在しない  
+- [ ] 呼び出しチェーンを定義した  
+- [ ] 実装後に func_front.md を更新する前提がある  
+
+---
+
+## 8. 違反時の扱い
+- 新規生成を即時停止  
+- 既存機能を再分析  
+- 再利用 / 拡張 / リファクタリングのいずれかを選択  
+- 選択方針で再実装  
+
+---
+
+## 9. 重要警告
+このルールに従わない場合、  
+**重複コード・保守性低下・UX 不統一・開発効率低下** を招くため、厳守すること。

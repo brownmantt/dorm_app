@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dom.project.mapper.DormFeeMapper">
+
+    <resultMap id="DormFeeMap" type="com.dom.project.entity.DormFee">
+        <id column="dorm_fee_id" property="dormFeeId"/>
+        <result column="employee_id" property="employeeId"/>
+        <result column="room_id" property="roomId"/>
+        <result column="target_year_month" property="targetYearMonth"/>
+        <result column="amount" property="amount"/>
+        <result column="basis_area_sqm" property="basisAreaSqm"/>
+        <result column="basis_days" property="basisDays"/>
+        <result column="basis_detail" property="basisDetail"/>
+        <result column="status" property="status"/>
+        <result column="residence_history_id" property="residenceHistoryId"/>
+        <result column="created_at" property="createdAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+        <result column="updated_at" property="updatedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+        <result column="deleted_at" property="deletedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.dom.project.entity.DormFee">
+        INSERT INTO dorm_fee (dorm_fee_id, employee_id, room_id, target_year_month, amount,
+            basis_area_sqm, basis_days, basis_detail, status, residence_history_id, created_at, updated_at)
+        VALUES (#{dormFeeId}, #{employeeId}, #{roomId}, #{targetYearMonth}, #{amount},
+            #{basisAreaSqm}, #{basisDays}, #{basisDetail}::jsonb, #{status}, #{residenceHistoryId}, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <update id="update" parameterType="com.dom.project.entity.DormFee">
+        UPDATE dorm_fee SET amount = #{amount}, basis_area_sqm = #{basisAreaSqm}, basis_days = #{basisDays},
+            basis_detail = #{basisDetail}::jsonb, status = #{status}, updated_at = #{updatedAt}
+        WHERE dorm_fee_id = #{dormFeeId} AND deleted_at IS NULL
+    </update>
+
+    <select id="findById" resultMap="DormFeeMap">
+        SELECT dorm_fee_id, employee_id, room_id, target_year_month, amount, basis_area_sqm, basis_days,
+               basis_detail::text AS basis_detail, status, residence_history_id, created_at, updated_at, deleted_at
+        FROM dorm_fee WHERE dorm_fee_id = #{dormFeeId} AND deleted_at IS NULL
+    </select>
+
+    <select id="searchList" resultMap="DormFeeMap">
+        SELECT dorm_fee_id, employee_id, room_id, target_year_month, amount, basis_area_sqm, basis_days,
+               basis_detail::text AS basis_detail, status, residence_history_id, created_at, updated_at, deleted_at
+        FROM dorm_fee WHERE deleted_at IS NULL
+        <if test="employeeId != null and employeeId != ''">
+            AND employee_id ILIKE CONCAT('%', #{employeeId}, '%')
+        </if>
+        <if test="targetYearMonth != null and targetYearMonth != ''">
+            AND target_year_month = #{targetYearMonth}
+        </if>
+        <if test="status != null and status != ''">
+            AND status = #{status}
+        </if>
+        ORDER BY target_year_month DESC, dorm_fee_id
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countSearch" resultType="long">
+        SELECT COUNT(1) FROM dorm_fee WHERE deleted_at IS NULL
+        <if test="employeeId != null and employeeId != ''">
+            AND employee_id ILIKE CONCAT('%', #{employeeId}, '%')
+        </if>
+        <if test="targetYearMonth != null and targetYearMonth != ''">
+            AND target_year_month = #{targetYearMonth}
+        </if>
+        <if test="status != null and status != ''">
+            AND status = #{status}
+        </if>
+    </select>
+
+    <update id="confirm">
+        UPDATE dorm_fee SET status = 'CONFIRMED', updated_at = #{updatedAt}
+        WHERE dorm_fee_id = #{dormFeeId} AND deleted_at IS NULL AND status = 'DRAFT'
+    </update>
+</mapper>

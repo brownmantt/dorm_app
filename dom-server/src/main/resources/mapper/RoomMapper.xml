@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dom.project.mapper.RoomMapper">
+
+    <resultMap id="RoomMap" type="com.dom.project.entity.Room">
+        <id column="room_id" property="roomId"/>
+        <result column="dormitory_id" property="dormitoryId"/>
+        <result column="room_name" property="roomName"/>
+        <result column="room_detail" property="roomDetail"/>
+        <result column="has_air_conditioner" property="hasAirConditioner"/>
+        <result column="monthly_fee" property="monthlyFee"/>
+        <result column="area_sqm" property="areaSqm"/>
+        <result column="capacity" property="capacity"/>
+        <result column="room_type" property="roomType"/>
+        <result column="created_at" property="createdAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+        <result column="updated_at" property="updatedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+        <result column="deleted_at" property="deletedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+    </resultMap>
+
+    <resultMap id="RoomListViewMap" type="com.dom.project.entity.view.RoomListView">
+        <result column="room_id" property="roomId"/>
+        <result column="room_name" property="roomName"/>
+        <result column="room_detail" property="roomDetail"/>
+        <result column="has_air_conditioner" property="hasAirConditioner"/>
+        <result column="monthly_fee" property="monthlyFee"/>
+        <result column="area_sqm" property="areaSqm"/>
+        <result column="capacity" property="capacity"/>
+        <result column="room_type" property="roomType"/>
+        <result column="vacancy_status" property="vacancyStatus"/>
+    </resultMap>
+
+    <resultMap id="VacancyListViewMap" type="com.dom.project.entity.view.VacancyListView">
+        <result column="dormitory_id" property="dormitoryId"/>
+        <result column="dormitory_name" property="dormitoryName"/>
+        <result column="room_id" property="roomId"/>
+        <result column="room_name" property="roomName"/>
+        <result column="status" property="status"/>
+        <result column="resident_name" property="residentName"/>
+        <result column="residence_history_id" property="residenceHistoryId"/>
+        <result column="expected_move_out_date" property="expectedMoveOutDate"/>
+        <result column="assignable" property="assignable"/>
+    </resultMap>
+
+    <resultMap id="AssignableRoomViewMap" type="com.dom.project.entity.view.AssignableRoomView">
+        <result column="room_id" property="roomId"/>
+        <result column="room_name" property="roomName"/>
+        <result column="dormitory_id" property="dormitoryId"/>
+    </resultMap>
+
+    <sql id="BaseColumns">
+        room_id, dormitory_id, room_name, room_detail, has_air_conditioner, monthly_fee, area_sqm, capacity, room_type, created_at, updated_at, deleted_at
+    </sql>
+
+    <insert id="insert" parameterType="com.dom.project.entity.Room">
+        INSERT INTO room (room_id, dormitory_id, room_name, room_detail, has_air_conditioner, monthly_fee, area_sqm, capacity, room_type, created_at, updated_at)
+        VALUES (#{roomId}, #{dormitoryId}, #{roomName}, #{roomDetail}, #{hasAirConditioner}, #{monthlyFee}, #{areaSqm}, #{capacity}, #{roomType}, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <update id="update" parameterType="com.dom.project.entity.Room">
+        UPDATE room
+        SET dormitory_id = #{dormitoryId}, room_name = #{roomName}, room_detail = #{roomDetail},
+            has_air_conditioner = #{hasAirConditioner}, monthly_fee = #{monthlyFee}, area_sqm = #{areaSqm},
+            capacity = #{capacity}, room_type = #{roomType}, updated_at = #{updatedAt}
+        WHERE room_id = #{roomId} AND deleted_at IS NULL
+    </update>
+
+    <update id="logicalDelete">
+        UPDATE room SET deleted_at = #{deletedAt}, updated_at = #{deletedAt}
+        WHERE room_id = #{roomId} AND deleted_at IS NULL
+    </update>
+
+    <select id="findById" resultMap="RoomMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM room WHERE room_id = #{roomId} AND deleted_at IS NULL
+    </select>
+
+    <select id="findByDormitoryId" resultMap="RoomListViewMap">
+        SELECT r.room_id, r.room_name, r.room_detail, r.has_air_conditioner, r.monthly_fee,
+               r.area_sqm, r.capacity, r.room_type,
+               CASE WHEN COALESCE(active.cnt, 0) >= r.capacity THEN 'OCCUPIED' ELSE 'VACANT' END AS vacancy_status
+        FROM room r
+        LEFT JOIN (
+            SELECT rh.room_id, COUNT(1) AS cnt
+            FROM residence_history rh
+            WHERE rh.deleted_at IS NULL
+              AND rh.move_in_date &lt;= COALESCE(#{asOfDate}, CURRENT_DATE)
+              AND (rh.move_out_date IS NULL OR rh.move_out_date &gt;= COALESCE(#{asOfDate}, CURRENT_DATE))
+            GROUP BY rh.room_id
+        ) active ON active.room_id = r.room_id
+        WHERE r.dormitory_id = #{dormitoryId} AND r.deleted_at IS NULL
+        ORDER BY r.room_id
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="findAllByDormitoryId" resultMap="RoomMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM room
+        WHERE dormitory_id = #{dormitoryId} AND deleted_at IS NULL
+        ORDER BY room_id
+    </select>
+
+    <select id="countByDormitoryId" resultType="long">
+        SELECT COUNT(1) FROM room
+        WHERE dormitory_id = #{dormitoryId} AND deleted_at IS NULL
+    </select>
+
+    <select id="countVacantRoomsByDormitory" resultType="int">
+        SELECT COUNT(1)
+        FROM room r
+        LEFT JOIN (
+            SELECT rh.room_id, COUNT(1) AS cnt
+            FROM residence_history rh
+            WHERE rh.deleted_at IS NULL
+              AND rh.move_in_date &lt;= COALESCE(#{asOfDate}, CURRENT_DATE)
+              AND (rh.move_out_date IS NULL OR rh.move_out_date &gt;= COALESCE(#{asOfDate}, CURRENT_DATE))
+            GROUP BY rh.room_id
+        ) active ON active.room_id = r.room_id
+        WHERE r.dormitory_id = #{dormitoryId} AND r.deleted_at IS NULL
+          AND COALESCE(active.cnt, 0) &lt; r.capacity
+    </select>
+
+    <select id="searchVacancyList" resultMap="VacancyListViewMap">
+        SELECT d.dormitory_id, d.name AS dormitory_name, r.room_id, r.room_name,
+               CASE WHEN COALESCE(active.cnt, 0) >= r.capacity THEN 'OCCUPIED' ELSE 'VACANT' END AS status,
+               active.resident_name,
+               active.residence_history_id,
+               active.expected_move_out_date,
+               CASE WHEN COALESCE(active.cnt, 0) &lt; r.capacity THEN TRUE ELSE FALSE END AS assignable
+        FROM room r
+        JOIN dormitory d ON d.dormitory_id = r.dormitory_id AND d.deleted_at IS NULL
+        LEFT JOIN (
+            SELECT rh.room_id, rh.residence_history_id, e.name AS resident_name, rh.move_out_date AS expected_move_out_date, COUNT(1) AS cnt
+            FROM residence_history rh
+            JOIN employee e ON e.employee_id = rh.employee_id AND e.deleted_at IS NULL
+            WHERE rh.deleted_at IS NULL
+              AND rh.move_in_date &lt;= COALESCE(#{asOfDate}, CURRENT_DATE)
+              AND (rh.move_out_date IS NULL OR rh.move_out_date &gt;= COALESCE(#{asOfDate}, CURRENT_DATE))
+            GROUP BY rh.room_id, rh.residence_history_id, e.name, rh.move_out_date
+        ) active ON active.room_id = r.room_id
+        WHERE r.deleted_at IS NULL
+        <if test="gender != null and gender != ''">
+            AND d.gender_type = #{gender}
+        </if>
+        ORDER BY d.name, r.room_name
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countVacancyList" resultType="long">
+        SELECT COUNT(1)
+        FROM room r
+        JOIN dormitory d ON d.dormitory_id = r.dormitory_id AND d.deleted_at IS NULL
+        WHERE r.deleted_at IS NULL
+        <if test="gender != null and gender != ''">
+            AND d.gender_type = #{gender}
+        </if>
+    </select>
+
+    <select id="findAssignableRooms" resultMap="AssignableRoomViewMap">
+        SELECT r.room_id, r.room_name, r.dormitory_id
+        FROM room r
+        JOIN dormitory d ON d.dormitory_id = r.dormitory_id AND d.deleted_at IS NULL
+        JOIN employee e ON e.employee_id = #{employeeId} AND e.deleted_at IS NULL
+        LEFT JOIN (
+            SELECT rh.room_id, COUNT(1) AS cnt
+            FROM residence_history rh
+            WHERE rh.deleted_at IS NULL
+              AND rh.move_in_date &lt;= COALESCE(#{asOfDate}, CURRENT_DATE)
+              AND (rh.move_out_date IS NULL OR rh.move_out_date &gt;= COALESCE(#{asOfDate}, CURRENT_DATE))
+            GROUP BY rh.room_id
+        ) active ON active.room_id = r.room_id
+        WHERE r.deleted_at IS NULL
+          AND d.gender_type = CASE e.gender WHEN 'MALE' THEN 'MALE' WHEN 'FEMALE' THEN 'FEMALE' END
+        <if test="dormitoryId != null and dormitoryId != ''">
+            AND r.dormitory_id = #{dormitoryId}
+        </if>
+          AND COALESCE(active.cnt, 0) &lt; r.capacity
+        ORDER BY r.dormitory_id, r.room_name
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countAssignableRooms" resultType="long">
+        SELECT COUNT(1)
+        FROM room r
+        JOIN dormitory d ON d.dormitory_id = r.dormitory_id AND d.deleted_at IS NULL
+        JOIN employee e ON e.employee_id = #{employeeId} AND e.deleted_at IS NULL
+        LEFT JOIN (
+            SELECT rh.room_id, COUNT(1) AS cnt
+            FROM residence_history rh
+            WHERE rh.deleted_at IS NULL
+              AND rh.move_in_date &lt;= COALESCE(#{asOfDate}, CURRENT_DATE)
+              AND (rh.move_out_date IS NULL OR rh.move_out_date &gt;= COALESCE(#{asOfDate}, CURRENT_DATE))
+            GROUP BY rh.room_id
+        ) active ON active.room_id = r.room_id
+        WHERE r.deleted_at IS NULL
+          AND d.gender_type = CASE e.gender WHEN 'MALE' THEN 'MALE' WHEN 'FEMALE' THEN 'FEMALE' END
+        <if test="dormitoryId != null and dormitoryId != ''">
+            AND r.dormitory_id = #{dormitoryId}
+        </if>
+          AND COALESCE(active.cnt, 0) &lt; r.capacity
+    </select>
+</mapper>

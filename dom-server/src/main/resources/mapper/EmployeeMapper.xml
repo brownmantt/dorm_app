@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dom.project.mapper.EmployeeMapper">
+
+    <resultMap id="EmployeeMap" type="com.dom.project.entity.Employee">
+        <id column="employee_id" property="employeeId"/>
+        <result column="name" property="name"/>
+        <result column="gender" property="gender"/>
+        <result column="employee_category" property="employeeCategory"/>
+        <result column="affiliation_id" property="affiliationId"/>
+        <result column="business_division" property="businessDivision"/>
+        <result column="nearest_station_1" property="nearestStation1"/>
+        <result column="nearest_station_2" property="nearestStation2"/>
+        <result column="nearest_station_3" property="nearestStation3"/>
+        <result column="contact_info" property="contactInfo"/>
+        <result column="created_at" property="createdAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+        <result column="updated_at" property="updatedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+        <result column="deleted_at" property="deletedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+    </resultMap>
+
+    <sql id="BaseColumns">
+        employee_id, name, gender, employee_category, affiliation_id, business_division, nearest_station_1, nearest_station_2, nearest_station_3, contact_info, created_at, updated_at, deleted_at
+    </sql>
+
+    <insert id="insert" parameterType="com.dom.project.entity.Employee">
+        INSERT INTO employee (employee_id, name, gender, employee_category, affiliation_id, business_division, nearest_station_1, nearest_station_2, nearest_station_3, contact_info, created_at, updated_at)
+        VALUES (#{employeeId}, #{name}, #{gender}, #{employeeCategory}, #{affiliationId}, #{businessDivision}, #{nearestStation1}, #{nearestStation2}, #{nearestStation3}, CAST(#{contactInfo} AS jsonb), #{createdAt}, #{updatedAt})
+    </insert>
+
+    <update id="update" parameterType="com.dom.project.entity.Employee">
+        UPDATE employee
+        SET name = #{name}, gender = #{gender}, employee_category = #{employeeCategory},
+            affiliation_id = #{affiliationId}, business_division = #{businessDivision},
+            nearest_station_1 = #{nearestStation1}, nearest_station_2 = #{nearestStation2},
+            nearest_station_3 = #{nearestStation3}, contact_info = CAST(#{contactInfo} AS jsonb),
+            updated_at = #{updatedAt}
+        WHERE employee_id = #{employeeId} AND deleted_at IS NULL
+    </update>
+
+    <update id="logicalDelete">
+        UPDATE employee SET deleted_at = #{deletedAt}, updated_at = #{deletedAt}
+        WHERE employee_id = #{employeeId} AND deleted_at IS NULL
+    </update>
+
+    <select id="findById" resultMap="EmployeeMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM employee
+        WHERE employee_id = #{employeeId} AND deleted_at IS NULL
+    </select>
+
+    <select id="searchByKeyword" resultMap="EmployeeMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM employee
+        WHERE deleted_at IS NULL
+        <if test="keyword != null and keyword != ''">
+            AND (employee_id ILIKE CONCAT('%', #{keyword}, '%') OR name ILIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        ORDER BY employee_id
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countByKeyword" resultType="long">
+        SELECT COUNT(1)
+        FROM employee
+        WHERE deleted_at IS NULL
+        <if test="keyword != null and keyword != ''">
+            AND (employee_id ILIKE CONCAT('%', #{keyword}, '%') OR name ILIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+    </select>
+
+    <select id="findByAffiliationId" resultMap="EmployeeMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM employee
+        WHERE affiliation_id = #{affiliationId}
+          AND deleted_at IS NULL
+        ORDER BY employee_id
+    </select>
+
+    <resultMap id="EmployeeListViewMap" type="com.dom.project.entity.view.EmployeeListView">
+        <result column="employee_id" property="employeeId"/>
+        <result column="name" property="name"/>
+        <result column="gender" property="gender"/>
+        <result column="employee_category" property="employeeCategory"/>
+        <result column="affiliation_id" property="affiliationId"/>
+        <result column="affiliation_name" property="affiliationName"/>
+        <result column="business_division" property="businessDivision"/>
+        <result column="nearest_station_1" property="nearestStation1"/>
+        <result column="nearest_station_2" property="nearestStation2"/>
+        <result column="nearest_station_3" property="nearestStation3"/>
+        <result column="contact_info" property="contactInfo"/>
+    </resultMap>
+
+    <sql id="SearchWhere">
+        FROM employee e
+        LEFT JOIN affiliation a ON a.affiliation_id = e.affiliation_id AND a.deleted_at IS NULL
+        WHERE e.deleted_at IS NULL
+        <if test="keyword != null and keyword != ''">
+            AND (e.employee_id ILIKE CONCAT('%', #{keyword}, '%') OR e.name ILIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="gender != null and gender != ''">
+            AND e.gender = #{gender}
+        </if>
+        <if test="employeeCategory != null and employeeCategory != ''">
+            AND e.employee_category = #{employeeCategory}
+        </if>
+        <if test="affiliationId != null and affiliationId != ''">
+            AND e.affiliation_id = #{affiliationId}
+        </if>
+        <if test="notResidingOnly != null and notResidingOnly">
+            AND NOT EXISTS (
+                SELECT 1
+                FROM residence_history rh
+                WHERE rh.employee_id = e.employee_id
+                  AND rh.deleted_at IS NULL
+                  AND rh.move_in_date &lt;= CURRENT_DATE
+                  AND (rh.move_out_date IS NULL OR rh.move_out_date &gt;= CURRENT_DATE)
+            )
+        </if>
+    </sql>
+
+    <select id="searchList" resultMap="EmployeeListViewMap">
+        SELECT e.employee_id, e.name, e.gender, e.employee_category,
+               e.affiliation_id, a.name AS affiliation_name,
+               e.business_division, e.nearest_station_1, e.nearest_station_2, e.nearest_station_3,
+               e.contact_info::text AS contact_info
+        <include refid="SearchWhere"/>
+        <choose>
+            <when test="notResidingOnly != null and notResidingOnly">
+                ORDER BY e.updated_at DESC, e.employee_id
+            </when>
+            <otherwise>
+                ORDER BY e.employee_id
+            </otherwise>
+        </choose>
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countSearch" resultType="long">
+        SELECT COUNT(1)
+        <include refid="SearchWhere"/>
+    </select>
+</mapper>

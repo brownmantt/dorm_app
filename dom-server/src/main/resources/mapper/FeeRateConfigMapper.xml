@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dom.project.mapper.FeeRateConfigMapper">
+
+    <resultMap id="FeeRateMap" type="com.dom.project.entity.FeeRateConfig">
+        <result column="room_type" property="roomType"/>
+        <result column="unit_rate_per_sqm" property="unitRatePerSqm"/>
+        <result column="valid_from" property="validFrom"/>
+        <result column="created_at" property="createdAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+        <result column="updated_at" property="updatedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+    </resultMap>
+
+    <select id="findLatestByRoomType" resultMap="FeeRateMap">
+        SELECT room_type, unit_rate_per_sqm, valid_from, created_at, updated_at
+        FROM fee_rate_config
+        WHERE room_type = #{roomType}
+        ORDER BY valid_from DESC
+        LIMIT 1
+    </select>
+</mapper>

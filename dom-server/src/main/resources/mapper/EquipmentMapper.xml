@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dom.project.mapper.EquipmentMapper">
+
+    <resultMap id="EquipmentMap" type="com.dom.project.entity.Equipment">
+        <id column="equipment_id" property="equipmentId"/>
+        <result column="name" property="name"/>
+        <result column="equipment_type" property="equipmentType"/>
+        <result column="created_at" property="createdAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+        <result column="updated_at" property="updatedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+        <result column="deleted_at" property="deletedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.dom.project.entity.Equipment">
+        INSERT INTO equipment (equipment_id, name, equipment_type, created_at, updated_at)
+        VALUES (#{equipmentId}, #{name}, #{equipmentType}, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <update id="update" parameterType="com.dom.project.entity.Equipment">
+        UPDATE equipment SET name = #{name}, equipment_type = #{equipmentType}, updated_at = #{updatedAt}
+        WHERE equipment_id = #{equipmentId} AND deleted_at IS NULL
+    </update>
+
+    <select id="findById" resultMap="EquipmentMap">
+        SELECT equipment_id, name, equipment_type, created_at, updated_at, deleted_at
+        FROM equipment WHERE equipment_id = #{equipmentId} AND deleted_at IS NULL
+    </select>
+
+    <select id="searchList" resultMap="EquipmentMap">
+        SELECT equipment_id, name, equipment_type, created_at, updated_at, deleted_at
+        FROM equipment WHERE deleted_at IS NULL ORDER BY equipment_id
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countSearch" resultType="long">
+        SELECT COUNT(1) FROM equipment WHERE deleted_at IS NULL
+    </select>
+</mapper>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dom.project.mapper.ExcelImportMapper">
+
+    <resultMap id="ImportErrorMap" type="com.dom.project.entity.ExcelImportError">
+        <id column="error_id" property="errorId"/>
+        <result column="job_id" property="jobId"/>
+        <result column="row_number" property="rowNumber"/>
+        <result column="field" property="field"/>
+        <result column="message" property="message"/>
+        <result column="created_at" property="createdAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+    </resultMap>
+
+    <insert id="insertJob" parameterType="com.dom.project.entity.ExcelImportJob">
+        INSERT INTO excel_import_job (job_id, file_name, status, executed_by, total_count, success_count, error_count, created_at, finished_at)
+        VALUES (#{jobId}, #{fileName}, #{status}, #{executedBy}, #{totalCount}, #{successCount}, #{errorCount}, #{createdAt}, #{finishedAt})
+    </insert>
+
+    <update id="updateJob" parameterType="com.dom.project.entity.ExcelImportJob">
+        UPDATE excel_import_job SET status = #{status}, total_count = #{totalCount},
+            success_count = #{successCount}, error_count = #{errorCount}, finished_at = #{finishedAt}
+        WHERE job_id = #{jobId}
+    </update>
+
+    <insert id="insertError" parameterType="com.dom.project.entity.ExcelImportError" useGeneratedKeys="true" keyProperty="errorId" keyColumn="error_id">
+        INSERT INTO excel_import_error (job_id, row_number, field, message, created_at)
+        VALUES (#{jobId}, #{rowNumber}, #{field}, #{message}, #{createdAt})
+    </insert>
+
+    <select id="findErrorsByJobId" resultMap="ImportErrorMap">
+        SELECT error_id, job_id, row_number, field, message, created_at
+        FROM excel_import_error WHERE job_id = #{jobId} ORDER BY row_number
+    </select>
+</mapper>
