@@ -1,4 +1,4 @@
-name = "dorm-app"
+name = "dormapp01"
 compatibility_date = "2024-06-01"
 
 # wrangler deploy 実行前にフロントエンドをビルド
