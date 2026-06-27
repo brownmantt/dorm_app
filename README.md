@@ -40,10 +40,11 @@ mvn spring-boot:run
 
 | 項目 | 値 |
 |---|---|
-| ビルドコマンド | `npm run build` |
 | デプロイコマンド | `npx wrangler deploy` |
 
-またはデプロイコマンドのみ 1 行で:
+`wrangler.toml` の `[build]` 設定により、デプロイ前に自動で `dom-dev` をビルドします。
+
+代替（同等）:
 
 ```bash
 npm run deploy

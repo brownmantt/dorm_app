@@ -1,6 +1,10 @@
 name = "dorm-app"
 compatibility_date = "2024-06-01"
 
+# wrangler deploy 実行前にフロントエンドをビルド
+[build]
+command = "npm ci --prefix dom-dev && npm run build --prefix dom-dev"
+
 # Static frontend (Vue SPA) deployed via `wrangler deploy`
 [assets]
 directory = "./dom-dev/dist"
