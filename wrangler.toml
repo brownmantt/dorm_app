@@ -1,6 +1,7 @@
 name = "dorm-app"
 compatibility_date = "2024-06-01"
-pages_build_output_dir = "dom-dev/dist"
 
-[env.production]
-name = "dorm-app"
+# Static frontend (Vue SPA) deployed via `wrangler deploy`
+[assets]
+directory = "./dom-dev/dist"
+not_found_handling = "single-page-application"

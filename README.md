@@ -32,21 +32,32 @@ mvn spring-boot:run
 
 `database/01_データベース構築手順.md` を参照してください。
 
-## Cloudflare Pages（フロントエンド）
+## Cloudflare デプロイ（フロントエンド）
 
-フロントエンドは Cloudflare Pages にデプロイします。
+フロントエンドは Cloudflare Workers（Static Assets）にデプロイします。
 
-- ビルドコマンド: `npm run build`
-- ビルド出力: `dist`
-- ルートディレクトリ: `dom-dev`
+### Cloudflare ダッシュボード設定
 
-環境変数（Cloudflare Pages ダッシュボードで設定）:
+| 項目 | 値 |
+|---|---|
+| ビルドコマンド | `npm run build` |
+| デプロイコマンド | `npx wrangler deploy` |
+
+またはデプロイコマンドのみ 1 行で:
+
+```bash
+npm run deploy
+```
+
+環境変数:
 
 | 変数名 | 説明 | 例 |
 |---|---|---|
 | `VITE_API_BASE_URL` | バックエンド API の URL | `https://api.example.com/api/v1` |
 
-> バックエンド（Spring Boot）は Cloudflare Pages では動作しません。別途 VPS / コンテナ等で API をホストし、`VITE_API_BASE_URL` で接続してください。
+> `npx wrangler pages deploy` ではなく `npx wrangler deploy` を使用してください（`wrangler.toml` の `[assets]` 設定に対応）。
+>
+> バックエンド（Spring Boot）は Cloudflare では動作しません。別途 VPS / コンテナ等で API をホストし、`VITE_API_BASE_URL` で接続してください。
 
 ## ライセンス
 
