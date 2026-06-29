@@ -7,22 +7,23 @@ import jakarta.validation.constraints.NotBlank;
  */
 public class DormFeeCalculateDTO {
 
-    @NotBlank(message = "社員IDを入力してください")
     private String employeeId;
 
-    @NotBlank(message = "部屋IDを入力してください")
+    private String dormitoryId;
+
     private String roomId;
 
     @NotBlank(message = "対象年月を入力してください")
     private String targetYearMonth;
 
-    @NotBlank(message = "入寮日を入力してください")
     private String moveInDate;
 
     private String moveOutDate;
 
     public String getEmployeeId() { return employeeId; }
     public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
+    public String getDormitoryId() { return dormitoryId; }
+    public void setDormitoryId(String dormitoryId) { this.dormitoryId = dormitoryId; }
     public String getRoomId() { return roomId; }
     public void setRoomId(String roomId) { this.roomId = roomId; }
     public String getTargetYearMonth() { return targetYearMonth; }

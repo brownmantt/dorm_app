@@ -21,4 +21,8 @@ public interface EquipmentMapper {
     List<Equipment> searchList(@Param("offset") Integer offset, @Param("limit") Integer limit);
 
     Long countSearch();
+
+    int logicalDelete(@Param("equipmentId") String equipmentId, @Param("deletedAt") java.time.LocalDateTime deletedAt);
+
+    Long countReferences(@Param("equipmentId") String equipmentId);
 }

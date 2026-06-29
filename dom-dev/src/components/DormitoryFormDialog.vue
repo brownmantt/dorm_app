@@ -243,6 +243,8 @@ async function handleSubmit() {
     } else {
       await createDormitory(payload)
       ElMessage.success('寮を登録しました')
+      resetForm()
+      formRef.value?.resetFields()
     }
     visible.value = false
     emit('saved')

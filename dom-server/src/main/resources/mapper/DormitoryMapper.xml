@@ -18,6 +18,7 @@
         <result column="created_at" property="createdAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
         <result column="updated_at" property="updatedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
         <result column="deleted_at" property="deletedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+        <result column="has_residents" property="hasResidents"/>
     </resultMap>
 
     <sql id="BaseColumns">
@@ -49,25 +50,42 @@
     </select>
 
     <select id="searchList" resultMap="DormitoryMap">
-        SELECT <include refid="BaseColumns"/>
-        FROM dormitory
-        WHERE deleted_at IS NULL
+        SELECT d.dormitory_id, d.name, d.region, d.postal_code, d.address, d.layout_type, d.gender_type,
+               d.nearest_station_1, d.nearest_station_2, d.nearest_station_3, d.remarks,
+               d.created_at, d.updated_at, d.deleted_at,
+               EXISTS (
+                   SELECT 1
+                   FROM residence_history rh
+                   WHERE rh.dormitory_id = d.dormitory_id
+                     AND rh.deleted_at IS NULL
+                     AND rh.move_in_date &lt;= CURRENT_DATE
+                     AND (rh.move_out_date IS NULL OR rh.move_out_date &gt;= CURRENT_DATE)
+               ) AS has_residents
+        FROM dormitory d
+        WHERE d.deleted_at IS NULL
         <if test="dormitoryId != null and dormitoryId != ''">
-            AND dormitory_id = #{dormitoryId}
+            AND d.dormitory_id = #{dormitoryId}
         </if>
         <if test="name != null and name != ''">
-            AND name ILIKE CONCAT('%', #{name}, '%')
+            AND d.name ILIKE CONCAT('%', #{name}, '%')
         </if>
         <if test="genderType != null and genderType != ''">
-            AND gender_type = #{genderType}
+            AND d.gender_type = #{genderType}
         </if>
         <if test="region != null and region != ''">
-            AND region = #{region}
+            AND d.region = #{region}
         </if>
         <if test="address != null and address != ''">
-            AND address ILIKE CONCAT('%', #{address}, '%')
+            AND d.address ILIKE CONCAT('%', #{address}, '%')
         </if>
-        ORDER BY dormitory_id
+        <choose>
+            <when test="dormFeeComboSort != null and dormFeeComboSort">
+                ORDER BY has_residents DESC, d.updated_at DESC, d.region ASC NULLS LAST, d.name ASC, d.dormitory_id ASC
+            </when>
+            <otherwise>
+                ORDER BY d.dormitory_id
+            </otherwise>
+        </choose>
         LIMIT #{limit} OFFSET #{offset}
     </select>
 

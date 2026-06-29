@@ -13,7 +13,8 @@ import com.dom.project.entity.vo.DormitoryManagerVO;
  */
 public interface DormitoryService {
 
-    PageResult<Dormitory> list(String dormitoryId, String name, String genderType, String region, String address, Integer page, Integer size);
+    PageResult<Dormitory> list(String dormitoryId, String name, String genderType, String region, String address,
+                               Boolean dormFeeComboSort, Integer page, Integer size);
 
     Dormitory getById(String id);
 

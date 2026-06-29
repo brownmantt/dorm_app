@@ -99,6 +99,7 @@ CREATE TABLE residence_history (
     move_in_date          DATE         NOT NULL,
     move_out_date         DATE,                          -- NULL = 入居中
     move_out_reason       VARCHAR(200),
+    usage_type_code       VARCHAR(30)  NOT NULL,         -- 利用形態コード（usage_type.code 参照）
     created_at            TIMESTAMPTZ  NOT NULL DEFAULT now(),
     updated_at            TIMESTAMPTZ  NOT NULL DEFAULT now(),
     deleted_at            TIMESTAMPTZ,
@@ -109,6 +110,7 @@ CREATE TABLE residence_history (
     CONSTRAINT ck_residence_period CHECK (move_out_date IS NULL OR move_out_date >= move_in_date)
 );
 COMMENT ON TABLE residence_history IS '入居履歴';
+COMMENT ON COLUMN residence_history.usage_type_code IS '利用形態コード（usage_type.code 参照）';
 
 -- 同一部屋の定員超過防止（論理削除レコードは対象外）
 -- 期間は [move_in_date, COALESCE(move_out_date, 'infinity')] の閉区間で判定
@@ -232,48 +234,74 @@ COMMENT ON TABLE fee_rate_config IS '寮費単価設定（room_type 別の㎡単
 
 -- 3.2 寮費
 CREATE TABLE dorm_fee (
-    dorm_fee_id           VARCHAR(20)   NOT NULL,
-    employee_id           VARCHAR(20)   NOT NULL,
-    room_id               VARCHAR(20)   NOT NULL,
-    target_year_month     CHAR(7)       NOT NULL,        -- YYYY-MM
-    amount                DECIMAL(10,0) NOT NULL,        -- 算出金額
-    basis_area_sqm        DECIMAL(6,2)  NOT NULL,        -- 算出根拠：面積
-    basis_days            INT           NOT NULL,        -- 算出根拠：日数
-    basis_detail          JSONB,                         -- 算定内訳
-    status                VARCHAR(20)   NOT NULL DEFAULT 'DRAFT',   -- DRAFT / CONFIRMED
-    residence_history_id  VARCHAR(20),
-    created_at            TIMESTAMPTZ   NOT NULL DEFAULT now(),
-    updated_at            TIMESTAMPTZ   NOT NULL DEFAULT now(),
+    dorm_fee_id           VARCHAR(20)    NOT NULL,
+    region                VARCHAR(30)    NOT NULL,
+    dormitory_id          VARCHAR(20)    NOT NULL,
+    room_id               VARCHAR(20)    NOT NULL,
+    employee_id           VARCHAR(20)    NOT NULL,
+    target_year_month     CHAR(7)        NOT NULL,
+    move_in_date          DATE           NOT NULL,
+    move_out_date         DATE,
+    usage_type_code       VARCHAR(30)    NOT NULL,
+    usage_days            INT,
+    unit_price_id         VARCHAR(20),
+    daily_unit_price      DECIMAL(10, 2),
+    amount                DECIMAL(10, 0),
+    residence_history_id  VARCHAR(20)    NOT NULL,
+    status                VARCHAR(20)    NOT NULL,
+    created_at            TIMESTAMPTZ    NOT NULL DEFAULT now(),
+    updated_at            TIMESTAMPTZ    NOT NULL DEFAULT now(),
     deleted_at            TIMESTAMPTZ,
     CONSTRAINT pk_dorm_fee PRIMARY KEY (dorm_fee_id),
     CONSTRAINT fk_dorm_fee_employee  FOREIGN KEY (employee_id) REFERENCES employee (employee_id),
-    CONSTRAINT fk_dorm_fee_room      FOREIGN KEY (room_id)     REFERENCES room (room_id),
+    CONSTRAINT fk_dorm_fee_dormitory FOREIGN KEY (dormitory_id) REFERENCES dormitory (dormitory_id),
+    CONSTRAINT fk_dorm_fee_room      FOREIGN KEY (room_id) REFERENCES room (room_id),
     CONSTRAINT fk_dorm_fee_residence FOREIGN KEY (residence_history_id) REFERENCES residence_history (residence_history_id),
-    CONSTRAINT ck_dorm_fee_status CHECK (status IN ('DRAFT', 'CONFIRMED')),
+    CONSTRAINT ck_dorm_fee_status CHECK (status IN ('PROVISIONAL', 'ERROR')),
     CONSTRAINT ck_dorm_fee_ym CHECK (target_year_month ~ '^[0-9]{4}-[0-9]{2}$')
 );
 COMMENT ON TABLE dorm_fee IS '寮費';
 
--- 重複登録防止：未削除レコードで (employee_id, target_year_month) を一意化
-CREATE UNIQUE INDEX uk_dorm_fee_emp_ym
-    ON dorm_fee (employee_id, target_year_month)
+CREATE UNIQUE INDEX uk_dorm_fee_residence_ym
+    ON dorm_fee (residence_history_id, target_year_month)
     WHERE deleted_at IS NULL;
 
 -- ============================================================
 -- 4. 備品管理（F-07, F-08, F-09）
 -- ============================================================
 
--- 4.1 備品マスタ
+-- 4.1 品目マスタ（旧: 備品マスタ）
 CREATE TABLE equipment (
     equipment_id    VARCHAR(20)  NOT NULL,
     name            VARCHAR(100) NOT NULL,
-    equipment_type  VARCHAR(30)  NOT NULL,
+    equipment_type  VARCHAR(30),
     created_at      TIMESTAMPTZ  NOT NULL DEFAULT now(),
     updated_at      TIMESTAMPTZ  NOT NULL DEFAULT now(),
     deleted_at      TIMESTAMPTZ,
     CONSTRAINT pk_equipment PRIMARY KEY (equipment_id)
 );
-COMMENT ON TABLE equipment IS '備品マスタ';
+COMMENT ON TABLE equipment IS '品目マスタ（品目ID・品目名称）';
+COMMENT ON COLUMN equipment.equipment_type IS '廃止（管理対象外・後方互換のため列のみ残置）';
+
+-- 4.1.1 備品（個体）
+CREATE TABLE equipment_asset (
+    equipment_asset_id         VARCHAR(20)    NOT NULL,
+    equipment_id               VARCHAR(20)    NOT NULL,
+    purchase_date              DATE           NOT NULL,
+    purchase_amount            DECIMAL(12, 0) NOT NULL,
+    purchase_store             VARCHAR(100),
+    purchase_store_contact     VARCHAR(50),
+    purchase_store_postal_code VARCHAR(7),
+    purchase_store_address     VARCHAR(500),
+    warranty_expiry_date       DATE,
+    created_at                 TIMESTAMPTZ    NOT NULL DEFAULT now(),
+    updated_at                 TIMESTAMPTZ    NOT NULL DEFAULT now(),
+    deleted_at                 TIMESTAMPTZ,
+    CONSTRAINT pk_equipment_asset PRIMARY KEY (equipment_asset_id),
+    CONSTRAINT fk_equipment_asset_item FOREIGN KEY (equipment_id) REFERENCES equipment (equipment_id)
+);
+COMMENT ON TABLE equipment_asset IS '備品（品目マスタに紐づく個体）';
+COMMENT ON COLUMN equipment_asset.equipment_asset_id IS '備品番号（自動採番）';
 
 -- 4.2 退去時備品処理
 CREATE TABLE equipment_moveout (
@@ -378,17 +406,23 @@ INSERT INTO region (region_id, code, name, display_order) VALUES
 ('RG202606270004', 'OTHER', 'その他', 4);
 
 CREATE TABLE usage_type (
-    usage_type_id VARCHAR(20)  NOT NULL,
-    code          VARCHAR(30)  NOT NULL,
-    name          VARCHAR(100) NOT NULL,
-    display_order INT,
-    created_at    TIMESTAMPTZ  NOT NULL DEFAULT now(),
-    updated_at    TIMESTAMPTZ  NOT NULL DEFAULT now(),
-    deleted_at    TIMESTAMPTZ,
-    CONSTRAINT pk_usage_type PRIMARY KEY (usage_type_id)
+    usage_type_id   VARCHAR(20)  NOT NULL,
+    code            VARCHAR(30)  NOT NULL,
+    name            VARCHAR(100) NOT NULL,
+    display_order   INT,
+    min_usage_days  INT          NOT NULL DEFAULT 1,
+    max_usage_days  INT          NOT NULL DEFAULT -1,
+    created_at      TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    updated_at      TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    deleted_at      TIMESTAMPTZ,
+    CONSTRAINT pk_usage_type PRIMARY KEY (usage_type_id),
+    CONSTRAINT ck_usage_type_min_days CHECK (min_usage_days >= 1),
+    CONSTRAINT ck_usage_type_max_days CHECK (max_usage_days >= -1)
 );
 CREATE UNIQUE INDEX uk_usage_type_code ON usage_type (code) WHERE deleted_at IS NULL;
 COMMENT ON TABLE usage_type IS '利用形態マスタ';
+COMMENT ON COLUMN usage_type.min_usage_days IS '最小利用日数（未指定登録時は1）';
+COMMENT ON COLUMN usage_type.max_usage_days IS '最大利用日数（-1は制限なし）';
 
 INSERT INTO usage_type (usage_type_id, code, name, display_order) VALUES
 ('UT202606270001', 'NORMAL', '通常利用', 1),
@@ -403,16 +437,17 @@ CREATE TABLE unit_price (
     room_id          VARCHAR(20),
     usage_type_code  VARCHAR(30)    NOT NULL,
     daily_unit_price DECIMAL(10, 2) NOT NULL,
-    max_usage_days   INT            NOT NULL,
     created_at       TIMESTAMPTZ    NOT NULL DEFAULT now(),
     updated_at       TIMESTAMPTZ    NOT NULL DEFAULT now(),
     deleted_at       TIMESTAMPTZ,
     CONSTRAINT pk_unit_price PRIMARY KEY (unit_price_id),
-    CONSTRAINT ck_unit_price_daily CHECK (daily_unit_price >= 0),
-    CONSTRAINT ck_unit_price_max_days CHECK (max_usage_days >= -1)
+    CONSTRAINT ck_unit_price_daily CHECK (daily_unit_price >= 0)
 );
 CREATE UNIQUE INDEX uk_unit_price_code ON unit_price (code) WHERE deleted_at IS NULL;
 COMMENT ON TABLE unit_price IS '単価マスタ';
+
+ALTER TABLE dorm_fee ADD CONSTRAINT fk_dorm_fee_unit_price
+    FOREIGN KEY (unit_price_id) REFERENCES unit_price (unit_price_id);
 
 CREATE TABLE affiliation (
     affiliation_id  VARCHAR(20)  NOT NULL,

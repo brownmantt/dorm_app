@@ -31,6 +31,7 @@ public interface DormitoryMapper {
                                @Param("genderType") String genderType,
                                @Param("region") String region,
                                @Param("address") String address,
+                               @Param("dormFeeComboSort") Boolean dormFeeComboSort,
                                @Param("offset") Integer offset,
                                @Param("limit") Integer limit);
 

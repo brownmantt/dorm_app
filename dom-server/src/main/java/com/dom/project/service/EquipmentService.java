@@ -18,6 +18,8 @@ public interface EquipmentService {
 
     Equipment update(String id, EquipmentSaveDTO dto);
 
+    void delete(String id);
+
     void processMoveout(EquipmentMoveoutDTO dto);
 
     PageResult<EquipmentStorageView> listStorages(Integer page, Integer size);

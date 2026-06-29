@@ -8,6 +8,7 @@ import com.dom.project.entity.dto.EquipmentStorageSaveDTO;
 import com.dom.project.entity.view.EquipmentStorageView;
 import com.dom.project.service.EquipmentService;
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -53,6 +54,14 @@ public class EquipmentController {
     @PutMapping("/equipments/{id}")
     public Equipment updateEquipment(@PathVariable String id, @Valid @RequestBody EquipmentSaveDTO dto) {
         return equipmentService.update(id, dto);
+    }
+
+    /**
+     * 品目削除（論理削除）。
+     */
+    @DeleteMapping("/equipments/{id}")
+    public void deleteEquipment(@PathVariable String id) {
+        equipmentService.delete(id);
     }
 
     /**

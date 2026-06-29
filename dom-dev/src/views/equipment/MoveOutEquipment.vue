@@ -75,6 +75,7 @@ async function handleSubmit() {
     form.equipmentId = ''
     form.disposition = ''
     form.remarks = ''
+    formRef.value?.resetFields()
   } finally {
     submitLoading.value = false
   }

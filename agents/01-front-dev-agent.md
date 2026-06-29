@@ -134,6 +134,33 @@ src
 
 | 資料 | パス |
 |------|------|
-| 詳細設計書（分割版） | `dom-dev/doc/詳細設計書_0522/` |
+| 詳細設計書（分割版） | `document/0522_詳細設計書/` |
+| マスタ管理（地域・利用形態・単価） | `document/0522_詳細設計書/23_マスタ管理（地域・利用形態・単価）.md` |
 | フロントソース | `dom-dev/src/` |
 | バックエンド API | `dom-server/`（連携参照のみ） |
+| API ドキュメント | `document/APIdoc/` |
+| 機能定義 | `document/func_front.md` |
+
+### マスタ画面仕様メモ（v2.2 / 2026-06-28）
+
+| 画面 | ファイル | 登録・編集項目 |
+|------|----------|----------------|
+| SC-18 利用形態マスタ | `dom-dev/src/views/usageType/UsageTypeList.vue` | コード値、名称、表示順、**minUsageDays**（任意→1）、**maxUsageDays**（任意→-1） |
+| SC-19 単価マスタ | `dom-dev/src/views/unitPrice/UnitPriceList.vue` | 地域、寮、部屋、利用形態、**dailyUnitPrice** のみ（利用日数項目なし） |
+
+**呼び出しチェーン**
+
+```text
+SC-18: UsageTypeList.vue → api/usageType.js → /usage-types
+SC-19: UnitPriceList.vue → api/unitPrice.js → /unit-prices
+寮費算定: DormFeeList.vue（算定ダイアログ: 対象年月→寮→部屋→社員）→ api/dormFee.js / utils/employee.js → 日単価(unit_price A→B→C) + 利用日数範囲(usage_type)
+```
+
+### 寮費算定ロジックメモ（v2.3 / 2026-06-28）
+
+詳細: `document/0522_詳細設計書/09_寮費管理.md`
+
+- 対象月と重なる入居履歴を抽出
+- 単価マスタは A（寮・部屋）→ B（寮）→ C（地域のみ）の順で検索
+- 利用日数が利用形態の min/max **範囲内**のときのみ金額算出（範囲外は ERROR 保存）
+- 算定ダイアログの社員コンボは `loadDormFeeEmployeeOptions({ targetYearMonth, dormitoryId, roomId })` で対象月・寮・部屋に連動

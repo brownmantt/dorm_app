@@ -365,6 +365,8 @@ async function handleRoomSubmit() {
     }
     await createRoom(payload)
     ElMessage.success('部屋を登録しました')
+    resetRoomForm()
+    roomFormRef.value?.resetFields()
     roomDialogVisible.value = false
     fetchRooms()
   } finally {

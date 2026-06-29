@@ -145,6 +145,16 @@ function openDialog(row) {
   dialogVisible.value = true
 }
 
+function resetCreateForm() {
+  Object.assign(form, {
+    affiliationId: '',
+    code: '',
+    name: '',
+    displayOrder: 0
+  })
+  formRef.value?.resetFields()
+}
+
 async function handleSubmit() {
   await formRef.value.validate()
   submitLoading.value = true
@@ -160,6 +170,7 @@ async function handleSubmit() {
     } else {
       await createAffiliation(payload)
       ElMessage.success('所属を登録しました')
+      resetCreateForm()
     }
     dialogVisible.value = false
     fetchList()

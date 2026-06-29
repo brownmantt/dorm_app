@@ -310,6 +310,24 @@ async function openDialog(row) {
   dialogVisible.value = true
 }
 
+function resetCreateForm() {
+  Object.assign(form, {
+    _editId: '',
+    employeeId: '',
+    name: '',
+    gender: 'MALE',
+    employeeCategory: 'JAPAN',
+    affiliationId: '',
+    businessDivision: '',
+    nearestStation1: '',
+    nearestStation2: '',
+    nearestStation3: '',
+    mobilePhone: '',
+    email: ''
+  })
+  formRef.value?.resetFields()
+}
+
 async function handleSubmit() {
   await formRef.value.validate()
   submitLoading.value = true
@@ -333,6 +351,7 @@ async function handleSubmit() {
     } else {
       await createEmployee(payload)
       ElMessage.success('社員を登録しました')
+      resetCreateForm()
     }
     dialogVisible.value = false
     fetchList()

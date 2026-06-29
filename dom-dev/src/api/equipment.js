@@ -16,6 +16,11 @@ export function updateEquipment(id, data) {
   return request.put(`/equipments/${id}`, data)
 }
 
+/** @param {string} id */
+export function deleteEquipment(id) {
+  return request.delete(`/equipments/${id}`)
+}
+
 /** @param {object} data */
 export function processEquipmentMoveout(data) {
   return request.post('/equipment-moveouts', data)

@@ -1,6 +1,7 @@
 package com.dom.project.entity;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -8,43 +9,23 @@ import java.time.LocalDateTime;
  */
 public class DormFee {
 
-    /** 寮費 ID */
     private String dormFeeId;
-
-    /** 社員 ID */
-    private String employeeId;
-
-    /** 部屋 ID */
+    private String region;
+    private String dormitoryId;
     private String roomId;
-
-    /** 対象年月 YYYY-MM */
+    private String employeeId;
     private String targetYearMonth;
-
-    /** 算出金額 */
+    private LocalDate moveInDate;
+    private LocalDate moveOutDate;
+    private String usageTypeCode;
+    private Integer usageDays;
+    private String unitPriceId;
+    private BigDecimal dailyUnitPrice;
     private BigDecimal amount;
-
-    /** 算出根拠：面積 */
-    private BigDecimal basisAreaSqm;
-
-    /** 算出根拠：日数 */
-    private Integer basisDays;
-
-    /** 算定内訳（JSONB） */
-    private String basisDetail;
-
-    /** ステータス：DRAFT / CONFIRMED */
-    private String status;
-
-    /** 関連入居履歴 ID */
     private String residenceHistoryId;
-
-    /** 作成日時 */
+    private String status;
     private LocalDateTime createdAt;
-
-    /** 更新日時 */
     private LocalDateTime updatedAt;
-
-    /** 論理削除日時（NULL は未削除） */
     private LocalDateTime deletedAt;
 
     public String getDormFeeId() {
@@ -55,12 +36,20 @@ public class DormFee {
         this.dormFeeId = dormFeeId;
     }
 
-    public String getEmployeeId() {
-        return employeeId;
+    public String getRegion() {
+        return region;
     }
 
-    public void setEmployeeId(String employeeId) {
-        this.employeeId = employeeId;
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public String getDormitoryId() {
+        return dormitoryId;
+    }
+
+    public void setDormitoryId(String dormitoryId) {
+        this.dormitoryId = dormitoryId;
     }
 
     public String getRoomId() {
@@ -71,12 +60,68 @@ public class DormFee {
         this.roomId = roomId;
     }
 
+    public String getEmployeeId() {
+        return employeeId;
+    }
+
+    public void setEmployeeId(String employeeId) {
+        this.employeeId = employeeId;
+    }
+
     public String getTargetYearMonth() {
         return targetYearMonth;
     }
 
     public void setTargetYearMonth(String targetYearMonth) {
         this.targetYearMonth = targetYearMonth;
+    }
+
+    public LocalDate getMoveInDate() {
+        return moveInDate;
+    }
+
+    public void setMoveInDate(LocalDate moveInDate) {
+        this.moveInDate = moveInDate;
+    }
+
+    public LocalDate getMoveOutDate() {
+        return moveOutDate;
+    }
+
+    public void setMoveOutDate(LocalDate moveOutDate) {
+        this.moveOutDate = moveOutDate;
+    }
+
+    public String getUsageTypeCode() {
+        return usageTypeCode;
+    }
+
+    public void setUsageTypeCode(String usageTypeCode) {
+        this.usageTypeCode = usageTypeCode;
+    }
+
+    public Integer getUsageDays() {
+        return usageDays;
+    }
+
+    public void setUsageDays(Integer usageDays) {
+        this.usageDays = usageDays;
+    }
+
+    public String getUnitPriceId() {
+        return unitPriceId;
+    }
+
+    public void setUnitPriceId(String unitPriceId) {
+        this.unitPriceId = unitPriceId;
+    }
+
+    public BigDecimal getDailyUnitPrice() {
+        return dailyUnitPrice;
+    }
+
+    public void setDailyUnitPrice(BigDecimal dailyUnitPrice) {
+        this.dailyUnitPrice = dailyUnitPrice;
     }
 
     public BigDecimal getAmount() {
@@ -87,28 +132,12 @@ public class DormFee {
         this.amount = amount;
     }
 
-    public BigDecimal getBasisAreaSqm() {
-        return basisAreaSqm;
+    public String getResidenceHistoryId() {
+        return residenceHistoryId;
     }
 
-    public void setBasisAreaSqm(BigDecimal basisAreaSqm) {
-        this.basisAreaSqm = basisAreaSqm;
-    }
-
-    public Integer getBasisDays() {
-        return basisDays;
-    }
-
-    public void setBasisDays(Integer basisDays) {
-        this.basisDays = basisDays;
-    }
-
-    public String getBasisDetail() {
-        return basisDetail;
-    }
-
-    public void setBasisDetail(String basisDetail) {
-        this.basisDetail = basisDetail;
+    public void setResidenceHistoryId(String residenceHistoryId) {
+        this.residenceHistoryId = residenceHistoryId;
     }
 
     public String getStatus() {
@@ -117,14 +146,6 @@ public class DormFee {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public String getResidenceHistoryId() {
-        return residenceHistoryId;
-    }
-
-    public void setResidenceHistoryId(String residenceHistoryId) {
-        this.residenceHistoryId = residenceHistoryId;
     }
 
     public LocalDateTime getCreatedAt() {

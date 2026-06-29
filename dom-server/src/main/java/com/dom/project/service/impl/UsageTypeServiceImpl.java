@@ -24,6 +24,9 @@ import java.util.List;
 @Service
 public class UsageTypeServiceImpl implements UsageTypeService {
 
+    private static final int MAX_USAGE_DAYS_UNLIMITED = -1;
+    private static final int DEFAULT_MIN_USAGE_DAYS = 1;
+
     private final UsageTypeMapper usageTypeMapper;
     private final OperationLogWriter operationLogWriter;
 
@@ -45,12 +48,18 @@ public class UsageTypeServiceImpl implements UsageTypeService {
     @Transactional
     public UsageType create(UsageTypeSaveDTO dto) {
         assertCodeNotDuplicate(dto.getCode(), null);
+        int minDays = resolveMinUsageDays(dto.getMinUsageDays());
+        int maxDays = resolveMaxUsageDays(dto.getMaxUsageDays());
+        assertMinMaxDaysValid(minDays, maxDays);
+
         LocalDateTime now = LocalDateTime.now();
         UsageType entity = new UsageType();
         entity.setUsageTypeId(IdGenerator.nextId("UT"));
         entity.setCode(dto.getCode());
         entity.setName(dto.getName());
         entity.setDisplayOrder(dto.getDisplayOrder());
+        entity.setMinUsageDays(minDays);
+        entity.setMaxUsageDays(maxDays);
         entity.setCreatedAt(now);
         entity.setUpdatedAt(now);
         usageTypeMapper.insert(entity);
@@ -68,11 +77,17 @@ public class UsageTypeServiceImpl implements UsageTypeService {
         }
         assertCodeNotDuplicate(dto.getCode(), usageTypeId);
 
+        int minDays = resolveMinUsageDays(dto.getMinUsageDays());
+        int maxDays = resolveMaxUsageDays(dto.getMaxUsageDays());
+        assertMinMaxDaysValid(minDays, maxDays);
+
         UsageType entity = new UsageType();
         entity.setUsageTypeId(usageTypeId);
         entity.setCode(dto.getCode());
         entity.setName(dto.getName());
         entity.setDisplayOrder(dto.getDisplayOrder());
+        entity.setMinUsageDays(minDays);
+        entity.setMaxUsageDays(maxDays);
         entity.setUpdatedAt(LocalDateTime.now());
         usageTypeMapper.update(entity);
 
@@ -99,5 +114,34 @@ public class UsageTypeServiceImpl implements UsageTypeService {
         if (existing != null && (selfId == null || !selfId.equals(existing.getUsageTypeId()))) {
             throw new BusinessException("USAGE_TYPE_CODE_DUPLICATE", "コード値が重複しています");
         }
+    }
+
+    private void assertMinMaxDaysValid(int minDays, int maxDays) {
+        if (maxDays != MAX_USAGE_DAYS_UNLIMITED && minDays > maxDays) {
+            throw new BusinessException("USAGE_TYPE_MIN_MAX_DAYS_INVALID", "最小利用日数は最大利用日数以下にしてください");
+        }
+    }
+
+    private Integer resolveMinUsageDays(Integer minUsageDays) {
+        if (minUsageDays == null) {
+            return DEFAULT_MIN_USAGE_DAYS;
+        }
+        if (minUsageDays < 1) {
+            throw new BusinessException("USAGE_TYPE_MIN_DAYS_INVALID", "最小利用日数は1以上を入力してください");
+        }
+        return minUsageDays;
+    }
+
+    private Integer resolveMaxUsageDays(Integer maxUsageDays) {
+        if (maxUsageDays == null) {
+            return MAX_USAGE_DAYS_UNLIMITED;
+        }
+        if (maxUsageDays == MAX_USAGE_DAYS_UNLIMITED) {
+            return MAX_USAGE_DAYS_UNLIMITED;
+        }
+        if (maxUsageDays < 1) {
+            throw new BusinessException("USAGE_TYPE_MAX_DAYS_INVALID", "最大利用日数は1以上を入力してください");
+        }
+        return maxUsageDays;
     }
 }

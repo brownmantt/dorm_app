@@ -56,6 +56,8 @@
       "employeeName": "山田 太郎",
       "dormitoryName": "第一寮",
       "roomName": "301",
+      "usageTypeCode": "NORMAL",
+      "usageTypeName": "通常利用",
       "moveInDate": "2026-06-01",
       "moveOutDate": null,
       "moveOutReason": null
@@ -73,6 +75,8 @@
 | content[].employeeName | string | いいえ | 氏名 | 山田 太郎 |
 | content[].dormitoryName | string | いいえ | 寮名称 | 第一寮 |
 | content[].roomName | string | いいえ | 部屋名称 | 301 |
+| content[].usageTypeCode | string | はい | 利用形態コード | NORMAL |
+| content[].usageTypeName | string | いいえ | 利用形態名称 | 通常利用 |
 | content[].moveInDate | string | はい | 入寮日 | 2026-06-01 |
 | content[].moveOutDate | string | いいえ | 退寮日 | null |
 | content[].moveOutReason | string | いいえ | 退寮理由 | null |
@@ -115,6 +119,7 @@ sequenceDiagram
   "employeeId": "E00012",
   "dormitoryId": "D001",
   "roomId": "R003",
+  "usageTypeCode": "NORMAL",
   "moveInDate": "2026-06-01",
   "moveOutDate": null,
   "moveOutReason": null
@@ -126,6 +131,7 @@ sequenceDiagram
 | employeeId | string | はい | 社員 ID | E00012 |
 | dormitoryId | string | はい | 寮 ID | D001 |
 | roomId | string | はい | 部屋 ID | R003 |
+| usageTypeCode | string | はい | 利用形態コード（利用形態マスタ） | NORMAL |
 | moveInDate | string | はい | 入寮日 `YYYY-MM-DD` | 2026-06-01 |
 | moveOutDate | string | いいえ | 退寮日（新規入居時は null） | null |
 | moveOutReason | string | いいえ | 退寮理由（新規入居時は null） | null |
@@ -166,6 +172,7 @@ sequenceDiagram
   "employeeId": "E00012",
   "dormitoryId": "D001",
   "roomId": "R003",
+  "usageTypeCode": "NORMAL",
   "moveInDate": "2026-06-01"
 }
 ```
@@ -175,6 +182,7 @@ sequenceDiagram
 | employeeId | string | はい | 社員 ID | E00012 |
 | dormitoryId | string | はい | 寮 ID | D001 |
 | roomId | string | はい | 部屋 ID | R003 |
+| usageTypeCode | string | はい | 利用形態コード（利用形態マスタ） | NORMAL |
 | moveInDate | string | はい | 入寮日 | 2026-06-01 |
 
 ---

@@ -1,6 +1,6 @@
 package com.dom.project.service.impl;
 
-import com.dom.project.entity.DormFee;
+import com.dom.project.entity.view.DormFeeListView;
 import com.dom.project.entity.view.ResidenceHistoryView;
 import com.dom.project.mapper.DormFeeMapper;
 import com.dom.project.mapper.ResidenceHistoryMapper;
@@ -33,7 +33,7 @@ public class CsvExportServiceImpl implements CsvExportService {
     public byte[] exportResidencesCsv() {
         List<ResidenceHistoryView> rows = residenceHistoryMapper.searchList(null, null, null, null, null, 0, EXPORT_LIMIT);
         StringBuilder sb = new StringBuilder();
-        sb.append("residenceHistoryId,employeeId,employeeName,dormitoryId,dormitoryName,roomId,roomName,moveInDate,moveOutDate,moveOutReason\n");
+        sb.append("residenceHistoryId,employeeId,employeeName,dormitoryId,dormitoryName,roomId,roomName,moveInDate,moveOutDate,moveOutReason,usageTypeCode,usageTypeName\n");
         if (rows != null) {
             for (ResidenceHistoryView row : rows) {
                 sb.append(csv(row.getResidenceHistoryId())).append(",")
@@ -45,7 +45,9 @@ public class CsvExportServiceImpl implements CsvExportService {
                         .append(csv(row.getRoomName())).append(",")
                         .append(csv(row.getMoveInDate() == null ? null : row.getMoveInDate().toString())).append(",")
                         .append(csv(row.getMoveOutDate() == null ? null : row.getMoveOutDate().toString())).append(",")
-                        .append(csv(row.getMoveOutReason()))
+                        .append(csv(row.getMoveOutReason())).append(",")
+                        .append(csv(row.getUsageTypeCode())).append(",")
+                        .append(csv(row.getUsageTypeName()))
                         .append("\n");
             }
         }
@@ -54,21 +56,29 @@ public class CsvExportServiceImpl implements CsvExportService {
 
     @Override
     public byte[] exportDormFeesCsv() {
-        List<DormFee> rows = dormFeeMapper.searchList(null, null, null, 0, EXPORT_LIMIT);
+        List<DormFeeListView> rows = dormFeeMapper.searchList(null, null, null, 0, EXPORT_LIMIT);
         StringBuilder sb = new StringBuilder();
-        sb.append("dormFeeId,employeeId,roomId,targetYearMonth,amount,basisAreaSqm,basisDays,basisDetail,status,residenceHistoryId,createdAt,updatedAt\n");
+        sb.append("dormFeeId,region,dormitoryId,dormitoryName,roomId,roomName,employeeId,employeeName,targetYearMonth,moveInDate,moveOutDate,usageTypeCode,usageDays,unitPriceId,dailyUnitPrice,amount,residenceHistoryId,status,createdAt,updatedAt\n");
         if (rows != null) {
-            for (DormFee row : rows) {
+            for (DormFeeListView row : rows) {
                 sb.append(csv(row.getDormFeeId())).append(",")
-                        .append(csv(row.getEmployeeId())).append(",")
+                        .append(csv(row.getRegion())).append(",")
+                        .append(csv(row.getDormitoryId())).append(",")
+                        .append(csv(row.getDormitoryName())).append(",")
                         .append(csv(row.getRoomId())).append(",")
+                        .append(csv(row.getRoomName())).append(",")
+                        .append(csv(row.getEmployeeId())).append(",")
+                        .append(csv(row.getEmployeeName())).append(",")
                         .append(csv(row.getTargetYearMonth())).append(",")
+                        .append(csv(row.getMoveInDate() == null ? null : row.getMoveInDate().toString())).append(",")
+                        .append(csv(row.getMoveOutDate() == null ? null : row.getMoveOutDate().toString())).append(",")
+                        .append(csv(row.getUsageTypeCode())).append(",")
+                        .append(csv(row.getUsageDays() == null ? null : row.getUsageDays().toString())).append(",")
+                        .append(csv(row.getUnitPriceId())).append(",")
+                        .append(csv(row.getDailyUnitPrice() == null ? null : row.getDailyUnitPrice().toPlainString())).append(",")
                         .append(csv(row.getAmount() == null ? null : row.getAmount().toPlainString())).append(",")
-                        .append(csv(row.getBasisAreaSqm() == null ? null : row.getBasisAreaSqm().toPlainString())).append(",")
-                        .append(csv(row.getBasisDays() == null ? null : row.getBasisDays().toString())).append(",")
-                        .append(csv(row.getBasisDetail())).append(",")
-                        .append(csv(row.getStatus())).append(",")
                         .append(csv(row.getResidenceHistoryId())).append(",")
+                        .append(csv(row.getStatus())).append(",")
                         .append(csv(row.getCreatedAt() == null ? null : DATE_TIME_FORMATTER.format(row.getCreatedAt()))).append(",")
                         .append(csv(row.getUpdatedAt() == null ? null : DATE_TIME_FORMATTER.format(row.getUpdatedAt())))
                         .append("\n");

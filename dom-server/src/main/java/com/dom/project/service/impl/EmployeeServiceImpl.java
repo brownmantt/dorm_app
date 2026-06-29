@@ -52,12 +52,18 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public PageResult<EmployeeListView> list(String keyword, String gender, String employeeCategory,
                                              String affiliationId, Boolean notResidingOnly,
+                                             Boolean dormFeeComboSort,
+                                             String targetYearMonth,
+                                             String dormitoryId,
+                                             String roomId,
                                              Integer page, Integer size) {
         int limit = PageUtils.limit(size);
         int offset = PageUtils.offset(page, limit);
         List<EmployeeListView> list = employeeMapper.searchList(keyword, gender, employeeCategory,
-                affiliationId, notResidingOnly, offset, limit);
-        Long total = employeeMapper.countSearch(keyword, gender, employeeCategory, affiliationId, notResidingOnly);
+                affiliationId, notResidingOnly, dormFeeComboSort, targetYearMonth, dormitoryId, roomId,
+                offset, limit);
+        Long total = employeeMapper.countSearch(keyword, gender, employeeCategory, affiliationId, notResidingOnly,
+                targetYearMonth, dormitoryId, roomId);
         return PageResult.of(list == null ? Collections.emptyList() : list, total, limit);
     }
 

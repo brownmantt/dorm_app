@@ -5,6 +5,7 @@ import com.dom.project.entity.EmployeeFirstDormUse;
 import com.dom.project.entity.ResidenceHistory;
 import com.dom.project.entity.Room;
 import com.dom.project.entity.Dormitory;
+import com.dom.project.entity.UsageType;
 import com.dom.project.entity.common.PageResult;
 import com.dom.project.entity.dto.CheckoutDTO;
 import com.dom.project.entity.dto.ResidenceSaveDTO;
@@ -22,6 +23,7 @@ import com.dom.project.mapper.EmployeeFirstDormUseMapper;
 import com.dom.project.mapper.EmployeeMapper;
 import com.dom.project.mapper.ResidenceHistoryMapper;
 import com.dom.project.mapper.RoomMapper;
+import com.dom.project.mapper.UsageTypeMapper;
 import com.dom.project.service.DormitoryService;
 import com.dom.project.service.ResidenceService;
 import com.dom.project.util.IdGenerator;
@@ -50,6 +52,7 @@ public class ResidenceServiceImpl implements ResidenceService {
     private final DormitoryManagerMapper dormitoryManagerMapper;
     private final DormitoryService dormitoryService;
     private final OperationLogWriter operationLogWriter;
+    private final UsageTypeMapper usageTypeMapper;
 
     public ResidenceServiceImpl(ResidenceHistoryMapper residenceHistoryMapper,
                                 EmployeeMapper employeeMapper,
@@ -58,7 +61,8 @@ public class ResidenceServiceImpl implements ResidenceService {
                                 EmployeeFirstDormUseMapper firstDormUseMapper,
                                 DormitoryManagerMapper dormitoryManagerMapper,
                                 DormitoryService dormitoryService,
-                                OperationLogWriter operationLogWriter) {
+                                OperationLogWriter operationLogWriter,
+                                UsageTypeMapper usageTypeMapper) {
         this.residenceHistoryMapper = residenceHistoryMapper;
         this.employeeMapper = employeeMapper;
         this.dormitoryMapper = dormitoryMapper;
@@ -67,6 +71,7 @@ public class ResidenceServiceImpl implements ResidenceService {
         this.dormitoryManagerMapper = dormitoryManagerMapper;
         this.dormitoryService = dormitoryService;
         this.operationLogWriter = operationLogWriter;
+        this.usageTypeMapper = usageTypeMapper;
     }
 
     @Override
@@ -106,6 +111,7 @@ public class ResidenceServiceImpl implements ResidenceService {
         history.setMoveInDate(moveInDate);
         history.setMoveOutDate(dto.getMoveOutDate());
         history.setMoveOutReason(dto.getMoveOutReason());
+        history.setUsageTypeCode(dto.getUsageTypeCode());
         history.setCreatedAt(now);
         history.setUpdatedAt(now);
         residenceHistoryMapper.insert(history);
@@ -154,7 +160,7 @@ public class ResidenceServiceImpl implements ResidenceService {
         updateEntity.setMoveOutDate(moveOutDate);
         updateEntity.setMoveOutReason(dto.getMoveOutReason());
         updateEntity.setUpdatedAt(LocalDateTime.now());
-        residenceHistoryMapper.update(updateEntity);
+        residenceHistoryMapper.updateCheckout(updateEntity);
         dormitoryManagerMapper.deleteByResidenceHistoryId(id);
         ResidenceHistory after = residenceHistoryMapper.findById(id);
         operationLogWriter.logUpdate(
@@ -176,6 +182,11 @@ public class ResidenceServiceImpl implements ResidenceService {
         }
         if (!room.getDormitoryId().equals(dto.getDormitoryId())) {
             return ValidateVO.fail("部屋は指定した寮に属していません");
+        }
+
+        UsageType usageType = usageTypeMapper.findByCode(dto.getUsageTypeCode());
+        if (usageType == null) {
+            return ValidateVO.fail("利用形態が見つかりません");
         }
 
         String expectedGender = GenderEnum.MALE.getCode().equals(employee.getGender())

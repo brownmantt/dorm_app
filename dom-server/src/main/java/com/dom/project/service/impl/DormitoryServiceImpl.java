@@ -59,10 +59,12 @@ public class DormitoryServiceImpl implements DormitoryService {
     }
 
     @Override
-    public PageResult<Dormitory> list(String dormitoryId, String name, String genderType, String region, String address, Integer page, Integer size) {
+    public PageResult<Dormitory> list(String dormitoryId, String name, String genderType, String region, String address,
+                                      Boolean dormFeeComboSort, Integer page, Integer size) {
         int limit = PageUtils.limit(size);
         int offset = PageUtils.offset(page, limit);
-        List<Dormitory> list = dormitoryMapper.searchList(dormitoryId, name, genderType, region, address, offset, limit);
+        List<Dormitory> list = dormitoryMapper.searchList(dormitoryId, name, genderType, region, address,
+                dormFeeComboSort, offset, limit);
         Long total = dormitoryMapper.countSearch(dormitoryId, name, genderType, region, address);
         return PageResult.of(list == null ? Collections.emptyList() : list, total, limit);
     }

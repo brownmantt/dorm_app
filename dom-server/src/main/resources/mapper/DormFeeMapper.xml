@@ -5,71 +5,156 @@
 
     <resultMap id="DormFeeMap" type="com.dom.project.entity.DormFee">
         <id column="dorm_fee_id" property="dormFeeId"/>
-        <result column="employee_id" property="employeeId"/>
+        <result column="region" property="region"/>
+        <result column="dormitory_id" property="dormitoryId"/>
         <result column="room_id" property="roomId"/>
+        <result column="employee_id" property="employeeId"/>
         <result column="target_year_month" property="targetYearMonth"/>
+        <result column="move_in_date" property="moveInDate"/>
+        <result column="move_out_date" property="moveOutDate"/>
+        <result column="usage_type_code" property="usageTypeCode"/>
+        <result column="usage_days" property="usageDays"/>
+        <result column="unit_price_id" property="unitPriceId"/>
+        <result column="daily_unit_price" property="dailyUnitPrice"/>
         <result column="amount" property="amount"/>
-        <result column="basis_area_sqm" property="basisAreaSqm"/>
-        <result column="basis_days" property="basisDays"/>
-        <result column="basis_detail" property="basisDetail"/>
-        <result column="status" property="status"/>
         <result column="residence_history_id" property="residenceHistoryId"/>
+        <result column="status" property="status"/>
         <result column="created_at" property="createdAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
         <result column="updated_at" property="updatedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
         <result column="deleted_at" property="deletedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
     </resultMap>
 
+    <resultMap id="DormFeeListViewMap" type="com.dom.project.entity.view.DormFeeListView">
+        <id column="dorm_fee_id" property="dormFeeId"/>
+        <result column="region" property="region"/>
+        <result column="region_name" property="regionName"/>
+        <result column="dormitory_id" property="dormitoryId"/>
+        <result column="dormitory_name" property="dormitoryName"/>
+        <result column="room_id" property="roomId"/>
+        <result column="room_name" property="roomName"/>
+        <result column="employee_id" property="employeeId"/>
+        <result column="employee_name" property="employeeName"/>
+        <result column="target_year_month" property="targetYearMonth"/>
+        <result column="move_in_date" property="moveInDate"/>
+        <result column="move_out_date" property="moveOutDate"/>
+        <result column="residence_move_out_date" property="residenceMoveOutDate"/>
+        <result column="usage_type_code" property="usageTypeCode"/>
+        <result column="usage_type_name" property="usageTypeName"/>
+        <result column="usage_days" property="usageDays"/>
+        <result column="unit_price_id" property="unitPriceId"/>
+        <result column="unit_price_code" property="unitPriceCode"/>
+        <result column="daily_unit_price" property="dailyUnitPrice"/>
+        <result column="amount" property="amount"/>
+        <result column="residence_history_id" property="residenceHistoryId"/>
+        <result column="status" property="status"/>
+        <result column="created_at" property="createdAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+        <result column="updated_at" property="updatedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+    </resultMap>
+
+    <sql id="BaseColumns">
+        dorm_fee_id, region, dormitory_id, room_id, employee_id, target_year_month,
+        move_in_date, move_out_date, usage_type_code, usage_days,
+        unit_price_id, daily_unit_price, amount, residence_history_id, status,
+        created_at, updated_at, deleted_at
+    </sql>
+
+    <sql id="ListSelectColumns">
+        df.dorm_fee_id, df.region, rg.name AS region_name,
+        df.dormitory_id, d.name AS dormitory_name,
+        df.room_id, r.room_name,
+        df.employee_id, e.name AS employee_name,
+        df.target_year_month, df.move_in_date, df.move_out_date,
+        rh.move_out_date AS residence_move_out_date,
+        df.usage_type_code, ut.name AS usage_type_name,
+        df.usage_days, df.unit_price_id, up.code AS unit_price_code,
+        df.daily_unit_price, df.amount, df.residence_history_id, df.status,
+        df.created_at, df.updated_at
+    </sql>
+
     <insert id="insert" parameterType="com.dom.project.entity.DormFee">
-        INSERT INTO dorm_fee (dorm_fee_id, employee_id, room_id, target_year_month, amount,
-            basis_area_sqm, basis_days, basis_detail, status, residence_history_id, created_at, updated_at)
-        VALUES (#{dormFeeId}, #{employeeId}, #{roomId}, #{targetYearMonth}, #{amount},
-            #{basisAreaSqm}, #{basisDays}, #{basisDetail}::jsonb, #{status}, #{residenceHistoryId}, #{createdAt}, #{updatedAt})
+        INSERT INTO dorm_fee (
+            dorm_fee_id, region, dormitory_id, room_id, employee_id, target_year_month,
+            move_in_date, move_out_date, usage_type_code, usage_days,
+            unit_price_id, daily_unit_price, amount, residence_history_id, status,
+            created_at, updated_at
+        ) VALUES (
+            #{dormFeeId}, #{region}, #{dormitoryId}, #{roomId}, #{employeeId}, #{targetYearMonth},
+            #{moveInDate}, #{moveOutDate}, #{usageTypeCode}, #{usageDays},
+            #{unitPriceId}, #{dailyUnitPrice}, #{amount}, #{residenceHistoryId}, #{status},
+            #{createdAt}, #{updatedAt}
+        )
     </insert>
 
     <update id="update" parameterType="com.dom.project.entity.DormFee">
-        UPDATE dorm_fee SET amount = #{amount}, basis_area_sqm = #{basisAreaSqm}, basis_days = #{basisDays},
-            basis_detail = #{basisDetail}::jsonb, status = #{status}, updated_at = #{updatedAt}
+        UPDATE dorm_fee
+        SET region = #{region},
+            dormitory_id = #{dormitoryId},
+            room_id = #{roomId},
+            employee_id = #{employeeId},
+            target_year_month = #{targetYearMonth},
+            move_in_date = #{moveInDate},
+            move_out_date = #{moveOutDate},
+            usage_type_code = #{usageTypeCode},
+            usage_days = #{usageDays},
+            unit_price_id = #{unitPriceId},
+            daily_unit_price = #{dailyUnitPrice},
+            amount = #{amount},
+            residence_history_id = #{residenceHistoryId},
+            status = #{status},
+            updated_at = #{updatedAt}
         WHERE dorm_fee_id = #{dormFeeId} AND deleted_at IS NULL
     </update>
 
     <select id="findById" resultMap="DormFeeMap">
-        SELECT dorm_fee_id, employee_id, room_id, target_year_month, amount, basis_area_sqm, basis_days,
-               basis_detail::text AS basis_detail, status, residence_history_id, created_at, updated_at, deleted_at
-        FROM dorm_fee WHERE dorm_fee_id = #{dormFeeId} AND deleted_at IS NULL
+        SELECT <include refid="BaseColumns"/>
+        FROM dorm_fee
+        WHERE dorm_fee_id = #{dormFeeId} AND deleted_at IS NULL
     </select>
 
-    <select id="searchList" resultMap="DormFeeMap">
-        SELECT dorm_fee_id, employee_id, room_id, target_year_month, amount, basis_area_sqm, basis_days,
-               basis_detail::text AS basis_detail, status, residence_history_id, created_at, updated_at, deleted_at
-        FROM dorm_fee WHERE deleted_at IS NULL
+    <select id="findByResidenceAndMonth" resultMap="DormFeeMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM dorm_fee
+        WHERE residence_history_id = #{residenceHistoryId}
+          AND target_year_month = #{targetYearMonth}
+          AND deleted_at IS NULL
+    </select>
+
+    <select id="searchList" resultMap="DormFeeListViewMap">
+        SELECT <include refid="ListSelectColumns"/>
+        FROM dorm_fee df
+        JOIN employee e ON e.employee_id = df.employee_id AND e.deleted_at IS NULL
+        JOIN dormitory d ON d.dormitory_id = df.dormitory_id AND d.deleted_at IS NULL
+        JOIN room r ON r.room_id = df.room_id AND r.deleted_at IS NULL
+        JOIN residence_history rh ON rh.residence_history_id = df.residence_history_id AND rh.deleted_at IS NULL
+        LEFT JOIN region rg ON rg.code = df.region AND rg.deleted_at IS NULL
+        LEFT JOIN usage_type ut ON ut.code = df.usage_type_code AND ut.deleted_at IS NULL
+        LEFT JOIN unit_price up ON up.unit_price_id = df.unit_price_id AND up.deleted_at IS NULL
+        WHERE df.deleted_at IS NULL
         <if test="employeeId != null and employeeId != ''">
-            AND employee_id ILIKE CONCAT('%', #{employeeId}, '%')
+            AND df.employee_id ILIKE CONCAT('%', #{employeeId}, '%')
         </if>
         <if test="targetYearMonth != null and targetYearMonth != ''">
-            AND target_year_month = #{targetYearMonth}
+            AND df.target_year_month = #{targetYearMonth}
         </if>
         <if test="status != null and status != ''">
-            AND status = #{status}
+            AND df.status = #{status}
         </if>
-        ORDER BY target_year_month DESC, dorm_fee_id
+        ORDER BY df.target_year_month DESC, df.dorm_fee_id
         LIMIT #{limit} OFFSET #{offset}
     </select>
 
     <select id="countSearch" resultType="long">
-        SELECT COUNT(1) FROM dorm_fee WHERE deleted_at IS NULL
+        SELECT COUNT(1)
+        FROM dorm_fee df
+        WHERE df.deleted_at IS NULL
         <if test="employeeId != null and employeeId != ''">
-            AND employee_id ILIKE CONCAT('%', #{employeeId}, '%')
+            AND df.employee_id ILIKE CONCAT('%', #{employeeId}, '%')
         </if>
         <if test="targetYearMonth != null and targetYearMonth != ''">
-            AND target_year_month = #{targetYearMonth}
+            AND df.target_year_month = #{targetYearMonth}
         </if>
         <if test="status != null and status != ''">
-            AND status = #{status}
+            AND df.status = #{status}
         </if>
     </select>
-
-    <update id="confirm">
-        UPDATE dorm_fee SET status = 'CONFIRMED', updated_at = #{updatedAt}
-        WHERE dorm_fee_id = #{dormFeeId} AND deleted_at IS NULL AND status = 'DRAFT'
-    </update>
 </mapper>

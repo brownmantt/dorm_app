@@ -58,6 +58,12 @@
             WHERE LENGTH(storage_id) &gt;= 13
               AND SUBSTRING(storage_id FROM LENGTH(storage_id) - 11 FOR 8) = #{datePart}
               AND RIGHT(storage_id, 4) ~ '^[0-9]{4}$'
+            UNION ALL
+            SELECT CAST(RIGHT(equipment_asset_id, 4) AS INTEGER)
+            FROM equipment_asset
+            WHERE LENGTH(equipment_asset_id) &gt;= 13
+              AND SUBSTRING(equipment_asset_id FROM LENGTH(equipment_asset_id) - 11 FOR 8) = #{datePart}
+              AND RIGHT(equipment_asset_id, 4) ~ '^[0-9]{4}$'
         ) sequences
     </select>
 </mapper>

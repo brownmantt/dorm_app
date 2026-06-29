@@ -17,6 +17,8 @@ public class ResidenceHistoryView {
     private LocalDate moveInDate;
     private LocalDate moveOutDate;
     private String moveOutReason;
+    private String usageTypeCode;
+    private String usageTypeName;
 
     public String getResidenceHistoryId() {
         return residenceHistoryId;
@@ -96,5 +98,21 @@ public class ResidenceHistoryView {
 
     public void setMoveOutReason(String moveOutReason) {
         this.moveOutReason = moveOutReason;
+    }
+
+    public String getUsageTypeCode() {
+        return usageTypeCode;
+    }
+
+    public void setUsageTypeCode(String usageTypeCode) {
+        this.usageTypeCode = usageTypeCode;
+    }
+
+    public String getUsageTypeName() {
+        return usageTypeName;
+    }
+
+    public void setUsageTypeName(String usageTypeName) {
+        this.usageTypeName = usageTypeName;
     }
 }

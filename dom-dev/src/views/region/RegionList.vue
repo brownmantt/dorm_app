@@ -140,6 +140,16 @@ function openDialog(row) {
   dialogVisible.value = true
 }
 
+function resetCreateForm() {
+  Object.assign(form, {
+    regionId: '',
+    code: '',
+    name: '',
+    displayOrder: 0
+  })
+  formRef.value?.resetFields()
+}
+
 async function handleSubmit() {
   await formRef.value.validate()
   submitLoading.value = true
@@ -155,6 +165,7 @@ async function handleSubmit() {
     } else {
       await createRegion(payload)
       ElMessage.success('地域を登録しました')
+      resetCreateForm()
     }
     dialogVisible.value = false
     fetchList()

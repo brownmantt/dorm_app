@@ -44,6 +44,11 @@
         <el-table-column prop="employeeName" label="入居者氏名" min-width="160" />
         <el-table-column prop="dormitoryName" label="寮名称" min-width="200" />
         <el-table-column prop="roomName" label="部屋" min-width="140" />
+        <el-table-column label="利用形態" min-width="120">
+          <template #default="{ row }">
+            {{ row.usageTypeName || row.usageTypeCode || '-' }}
+          </template>
+        </el-table-column>
         <el-table-column
           prop="moveInDate"
           label="入居日"

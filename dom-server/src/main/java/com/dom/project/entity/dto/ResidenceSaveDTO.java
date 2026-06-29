@@ -21,6 +21,9 @@ public class ResidenceSaveDTO {
     @NotBlank(message = "入寮日を入力してください")
     private String moveInDate;
 
+    @NotBlank(message = "利用形態を選択してください")
+    private String usageTypeCode;
+
     private LocalDate moveOutDate;
     private String moveOutReason;
 
@@ -54,6 +57,14 @@ public class ResidenceSaveDTO {
 
     public void setMoveInDate(String moveInDate) {
         this.moveInDate = moveInDate;
+    }
+
+    public String getUsageTypeCode() {
+        return usageTypeCode;
+    }
+
+    public void setUsageTypeCode(String usageTypeCode) {
+        this.usageTypeCode = usageTypeCode;
     }
 
     public LocalDate getMoveOutDate() {

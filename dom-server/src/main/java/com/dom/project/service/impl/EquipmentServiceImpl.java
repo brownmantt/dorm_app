@@ -69,7 +69,6 @@ public class EquipmentServiceImpl implements EquipmentService {
         Equipment entity = new Equipment();
         entity.setEquipmentId(IdGenerator.nextId("EQ"));
         entity.setName(dto.getName());
-        entity.setEquipmentType(dto.getEquipmentType());
         entity.setCreatedAt(now);
         entity.setUpdatedAt(now);
         equipmentMapper.insert(entity);
@@ -83,18 +82,33 @@ public class EquipmentServiceImpl implements EquipmentService {
     public Equipment update(String id, EquipmentSaveDTO dto) {
         Equipment before = equipmentMapper.findById(id);
         if (before == null) {
-            throw new BusinessException("EQUIPMENT_NOT_FOUND", "備品が見つかりません");
+            throw new BusinessException("EQUIPMENT_NOT_FOUND", "品目が見つかりません");
         }
         Equipment entity = new Equipment();
         entity.setEquipmentId(id);
         entity.setName(dto.getName());
-        entity.setEquipmentType(dto.getEquipmentType());
         entity.setUpdatedAt(LocalDateTime.now());
         equipmentMapper.update(entity);
         Equipment after = equipmentMapper.findById(id);
         operationLogWriter.logUpdate(
                 OperationTypeEnum.EQUIPMENT_UPDATE, TargetTableEnum.EQUIPMENT, id, before, after);
         return after;
+    }
+
+    @Override
+    @Transactional
+    public void delete(String id) {
+        Equipment before = equipmentMapper.findById(id);
+        if (before == null) {
+            throw new BusinessException("EQUIPMENT_NOT_FOUND", "品目が見つかりません");
+        }
+        Long refCount = equipmentMapper.countReferences(id);
+        if (refCount != null && refCount > 0) {
+            throw new BusinessException("EQUIPMENT_IN_USE", "使用中の品目は削除できません");
+        }
+        equipmentMapper.logicalDelete(id, LocalDateTime.now());
+        operationLogWriter.logDelete(
+                OperationTypeEnum.EQUIPMENT_DELETE, TargetTableEnum.EQUIPMENT, id, before);
     }
 
     @Override
@@ -106,7 +120,7 @@ public class EquipmentServiceImpl implements EquipmentService {
         }
         Equipment equipment = equipmentMapper.findById(dto.getEquipmentId());
         if (equipment == null) {
-            throw new BusinessException("EQUIPMENT_NOT_FOUND", "備品が見つかりません");
+            throw new BusinessException("EQUIPMENT_NOT_FOUND", "品目が見つかりません");
         }
 
         LocalDateTime now = LocalDateTime.now();
@@ -138,7 +152,7 @@ public class EquipmentServiceImpl implements EquipmentService {
     public void createStorage(EquipmentStorageSaveDTO dto) {
         Equipment equipment = equipmentMapper.findById(dto.getEquipmentId());
         if (equipment == null) {
-            throw new BusinessException("EQUIPMENT_NOT_FOUND", "備品が見つかりません");
+            throw new BusinessException("EQUIPMENT_NOT_FOUND", "品目が見つかりません");
         }
         LocalDateTime now = LocalDateTime.now();
         EquipmentStorage storage = new EquipmentStorage();

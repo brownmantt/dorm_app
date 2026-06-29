@@ -30,9 +30,6 @@ public class UnitPriceSaveDTO {
     @DecimalMin(value = "0", message = "日単価は0以上の値を入力してください")
     private BigDecimal dailyUnitPrice;
 
-    /** 未指定時は業務層で -1 を設定 */
-    private Integer maxUsageDays;
-
     public String getRegion() {
         return region;
     }
@@ -71,13 +68,5 @@ public class UnitPriceSaveDTO {
 
     public void setDailyUnitPrice(BigDecimal dailyUnitPrice) {
         this.dailyUnitPrice = dailyUnitPrice;
-    }
-
-    public Integer getMaxUsageDays() {
-        return maxUsageDays;
-    }
-
-    public void setMaxUsageDays(Integer maxUsageDays) {
-        this.maxUsageDays = maxUsageDays;
     }
 }

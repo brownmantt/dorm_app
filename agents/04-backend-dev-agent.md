@@ -285,17 +285,17 @@ null チェック必須 → **グローバル例外** へ委譲。
 # 十四、実行フロー（推奨）
 
 ```text
-Step 1｜dom-dev/src/api/*.js と dom-dev/doc/APIdoc/ を読み込み
+Step 1｜dom-dev/src/api/*.js と document/APIdoc/ を読み込み
  ↓
-Step 2｜dom-dev/doc/詳細設計書_0522/ および schema.sql を照合
+Step 2｜document/0522_詳細設計書/ および database/schema.sql を照合
  ↓
-Step 3｜func_server.md / dom-server/ 既存コードを確認（重複防止）
+Step 3｜document/func_server.md / dom-server/ 既存コードを確認（重複防止）
  ↓
 Step 4｜Entity → DTO → VO → Mapper → XML → Service → Controller を生成
  ↓
 Step 5｜セルフチェック（十三）を実施
  ↓
-Step 6｜func_server.md・APIdoc を更新
+Step 6｜document/func_server.md・document/APIdoc/ を更新
 ```
 
 ---
@@ -335,12 +335,32 @@ Step 6｜func_server.md・APIdoc を更新
 | 資料 | パス |
 |------|------|
 | フロント API 定義 | `dom-dev/src/api/` |
-| API ドキュメント | `dom-dev/doc/APIdoc/` |
+| API ドキュメント | `document/APIdoc/` |
 | フロント request ラッパー | `dom-dev/src/utils/request.js` |
-| 詳細設計書 | `dom-dev/doc/詳細設計書_0522/` |
-| API 共通仕様 | `dom-dev/doc/詳細設計書_0522/05_API共通仕様.md` |
-| DB スキーマ | `dom-dev/doc/製造_0530/schema.sql` |
+| 詳細設計書 | `document/0522_詳細設計書/` |
+| マスタ管理 | `document/0522_詳細設計書/23_マスタ管理（地域・利用形態・単価）.md` |
+| 寮費管理 | `document/0522_詳細設計書/09_寮費管理.md` |
+| API 共通仕様 | `document/0522_詳細設計書/05_API共通仕様.md` |
+| DB スキーマ | `database/schema.sql` |
 | バックエンド出力先 | `dom-server/` |
-| バックエンド機能定義 | `func_server.md`（存在する場合） |
+| バックエンド機能定義 | `document/func_server.md` |
 | プロジェクトルール | `.cursor/rules/Backend-source-check-rule.mdc` |
 | API ドキュメント規範 | `.cursor/rules/API-documentation-rule.mdc` |
+
+### マスタ API 仕様メモ（v2.2 / 2026-06-28）
+
+| Service | DTO フィールド（利用日数） | 業務エラー（利用日数） |
+|---------|---------------------------|------------------------|
+| `UsageTypeServiceImpl` | `minUsageDays`, `maxUsageDays`（未指定→1 / -1） | `USAGE_TYPE_MIN_DAYS_INVALID`, `USAGE_TYPE_MAX_DAYS_INVALID`, `USAGE_TYPE_MIN_MAX_DAYS_INVALID` |
+| `UnitPriceServiceImpl` | **なし**（`region`, `dormitoryId`, `roomId`, `usageTypeCode`, `dailyUnitPrice` のみ） | — |
+| `DormFeeServiceImpl` | 算定時に `UsageTypeMapper.findByCode()` で min/max を参照 | — |
+
+**呼び出しチェーン（寮費算定）**
+
+```text
+DormFeeController.calculate()
+ → DormFeeServiceImpl
+ → ResidenceHistoryMapper.findForDormFeeCalculation()
+ → UnitPriceMapper.findRoomLevelMatch() / findDormitoryLevelMatch() / findRegionLevelMatch()
+ → UsageTypeMapper.findByCode()
+```

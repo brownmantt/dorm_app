@@ -62,6 +62,7 @@ public class SecurityConfig {
                         .requestMatchers("/dorm-fees/**",
                                 "/unit-prices/**",
                                 "/equipments/**",
+                                "/equipment-assets/**",
                                 "/equipment-moveouts/**",
                                 "/equipment-storages/**",
                                 "/operation-logs/**",

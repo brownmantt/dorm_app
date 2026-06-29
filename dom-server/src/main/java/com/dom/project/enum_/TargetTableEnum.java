@@ -18,6 +18,7 @@ public enum TargetTableEnum {
     EQUIPMENT("equipment"),
     EQUIPMENT_MOVEOUT("equipment_moveout"),
     EQUIPMENT_STORAGE("equipment_storage"),
+    EQUIPMENT_ASSET("equipment_asset"),
     EXCEL_IMPORT_JOB("excel_import_job"),
     AUTH("auth");
 

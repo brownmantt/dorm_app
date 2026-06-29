@@ -15,7 +15,6 @@ public class UnitPrice {
     private String roomId;
     private String usageTypeCode;
     private BigDecimal dailyUnitPrice;
-    private Integer maxUsageDays;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
@@ -74,14 +73,6 @@ public class UnitPrice {
 
     public void setDailyUnitPrice(BigDecimal dailyUnitPrice) {
         this.dailyUnitPrice = dailyUnitPrice;
-    }
-
-    public Integer getMaxUsageDays() {
-        return maxUsageDays;
-    }
-
-    public void setMaxUsageDays(Integer maxUsageDays) {
-        this.maxUsageDays = maxUsageDays;
     }
 
     public LocalDateTime getCreatedAt() {

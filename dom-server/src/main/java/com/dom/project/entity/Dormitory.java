@@ -49,6 +49,9 @@ public class Dormitory {
     /** 論理削除日時（NULL は未削除） */
     private LocalDateTime deletedAt;
 
+    /** 入居者ありフラグ（一覧 API のみ。DB 非永続） */
+    private Boolean hasResidents;
+
     public String getDormitoryId() {
         return dormitoryId;
     }
@@ -159,5 +162,13 @@ public class Dormitory {
 
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
+    }
+
+    public Boolean getHasResidents() {
+        return hasResidents;
+    }
+
+    public void setHasResidents(Boolean hasResidents) {
+        this.hasResidents = hasResidents;
     }
 }

@@ -424,3 +424,65 @@
 | code | HTTP | 条件 |
 |------|------|------|
 | `ROOM_IN_USE` | 400 | 当該部屋に現在有効入居者が1名以上いる |
+
+---
+
+## 寮費算定用寮一覧
+
+**インターフェース名称：** 寮費算定用寮一覧  
+**機能説明：** 寮費算定ダイアログの寮コンボボックス用に、寮マスタを取得する  
+**インターフェースURL：** `/api/v1/dormitories`  
+**リクエスト方式：** GET
+
+---
+
+### 機能説明
+
+`dormFeeComboSort=true` を指定すると、表示順は **入居あり → 更新日降順 → 地域 → 寮名称** となる。入居ありは当日時点で有効な入居履歴がある寮とする。
+
+---
+
+### リクエストパラメータ
+
+```json
+{
+  "dormFeeComboSort": true,
+  "page": 0,
+  "size": 5000
+}
+```
+
+| パラメータ名 | 型 | 必須 | 説明 | 例 |
+|--------------|------|------|------|------|
+| dormFeeComboSort | boolean | はい | 寮費算定コンボ用ソートを適用 | true |
+| page | int | いいえ | ページ番号（0 始まり） | 0 |
+| size | int | いいえ | 1 ページあたり件数 | 5000 |
+
+---
+
+### レスポンスパラメータ
+
+```json
+{
+  "content": [
+    {
+      "dormitoryId": "D001",
+      "name": "第一寮",
+      "region": "TOKYO",
+      "hasResidents": true,
+      "updatedAt": "2026-06-28T10:00:00"
+    }
+  ],
+  "totalElements": 1
+}
+```
+
+| パラメータ名 | 型 | 必須 | 説明 | 例 |
+|--------------|------|------|------|------|
+| content | object[] | はい | 寮一覧 | — |
+| content[].dormitoryId | string | はい | 寮 ID | D001 |
+| content[].name | string | はい | 寮名称 | 第一寮 |
+| content[].region | string | いいえ | 地域コード | TOKYO |
+| content[].hasResidents | boolean | はい | 入居ありフラグ | true |
+| content[].updatedAt | string | いいえ | 更新日時 | 2026-06-28T10:00:00 |
+| totalElements | int | いいえ | 総件数 | 1 |

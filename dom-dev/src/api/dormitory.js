@@ -6,6 +6,22 @@ export function getDormitories(params) {
   return request.get('/dormitories', { params: buildQueryParams(params) })
 }
 
+/** 寮費算定画面：入居あり→更新日降順→地域→寮名称 */
+export function getDormitoriesForDormFee(params = {}) {
+  return getDormitories({
+    ...params,
+    dormFeeComboSort: true
+  })
+}
+
+/** 寮費算定画面（エラー非表示） */
+export function getDormitoriesForDormFeeSilent(params = {}) {
+  return request.get('/dormitories', {
+    params: buildQueryParams({ ...params, dormFeeComboSort: true }),
+    skipErrorHandler: true
+  })
+}
+
 /** 寮名称コンボボックス用の選択肢 */
 export async function getDormitoryNameOptions() {
   const data = await getDormitories({ page: 0, size: 2000 })

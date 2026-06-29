@@ -14,6 +14,10 @@ public interface EmployeeService {
 
     PageResult<EmployeeListView> list(String keyword, String gender, String employeeCategory,
                                       String affiliationId, Boolean notResidingOnly,
+                                      Boolean dormFeeComboSort,
+                                      String targetYearMonth,
+                                      String dormitoryId,
+                                      String roomId,
                                       Integer page, Integer size);
 
     Employee getById(String employeeId);

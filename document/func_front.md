@@ -35,18 +35,19 @@
 | dormitory | `/dormitories` | DormitoryList | `views/dormitory/DormitoryList.vue` | ADMIN/USER | 寮一覧（寮名称コンボ・地域・種別・住所検索・CRUD・最寄駅3項目）。新規/編集は `DormitoryFormDialog` |
 | dormitory | `/dormitories/:id` | DormitoryDetail | `views/dormitory/DormitoryDetail.vue` | ADMIN/USER | 寮詳細（上部3カラム3行、値エリア列幅 **2:6:2**）。`toolbar-card` に一覧へ戻る・**編集**（`DormitoryFormDialog`・保存後 `fetchDetail` で反映）・部屋追加。部屋一覧・責任者設定 |
 | dormitory | `/dormitories/:dormId/rooms/:roomId/edit` | RoomEdit | `views/dormitory/RoomEdit.vue` | ADMIN | 部屋編集。フォーム下部に「一覧へ戻る」（寮詳細へ）・「保存」 |
-| residence | `/residences/register` | ResidenceRegister | `views/residence/ResidenceRegister.vue` | ADMIN | **入居登録・退居**（メニュー1番目）。タブ：入居登録・**退居処理**。入居登録：入居者は `getRegisterableEmployees()` コンボ（未入居者のみ・社員マスタ更新日降順）。入居者選択後、寮コンボは入居者性別の男性寮/女性寮かつ割当可能部屋がある寮のみ（`getAssignableRooms` + `getDormitories({ genderType })`）。入居日・退居日は `iso-date-editor`。寮割カレンダー「入」から遷移時は `query.dormitoryId` / `query.roomId` で寮・部屋をプリセットし、入居者変更時も固定（`calendarPreset`）。入居日未入力時は当日を自動設定（`ensureDefaultMoveInDate`） |
-| residence | `/residences` | ResidenceHistoryList | `views/residence/ResidenceHistoryList.vue` | ADMIN/USER | **入居履歴**（メニュー2番目）。入居履歴一覧（検索：入居者氏名・社員ID・寮名称・入居日範囲）。入居日範囲は `iso-date-editor`（`calc(10ch + 72px)`・フォーカス時クリアアイコン込みで yyyy-MM-dd 全文表示）。一覧列：番号・社員ID・入居者氏名・寮名称・部屋・入居日・退居日・退寮理由（履歴IDは画面非表示）。入居日・退居日列は `col-iso-date`（120px・yyyy-MM-dd 10文字省略なし） |
+| residence | `/residences/register` | ResidenceRegister | `views/residence/ResidenceRegister.vue` | ADMIN | **入居登録・退居**（メニュー1番目）。タブ：入居登録・**退居処理**。入居登録：入居者は `getRegisterableEmployees()` コンボ（未入居者のみ・社員マスタ更新日降順）。**利用形態**は `loadUsageTypeOptions()` で利用形態マスタから取得（必須）。入居者選択後、寮コンボは入居者性別の男性寮/女性寮かつ割当可能部屋がある寮のみ（`getAssignableRooms` + `getDormitories({ genderType })`）。入居日・退居日は `iso-date-editor`。寮割カレンダー「入」から遷移時は `query.dormitoryId` / `query.roomId` で寮・部屋をプリセットし、入居者変更時も固定（`calendarPreset`）。入居日未入力時は当日を自動設定（`ensureDefaultMoveInDate`） |
+| residence | `/residences` | ResidenceHistoryList | `views/residence/ResidenceHistoryList.vue` | ADMIN/USER | **入居履歴**（メニュー2番目）。入居履歴一覧（検索：入居者氏名・社員ID・寮名称・入居日範囲）。入居日範囲は `iso-date-editor`（`calc(10ch + 72px)`・フォーカス時クリアアイコン込みで yyyy-MM-dd 全文表示）。一覧列：番号・社員ID・入居者氏名・寮名称・部屋・**利用形態**・入居日・退居日・退寮理由（履歴IDは画面非表示）。入居日・退居日列は `col-iso-date`（120px・yyyy-MM-dd 10文字省略なし） |
 | residence | `/first-use-long-term` | FirstUseLongTerm | `views/residence/FirstUseLongTerm.vue` | ADMIN/USER | 初回利用日・長期利用アラート |
-| dormFee | `/dorm-fees` | DormFeeList | `views/dormFee/DormFeeList.vue` | ADMIN | 寮費一覧・算定・確定。算定ダイアログ：入居日・退居日は `form-inline-date-range` 横並び・`iso-date-editor` |
-| equipment | `/equipments` | EquipmentMasterList | `views/equipment/EquipmentMasterList.vue` | ADMIN | 備品マスタ |
+| dormFee | `/dorm-fees` | DormFeeList | `views/dormFee/DormFeeList.vue` | ADMIN | 寮費一覧・算定。一覧列：地域・寮・部屋（1列2行表示）・入居者・対象年月・入居日・退居日・利用形態・利用日数・日単価・**金額**（寮費ID・単価IDは非表示）。算定ダイアログは **対象年月 → 寮 → 部屋 → 社員** の順。社員コンボは対象年月・寮・部屋に連動（`loadDormFeeEmployeeOptions`）。算定は入居履歴×単価マスタから算出し `dorm_fee` に保存。ステータス：仮定（PROVISIONAL）/ エラー（ERROR） |
+| equipment | `/equipments` | EquipmentMasterList | `views/equipment/EquipmentMasterList.vue` | ADMIN | **品目マスタ CRUD** — 品目ID（自動採番）・品目名称のみ管理。論理削除（使用中は不可） |
+| equipment | `/equipment-assets` | EquipmentAssetList | `views/equipment/EquipmentAssetList.vue` | ADMIN | **備品管理 CRUD** — 品目（品目マスタコンボ）・備品番号（自動採番）・購入日・購入金額・購入店・購入店連絡先・購入店郵便番号・購入店住所・保証期限。品目で検索可 |
 | equipment | `/equipment-moveouts` | MoveOutEquipment | `views/equipment/MoveOutEquipment.vue` | ADMIN | 退去備品処理 |
 | equipment | `/equipment-storages` | EquipmentStorage | `views/equipment/EquipmentStorage.vue` | ADMIN | 備品保管 |
 | vacancy | `/vacancies` | VacancyList | `views/vacancy/VacancyList.vue` | ADMIN/USER | 空き室一覧（検索：種別・基準日）。寮名称→寮詳細、部屋名称→部屋編集。入居者列右「入居」、退寮予定日列右「退居」（ADMIN） |
 | affiliation | `/affiliations` | AffiliationList | `views/affiliation/AffiliationList.vue` | ADMIN | 所属マスタ CRUD |
 | region | `/regions` | RegionList | `views/region/RegionList.vue` | ADMIN | **地域マスタ CRUD** — 地域コード・名称・表示順。初期データ：東京/大阪/名古屋/その他 |
-| usageType | `/usage-types` | UsageTypeList | `views/usageType/UsageTypeList.vue` | ADMIN | **利用形態マスタ CRUD** — コード値・名称・表示順。初期データ：通常利用/出張利用/長期利用 |
-| unitPrice | `/unit-prices` | UnitPriceList | `views/unitPrice/UnitPriceList.vue` | ADMIN | **単価マスタ CRUD** — 単価コード（自動採番・編集時参照のみ）・地域・寮（任意）・部屋（任意）・利用形態・日単価・最大利用日数（任意、未入力時 -1） |
+| usageType | `/usage-types` | UsageTypeList | `views/usageType/UsageTypeList.vue` | ADMIN | **利用形態マスタ CRUD** — コード値・名称・表示順・最小利用日数（任意、未入力時 1）・最大利用日数（任意、未入力時 -1） |
+| unitPrice | `/unit-prices` | UnitPriceList | `views/unitPrice/UnitPriceList.vue` | ADMIN | **単価マスタ CRUD** — 単価コード（自動採番・編集時参照のみ）・地域・寮（任意）・部屋（任意）・利用形態・日単価 |
 | employee | `/employees` | EmployeeList | `views/employee/EmployeeList.vue` | ADMIN | **社員マスタ CRUD（SC-16）** — 検索・新規・編集・論理削除・最寄駅3項目。入居登録の社員検索データソース |
 | import | `/import` | ExcelImport | `views/import/ExcelImport.vue` | ADMIN | Excel/CSV 取込・エクスポート |
 | log | `/operation-logs` | OperationLogList | `views/log/OperationLogList.vue` | ADMIN | 操作ログ一覧 |
@@ -75,6 +76,8 @@
 | `getEmployees(params)` | GET | `/employees` | 社員一覧（キーワード・性別・区分・所属・`notResidingOnly`・ページング） |
 | `searchEmployees(params)` | GET | `/employees` | 社員検索（`getEmployees` エイリアス） |
 | `getRegisterableEmployees(params)` | GET | `/employees` | 入居登録用社員一覧（`notResidingOnly=true`・更新日降順） |
+| `getEmployeesForDormFee(params)` | GET | `/employees` | 寮費算定用社員一覧（`dormFeeComboSort=true`・`targetYearMonth` / `dormitoryId` / `roomId` で絞込・入居中→更新日降順→氏名昇順） |
+| `getEmployeesForDormFeeSilent(params)` | GET | `/employees` | 寮費算定用社員一覧（エラー非表示・上記と同パラメータ） |
 | `searchEmployeesSilent(params)` | GET | `/employees` | 社員検索（エラー非表示・カレンダー補完用） |
 | `getEmployee(employeeId)` | GET | `/employees/:id` | 社員詳細 |
 | `createEmployee(data)` | POST | `/employees` | 社員登録 |
@@ -133,6 +136,8 @@
 | 関数 | メソッド | エンドポイント | 概要 |
 |---|---|---|---|
 | `getDormitories(params)` | GET | `/dormitories` | 寮一覧（`dormitoryId` / `genderType` / `region` / `address`） |
+| `getDormitoriesForDormFee(params)` | GET | `/dormitories` | 寮費算定用寮一覧（`dormFeeComboSort=true`） |
+| `getDormitoriesForDormFeeSilent(params)` | GET | `/dormitories` | 寮費算定用寮一覧（エラー非表示） |
 | `getDormitoryNameOptions()` | — | `/dormitories` | 寮名称コンボボックス用選択肢 |
 | `getDormitory(id)` | GET | `/dormitories/:id` | 寮詳細 |
 | `createDormitory(data)` | POST | `/dormitories` | 寮登録（`postalCode` 必須） |
@@ -167,19 +172,26 @@
 | 関数 | メソッド | エンドポイント | 概要 |
 |---|---|---|---|
 | `getDormFees(params)` | GET | `/dorm-fees` | 寮費一覧 |
-| `calculateDormFee(data)` | POST | `/dorm-fees/calculate` | 寮費算定 |
-| `createDormFee(data)` | POST | `/dorm-fees` | 寮費登録 |
-| `confirmDormFee(id)` | PUT | `/dorm-fees/:id/confirm` | 寮費確定 |
+| `calculateDormFee(data)` | POST | `/dorm-fees/calculate` | 寮費算定（保存込み） |
 
 ### `api/equipment.js`
 | 関数 | メソッド | エンドポイント | 概要 |
 |---|---|---|---|
-| `getEquipments(params)` | GET | `/equipments` | 備品一覧 |
-| `createEquipment(data)` | POST | `/equipments` | 備品登録 |
-| `updateEquipment(id, data)` | PUT | `/equipments/:id` | 備品更新 |
+| `getEquipments(params)` | GET | `/equipments` | 品目一覧 |
+| `createEquipment(data)` | POST | `/equipments` | 品目登録（`name` のみ） |
+| `updateEquipment(id, data)` | PUT | `/equipments/:id` | 品目更新（`name` のみ） |
+| `deleteEquipment(id)` | DELETE | `/equipments/:id` | 品目削除（論理削除） |
 | `processEquipmentMoveout(data)` | POST | `/equipment-moveouts` | 退去備品処理 |
 | `getEquipmentStorages(params)` | GET | `/equipment-storages` | 保管一覧 |
 | `createEquipmentStorage(data)` | POST | `/equipment-storages` | 保管登録 |
+
+### `api/equipmentAsset.js`
+| 関数 | メソッド | エンドポイント | 概要 |
+|---|---|---|---|
+| `getEquipmentAssets(params)` | GET | `/equipment-assets` | 備品一覧（`equipmentId` 絞込可） |
+| `createEquipmentAsset(data)` | POST | `/equipment-assets` | 備品登録（備品番号はサーバ採番） |
+| `updateEquipmentAsset(id, data)` | PUT | `/equipment-assets/:id` | 備品更新 |
+| `deleteEquipmentAsset(id)` | DELETE | `/equipment-assets/:id` | 備品削除（論理削除） |
 
 ### `api/vacancy.js`
 | 関数 | メソッド | エンドポイント | 概要 |
@@ -248,6 +260,9 @@
 
 ### `utils/employee.js`
 - `parseContactInfo(contactInfo)`: contact_info JSON から携帯・メールを抽出
+- `formatEmployeeOptionLabel(item)`: 社員コンボ表示ラベル（`社員ID - 氏名`）
+- `mapEmployeeListToDormFeeOptions(list)`: 寮費算定コンボ用選択肢へ変換
+- `loadDormFeeEmployeeOptions({ silent, targetYearMonth, dormitoryId, roomId })`: 寮費算定画面の社員コンボ選択肢を取得（対象月入居履歴で絞込）
 
 ### `utils/region.js`
 - `mapRegionListToOptions(list)`: API レスポンス → `{ value: code, label: name }[]`
@@ -259,6 +274,12 @@
 ### `utils/usageType.js`
 - `mapUsageTypeListToOptions(list)`: API レスポンス → `{ value: code, label: name }[]`
 - `loadUsageTypeOptions({ silent })`: 利用形態マスタからコンボ用選択肢を取得
+
+### `utils/dormitory.js`
+- `formatDormitoryOptionLabel(item)`: 寮コンボ表示ラベル（`寮名称（地域）`）
+- `mapDormitoryListToDormFeeOptions(list, regionOptions)`: 寮費算定コンボ用選択肢へ変換
+- `loadDormFeeDormitoryOptions({ silent })`: 寮費算定画面の寮コンボ選択肢を取得
+- `mapRoomListToOptions(list)`: 部屋コンボ用選択肢へ変換
 
 ### `utils/dormAllocation.js`
 - `inferRegionFromAddress(address)`: 住所から地域コード推定
@@ -460,18 +481,15 @@ backend EmployeeController → EmployeeService → EmployeeMapper
 入居登録（入居者コンボ・業務検証）:
 
 ```
-views/residence/ResidenceRegister.vue  onMounted() → fetchEmployeeOptions()
+views/residence/ResidenceRegister.vue  onMounted() → loadUsageTypeOptions() + fetchEmployeeOptions()
  ↓
-api/employee.js  getRegisterableEmployees({ notResidingOnly: true, page, size })
- ↓
-EmployeeController GET /employees → EmployeeService.list() → EmployeeMapper.searchList()
- ↓
-employee テーブル（未入居者のみ・updated_at 降順）
+utils/usageType.js  loadUsageTypeOptions() → api/usageType.js getUsageTypesSilent() → usage_type テーブル
+api/employee.js  getRegisterableEmployees({ notResidingOnly: true }) → employee テーブル（未入居者のみ）
 
 views/residence/ResidenceRegister.vue  handleRegister()
  ↓
 api/vacancy.js  getAssignableRooms({ employeeId, dormitoryId, asOfDate })
-api/residence.js  validateResidence() → createResidence()
+api/residence.js  validateResidence({ usageTypeCode, ... }) → createResidence({ usageTypeCode, ... })
  ↓
 backend
 ```
@@ -577,11 +595,24 @@ UnitPriceController → UnitPriceServiceImpl → UnitPriceMapper → unit_price 
 （参照整合：RegionMapper / DormitoryMapper / RoomMapper / UsageTypeMapper）
 ```
 
+備品管理（個体）:
+
+```
+views/equipment/EquipmentAssetList.vue  onMounted() / fetchList() / handleSubmit()
+ ↓
+api/equipmentAsset.js  getEquipmentAssets() / createEquipmentAsset() / updateEquipmentAsset() / deleteEquipmentAsset()
+api/equipment.js  getEquipments()（品目コンボ・検索）
+api/postalCode.js  lookupAddressByPostalCode()（購入店郵便番号 blur 時・任意）
+ ↓
+EquipmentAssetController → EquipmentAssetServiceImpl → EquipmentAssetMapper → equipment_asset テーブル
+（品目参照：EquipmentMapper → equipment テーブル）
+```
+
 ---
 
 ## 8. 共通実装パターン（一覧画面）
 
-一覧系 View は以下の定型構成を持つ（`DormitoryList` / `ResidenceHistoryList` / `DormFeeList` / `EquipmentMasterList` / `EquipmentStorage` / `VacancyList` / `OperationLogList` / `FirstUseLongTerm`）:
+一覧系 View は以下の定型構成を持つ（`DormitoryList` / `ResidenceHistoryList` / `DormFeeList` / `EquipmentMasterList` / `EquipmentAssetList` / `EquipmentStorage` / `VacancyList` / `OperationLogList` / `FirstUseLongTerm`）:
 
 - `query`（検索条件 reactive）/ `pagination`（page・size・total）/ `loading`
 - `fetchList()` → `api.get*()` → `normalizePageResponse()` → `tableData` / `pagination.total`

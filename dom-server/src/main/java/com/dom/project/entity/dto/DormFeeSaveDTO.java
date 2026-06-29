@@ -11,11 +11,11 @@ import java.math.BigDecimal;
  */
 public class DormFeeSaveDTO {
 
-    @NotBlank(message = "社員IDを入力してください")
     private String employeeId;
 
-    @NotBlank(message = "部屋IDを入力してください")
     private String roomId;
+
+    private String residenceHistoryId;
 
     @NotBlank(message = "対象年月を入力してください")
     private String targetYearMonth;
@@ -29,6 +29,8 @@ public class DormFeeSaveDTO {
     public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
     public String getRoomId() { return roomId; }
     public void setRoomId(String roomId) { this.roomId = roomId; }
+    public String getResidenceHistoryId() { return residenceHistoryId; }
+    public void setResidenceHistoryId(String residenceHistoryId) { this.residenceHistoryId = residenceHistoryId; }
     public String getTargetYearMonth() { return targetYearMonth; }
     public void setTargetYearMonth(String targetYearMonth) { this.targetYearMonth = targetYearMonth; }
     public BigDecimal getAmount() { return amount; }

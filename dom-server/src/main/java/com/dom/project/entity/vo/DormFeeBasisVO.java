@@ -12,6 +12,9 @@ public class DormFeeBasisVO {
     private Integer billableDays;
     private BigDecimal dailyRate;
     private String formula;
+    private String unitPriceCode;
+    private String usageTypeCode;
+    private String region;
 
     public BigDecimal getRoomAreaSqm() { return roomAreaSqm; }
     public void setRoomAreaSqm(BigDecimal roomAreaSqm) { this.roomAreaSqm = roomAreaSqm; }
@@ -23,4 +26,10 @@ public class DormFeeBasisVO {
     public void setDailyRate(BigDecimal dailyRate) { this.dailyRate = dailyRate; }
     public String getFormula() { return formula; }
     public void setFormula(String formula) { this.formula = formula; }
+    public String getUnitPriceCode() { return unitPriceCode; }
+    public void setUnitPriceCode(String unitPriceCode) { this.unitPriceCode = unitPriceCode; }
+    public String getUsageTypeCode() { return usageTypeCode; }
+    public void setUsageTypeCode(String usageTypeCode) { this.usageTypeCode = usageTypeCode; }
+    public String getRegion() { return region; }
+    public void setRegion(String region) { this.region = region; }
 }

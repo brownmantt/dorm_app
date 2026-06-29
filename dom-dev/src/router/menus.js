@@ -59,7 +59,7 @@ export const menuGroups = [
       { path: '/usage-types', title: '利用形態マスタ', meta: { roles: [ROLE_ADMIN] } },
       { path: '/unit-prices', title: '単価マスタ', meta: { roles: [ROLE_ADMIN] } },
       { path: '/employees', title: '社員マスタ', meta: { roles: [ROLE_ADMIN] } },
-      { path: '/equipments', title: '備品マスタ', meta: { roles: [ROLE_ADMIN] } }
+      { path: '/equipments', title: '品目マスタ', meta: { roles: [ROLE_ADMIN] } }
     ]
   },
   {
@@ -67,6 +67,7 @@ export const menuGroups = [
     title: '備品',
     icon: Box,
     children: [
+      { path: '/equipment-assets', title: '備品管理', meta: { roles: [ROLE_ADMIN] } },
       { path: '/equipment-moveouts', title: '退去備品処理', meta: { roles: [ROLE_ADMIN] } },
       { path: '/equipment-storages', title: '備品保管', meta: { roles: [ROLE_ADMIN] } }
     ]

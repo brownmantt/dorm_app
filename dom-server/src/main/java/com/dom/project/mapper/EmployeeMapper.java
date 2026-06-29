@@ -43,6 +43,10 @@ public interface EmployeeMapper {
                                       @Param("employeeCategory") String employeeCategory,
                                       @Param("affiliationId") String affiliationId,
                                       @Param("notResidingOnly") Boolean notResidingOnly,
+                                      @Param("dormFeeComboSort") Boolean dormFeeComboSort,
+                                      @Param("targetYearMonth") String targetYearMonth,
+                                      @Param("dormitoryId") String dormitoryId,
+                                      @Param("roomId") String roomId,
                                       @Param("offset") Integer offset,
                                       @Param("limit") Integer limit);
 
@@ -51,5 +55,8 @@ public interface EmployeeMapper {
                      @Param("gender") String gender,
                      @Param("employeeCategory") String employeeCategory,
                      @Param("affiliationId") String affiliationId,
-                     @Param("notResidingOnly") Boolean notResidingOnly);
+                     @Param("notResidingOnly") Boolean notResidingOnly,
+                     @Param("targetYearMonth") String targetYearMonth,
+                     @Param("dormitoryId") String dormitoryId,
+                     @Param("roomId") String roomId);
 }

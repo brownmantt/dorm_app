@@ -13,12 +13,12 @@
     </resultMap>
 
     <insert id="insert" parameterType="com.dom.project.entity.Equipment">
-        INSERT INTO equipment (equipment_id, name, equipment_type, created_at, updated_at)
-        VALUES (#{equipmentId}, #{name}, #{equipmentType}, #{createdAt}, #{updatedAt})
+        INSERT INTO equipment (equipment_id, name, created_at, updated_at)
+        VALUES (#{equipmentId}, #{name}, #{createdAt}, #{updatedAt})
     </insert>
 
     <update id="update" parameterType="com.dom.project.entity.Equipment">
-        UPDATE equipment SET name = #{name}, equipment_type = #{equipmentType}, updated_at = #{updatedAt}
+        UPDATE equipment SET name = #{name}, updated_at = #{updatedAt}
         WHERE equipment_id = #{equipmentId} AND deleted_at IS NULL
     </update>
 
@@ -35,5 +35,18 @@
 
     <select id="countSearch" resultType="long">
         SELECT COUNT(1) FROM equipment WHERE deleted_at IS NULL
+    </select>
+
+    <update id="logicalDelete">
+        UPDATE equipment
+        SET deleted_at = #{deletedAt}, updated_at = #{deletedAt}
+        WHERE equipment_id = #{equipmentId} AND deleted_at IS NULL
+    </update>
+
+    <select id="countReferences" resultType="long">
+        SELECT (
+            (SELECT COUNT(1) FROM equipment_moveout WHERE equipment_id = #{equipmentId})
+            + (SELECT COUNT(1) FROM equipment_storage WHERE equipment_id = #{equipmentId})
+        )
     </select>
 </mapper>

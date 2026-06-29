@@ -19,6 +19,12 @@ public class UsageType {
     /** 表示順 */
     private Integer displayOrder;
 
+    /** 最小利用日数 */
+    private Integer minUsageDays;
+
+    /** 最大利用日数（-1＝制限なし） */
+    private Integer maxUsageDays;
+
     /** 作成日時 */
     private LocalDateTime createdAt;
 
@@ -58,6 +64,22 @@ public class UsageType {
 
     public void setDisplayOrder(Integer displayOrder) {
         this.displayOrder = displayOrder;
+    }
+
+    public Integer getMinUsageDays() {
+        return minUsageDays;
+    }
+
+    public void setMinUsageDays(Integer minUsageDays) {
+        this.minUsageDays = minUsageDays;
+    }
+
+    public Integer getMaxUsageDays() {
+        return maxUsageDays;
+    }
+
+    public void setMaxUsageDays(Integer maxUsageDays) {
+        this.maxUsageDays = maxUsageDays;
     }
 
     public LocalDateTime getCreatedAt() {

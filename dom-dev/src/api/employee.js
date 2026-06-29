@@ -14,6 +14,22 @@ export function getRegisterableEmployees(params = {}) {
   })
 }
 
+/** 寮費算定画面：入居中→更新日降順→氏名昇順 */
+export function getEmployeesForDormFee(params = {}) {
+  return getEmployees({
+    ...params,
+    dormFeeComboSort: true
+  })
+}
+
+/** 寮費算定画面（エラー非表示） */
+export function getEmployeesForDormFeeSilent(params = {}) {
+  return request.get('/employees', {
+    params: buildQueryParams({ ...params, dormFeeComboSort: true }),
+    skipErrorHandler: true
+  })
+}
+
 /** @param {Record<string, unknown>} params */
 export function searchEmployees(params) {
   return getEmployees(params)

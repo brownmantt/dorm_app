@@ -81,11 +81,6 @@
           </template>
         </el-table-column>
         <el-table-column prop="dailyUnitPrice" label="日単価" min-width="100" align="right" />
-        <el-table-column label="最大利用日数" min-width="110" align="right">
-          <template #default="{ row }">
-            {{ formatMaxUsageDays(row.maxUsageDays) }}
-          </template>
-        </el-table-column>
         <el-table-column
           label="操作"
           width="120"
@@ -177,16 +172,6 @@
         <el-form-item label="日単価" prop="dailyUnitPrice">
           <el-input-number v-model="form.dailyUnitPrice" :min="0" :precision="2" :step="100" />
         </el-form-item>
-        <el-form-item label="最大利用日数">
-          <el-input-number
-            v-model="form.maxUsageDays"
-            :min="1"
-            :step="1"
-            :value-on-clear="null"
-            controls-position="right"
-            class="unit-price-max-days-input"
-          />
-        </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">キャンセル</el-button>
@@ -236,8 +221,7 @@ const form = reactive({
   dormitoryId: '',
   roomId: '',
   usageTypeCode: '',
-  dailyUnitPrice: null,
-  maxUsageDays: null
+  dailyUnitPrice: null
 })
 
 const rules = {
@@ -249,11 +233,6 @@ const rules = {
 const dialogTitle = computed(() => (form.unitPriceId ? '単価編集' : '単価新規登録'))
 
 const editingRow = ref(null)
-
-function formatMaxUsageDays(value) {
-  if (value == null || value === -1) return '制限なし'
-  return value
-}
 
 function filterDormitoriesByRegion(region) {
   if (!region) return []
@@ -359,8 +338,7 @@ async function handleDialogOpen() {
     dormitoryId: row?.dormitoryId || '',
     roomId: row?.roomId || '',
     usageTypeCode: row?.usageTypeCode || '',
-    dailyUnitPrice: row?.dailyUnitPrice ?? null,
-    maxUsageDays: row?.maxUsageDays != null && row.maxUsageDays !== -1 ? row.maxUsageDays : null
+    dailyUnitPrice: row?.dailyUnitPrice ?? null
   })
   formDormitoryOptions.value = filterDormitoriesByRegion(form.region)
   if (form.dormitoryId) {
@@ -379,8 +357,7 @@ async function handleSubmit() {
       dormitoryId: form.dormitoryId || null,
       roomId: form.roomId || null,
       usageTypeCode: form.usageTypeCode,
-      dailyUnitPrice: form.dailyUnitPrice,
-      maxUsageDays: form.maxUsageDays ?? null
+      dailyUnitPrice: form.dailyUnitPrice
     }
     if (form.unitPriceId) {
       await updateUnitPrice(form.unitPriceId, payload)
@@ -388,6 +365,19 @@ async function handleSubmit() {
     } else {
       await createUnitPrice(payload)
       ElMessage.success('単価を登録しました')
+      editingRow.value = null
+      Object.assign(form, {
+        unitPriceId: '',
+        code: '',
+        region: '',
+        dormitoryId: '',
+        roomId: '',
+        usageTypeCode: '',
+        dailyUnitPrice: null
+      })
+      formDormitoryOptions.value = []
+      formRoomOptions.value = []
+      formRef.value?.resetFields()
     }
     dialogVisible.value = false
     fetchList()

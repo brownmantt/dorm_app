@@ -221,13 +221,13 @@ argument-hint: >-
 # 十、照合・生成時の参照順（推奨）
 
 ```text
-詳細設計書（dom-dev/doc/詳細設計書_0522/06_データベース設計.md ほか各モジュール）
+詳細設計書（document/0522_詳細設計書/06_データベース設計.md ほか各モジュール）
  ↓
 フロント画面（dom-dev/src/views/）
  ↓
 API 定義（dom-dev/src/api/）
  ↓
-既存 DDL（dom-dev/doc/製造_0530/schema.sql）
+既存 DDL（database/schema.sql）
  ↓
 CREATE TABLE / INSERT 出力
 ```
@@ -246,11 +246,43 @@ CREATE TABLE / INSERT 出力
 
 | 資料 | パス |
 |------|------|
-| データベース設計 | `dom-dev/doc/詳細設計書_0522/06_データベース設計.md` |
-| 各モジュール DB 定義 | `dom-dev/doc/詳細設計書_0522/07_*.md` 〜 `12_*.md` 等 |
-| 既存 DDL | `dom-dev/doc/製造_0530/schema.sql` |
-| DB 構築手順 | `dom-dev/doc/製造_0530/01_データベース構築手順.md` |
+| データベース設計 | `document/0522_詳細設計書/06_データベース設計.md` |
+| マスタ管理 DB 定義 | `document/0522_詳細設計書/23_マスタ管理（地域・利用形態・単価）.md` |
+| 既存 DDL | `database/schema.sql` |
+| DB 構築手順 | `database/01_データベース構築手順.md` |
+| マイグレーション | `database/migration/` |
 | フロントソース | `dom-dev/src/views/` |
 | API 定義 | `dom-dev/src/api/` |
 | バックエンド | `dom-server/`（連携参照のみ） |
-| SQL 出力先（推奨） | `dom-dev/doc/製造_0530/` |
+
+### マスタテーブル仕様メモ（v2.2 / 2026-06-28）
+
+| テーブル | 利用日数関連カラム | 備考 |
+|----------|-------------------|------|
+| `usage_type` | `min_usage_days`（DEFAULT 1）、`max_usage_days`（DEFAULT -1） | 寮費算定の請求日数上下限 |
+| `unit_price` | **なし** | `daily_unit_price` のみ |
+
+**既存 DB への差分**: `database/migration/V20260629_usage_type_usage_days.sql`  
+（`unit_price` から `usage_type` へデータ移行後、単価側カラムを削除）
+
+### 寮費算定ロジックメモ（v2.3 / 2026-06-28）
+
+詳細: `document/0522_詳細設計書/09_寮費管理.md`
+
+- `dorm_fee` は算定結果の保存先（`status`: `PROVISIONAL` / `ERROR`）
+- 単価一致は `unit_price` テーブルで A→B→C 段階検索（部屋行・寮行・地域のみ行）
+- 利用日数 min/max は `usage_type` テーブルで範囲チェック（クランプしない）
+
+**照合・生成時の参照順（推奨）**
+
+```text
+document/0522_詳細設計書/06_データベース設計.md
+ ↓
+document/0522_詳細設計書/23_マスタ管理（地域・利用形態・単価）.md
+ ↓
+dom-dev/src/views/（画面項目）
+ ↓
+database/schema.sql
+ ↓
+CREATE TABLE / INSERT 出力
+```

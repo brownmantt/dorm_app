@@ -50,8 +50,7 @@
       "roomName": "101",
       "usageTypeCode": "NORMAL",
       "usageTypeName": "通常利用",
-      "dailyUnitPrice": 3500.00,
-      "maxUsageDays": 365
+      "dailyUnitPrice": 3500.00
     }
   ],
   "totalElements": 1,
@@ -73,7 +72,6 @@
 | content.usageTypeCode | string | はい | 利用形態コード | NORMAL |
 | content.usageTypeName | string | いいえ | 利用形態名称 | 通常利用 |
 | content.dailyUnitPrice | number | はい | 日単価 | 3500.00 |
-| content.maxUsageDays | integer | はい | 最大利用日数（-1 は制限なし） | 365 |
 | totalElements | integer | はい | 総件数 | 1 |
 | totalPages | integer | はい | 総ページ数 | 1 |
 
@@ -89,7 +87,7 @@
 ---
 
 ### 機能説明
-地域・利用形態のマスタ参照整合を検証したうえで単価を登録する。単価コードはサーバー側で自動採番（`UC` プレフィックス）する。寮・部屋は任意。部屋を指定する場合は寮も必須。寮の地域と選択地域が一致することを確認する。最大利用日数は未指定時 -1（制限なし）とする。
+地域・利用形態のマスタ参照整合を検証したうえで単価を登録する。単価コードはサーバー側で自動採番（`UC` プレフィックス）する。寮・部屋は任意。部屋を指定する場合は寮も必須。寮の地域と選択地域が一致することを確認する。
 
 ---
 
@@ -100,8 +98,7 @@
   "dormitoryId": "D001",
   "roomId": "R001",
   "usageTypeCode": "NORMAL",
-  "dailyUnitPrice": 3500.00,
-  "maxUsageDays": 365
+  "dailyUnitPrice": 3500.00
 }
 ```
 
@@ -112,12 +109,11 @@
 | roomId | string | いいえ | 部屋ID（部屋マスタ・寮に属する。寮未指定時は不可） | R001 |
 | usageTypeCode | string | はい | 利用形態コード（利用形態マスタ） | NORMAL |
 | dailyUnitPrice | number | はい | 日単価（0以上） | 3500.00 |
-| maxUsageDays | integer | いいえ | 最大利用日数（1以上。未指定時は -1） | 365 |
 
 ---
 
 ### レスポンスパラメータ
-登録された単価エンティティ（`unitPriceId`, `code`, `region`, `dormitoryId`, `roomId`, `usageTypeCode`, `dailyUnitPrice`, `maxUsageDays`, `createdAt`, `updatedAt`）。
+登録された単価エンティティ（`unitPriceId`, `code`, `region`, `dormitoryId`, `roomId`, `usageTypeCode`, `dailyUnitPrice`, `createdAt`, `updatedAt`）。
 
 ---
 

@@ -5,8 +5,10 @@ package com.dom.project.enum_;
  */
 public enum DormFeeStatusEnum {
 
-    DRAFT("DRAFT"),
-    CONFIRMED("CONFIRMED");
+    /** 仮定（算定成功） */
+    PROVISIONAL("PROVISIONAL"),
+    /** エラー（算定失敗） */
+    ERROR("ERROR");
 
     private final String code;
 

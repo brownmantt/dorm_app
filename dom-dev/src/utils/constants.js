@@ -25,8 +25,8 @@ export const ROOM_TYPE = {
 }
 
 export const DORM_FEE_STATUS = {
-  DRAFT: '下書き',
-  CONFIRMED: '確定'
+  PROVISIONAL: '仮定',
+  ERROR: 'エラー'
 }
 
 export const EQUIPMENT_DISPOSITION = {

@@ -4,6 +4,7 @@ import com.dom.project.entity.ResidenceHistory;
 import com.dom.project.entity.view.AllocationResidenceView;
 import com.dom.project.entity.view.FirstUseDateView;
 import com.dom.project.entity.view.LongTermUsageAlertView;
+import com.dom.project.entity.view.DormFeeResidenceView;
 import com.dom.project.entity.view.ResidenceHistoryView;
 import com.dom.project.entity.vo.MoveOutWarningVO;
 import org.apache.ibatis.annotations.Mapper;
@@ -22,6 +23,8 @@ public interface ResidenceHistoryMapper {
     int insert(ResidenceHistory history);
 
     int update(ResidenceHistory history);
+
+    int updateCheckout(ResidenceHistory history);
 
     int logicalDelete(@Param("residenceHistoryId") String residenceHistoryId,
                       @Param("deletedAt") LocalDateTime deletedAt);
@@ -96,4 +99,11 @@ public interface ResidenceHistoryMapper {
     ResidenceHistory findActiveByDormitoryAndEmployee(@Param("dormitoryId") String dormitoryId,
                                                       @Param("employeeId") String employeeId,
                                                       @Param("asOfDate") LocalDate asOfDate);
+
+    /** 寮費算定対象の入居履歴（対象月と重なる期間） */
+    List<DormFeeResidenceView> findForDormFeeCalculation(@Param("monthStart") LocalDate monthStart,
+                                                         @Param("monthEnd") LocalDate monthEnd,
+                                                         @Param("employeeId") String employeeId,
+                                                         @Param("dormitoryId") String dormitoryId,
+                                                         @Param("roomId") String roomId);
 }

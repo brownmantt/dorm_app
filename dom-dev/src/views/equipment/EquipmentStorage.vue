@@ -111,12 +111,20 @@ function openDialog() {
   dialogVisible.value = true
 }
 
+function resetCreateForm() {
+  form.equipmentId = ''
+  form.storageLocation = ''
+  form.linkedMoveoutId = ''
+  formRef.value?.resetFields()
+}
+
 async function handleSubmit() {
   await formRef.value.validate()
   submitLoading.value = true
   try {
     await createEquipmentStorage({ ...form })
     ElMessage.success('保管を登録しました')
+    resetCreateForm()
     dialogVisible.value = false
     fetchList()
   } finally {

@@ -19,7 +19,6 @@ public class UnitPriceListView {
     private String usageTypeCode;
     private String usageTypeName;
     private BigDecimal dailyUnitPrice;
-    private Integer maxUsageDays;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -109,14 +108,6 @@ public class UnitPriceListView {
 
     public void setDailyUnitPrice(BigDecimal dailyUnitPrice) {
         this.dailyUnitPrice = dailyUnitPrice;
-    }
-
-    public Integer getMaxUsageDays() {
-        return maxUsageDays;
-    }
-
-    public void setMaxUsageDays(Integer maxUsageDays) {
-        this.maxUsageDays = maxUsageDays;
     }
 
     public LocalDateTime getCreatedAt() {

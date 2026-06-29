@@ -89,6 +89,8 @@
         <result column="nearest_station_2" property="nearestStation2"/>
         <result column="nearest_station_3" property="nearestStation3"/>
         <result column="contact_info" property="contactInfo"/>
+        <result column="residing" property="residing"/>
+        <result column="updated_at" property="updatedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
     </resultMap>
 
     <sql id="SearchWhere">
@@ -117,15 +119,57 @@
                   AND (rh.move_out_date IS NULL OR rh.move_out_date &gt;= CURRENT_DATE)
             )
         </if>
+        <if test="targetYearMonth != null and targetYearMonth != ''">
+            AND EXISTS (
+                SELECT 1
+                FROM residence_history rh_fee
+                WHERE rh_fee.employee_id = e.employee_id
+                  AND rh_fee.deleted_at IS NULL
+                  AND rh_fee.move_in_date &lt;= (to_date(#{targetYearMonth} || '-01', 'YYYY-MM-DD') + interval '1 month' - interval '1 day')::date
+                  AND (rh_fee.move_out_date IS NULL OR rh_fee.move_out_date &gt;= to_date(#{targetYearMonth} || '-01', 'YYYY-MM-DD'))
+                <if test="dormitoryId != null and dormitoryId != ''">
+                    AND rh_fee.dormitory_id = #{dormitoryId}
+                </if>
+                <if test="roomId != null and roomId != ''">
+                    AND rh_fee.room_id = #{roomId}
+                </if>
+            )
+        </if>
     </sql>
 
     <select id="searchList" resultMap="EmployeeListViewMap">
         SELECT e.employee_id, e.name, e.gender, e.employee_category,
                e.affiliation_id, a.name AS affiliation_name,
                e.business_division, e.nearest_station_1, e.nearest_station_2, e.nearest_station_3,
-               e.contact_info::text AS contact_info
+               e.contact_info::text AS contact_info,
+               e.updated_at,
+               EXISTS (
+                   SELECT 1
+                   FROM residence_history rh
+                   WHERE rh.employee_id = e.employee_id
+                     AND rh.deleted_at IS NULL
+                   <choose>
+                       <when test="targetYearMonth != null and targetYearMonth != ''">
+                         AND rh.move_in_date &lt;= (to_date(#{targetYearMonth} || '-01', 'YYYY-MM-DD') + interval '1 month' - interval '1 day')::date
+                         AND (rh.move_out_date IS NULL OR rh.move_out_date &gt;= to_date(#{targetYearMonth} || '-01', 'YYYY-MM-DD'))
+                         <if test="dormitoryId != null and dormitoryId != ''">
+                           AND rh.dormitory_id = #{dormitoryId}
+                         </if>
+                         <if test="roomId != null and roomId != ''">
+                           AND rh.room_id = #{roomId}
+                         </if>
+                       </when>
+                       <otherwise>
+                         AND rh.move_in_date &lt;= CURRENT_DATE
+                         AND (rh.move_out_date IS NULL OR rh.move_out_date &gt;= CURRENT_DATE)
+                       </otherwise>
+                   </choose>
+               ) AS residing
         <include refid="SearchWhere"/>
         <choose>
+            <when test="dormFeeComboSort != null and dormFeeComboSort">
+                ORDER BY residing DESC, e.updated_at DESC, e.name ASC, e.employee_id ASC
+            </when>
             <when test="notResidingOnly != null and notResidingOnly">
                 ORDER BY e.updated_at DESC, e.employee_id
             </when>

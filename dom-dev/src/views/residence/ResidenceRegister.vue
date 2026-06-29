@@ -29,6 +29,16 @@
             <el-form-item label="初回利用日">
               <el-input v-model="firstUseDateDisplay" disabled />
             </el-form-item>
+            <el-form-item label="利用形態" prop="usageTypeCode">
+              <el-select v-model="registerForm.usageTypeCode" placeholder="選択">
+                <el-option
+                  v-for="item in usageTypeOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
             <el-form-item label="寮" prop="dormitoryId">
               <el-select
                 v-model="registerForm.dormitoryId"
@@ -130,6 +140,7 @@ import { getAssignableRooms } from '@/api/vacancy'
 import { normalizePageResponse } from '@/utils/pagination'
 import { EMPLOYEE_CATEGORY, labelOf } from '@/utils/constants'
 import { formatDate, todayDateString } from '@/utils/date'
+import { loadUsageTypeOptions } from '@/utils/usageType'
 
 const route = useRoute()
 
@@ -144,6 +155,7 @@ const dormitoryOptionsLoading = ref(false)
 
 const dormitoryOptions = ref([])
 const employeeOptions = ref([])
+const usageTypeOptions = ref([])
 const assignableRooms = ref([])
 /** 寮割カレンダー「入」から遷移した場合、寮・部屋を固定する */
 const calendarPreset = ref(null)
@@ -155,7 +167,8 @@ const registerForm = reactive({
   employeeId: '',
   dormitoryId: '',
   roomId: '',
-  moveInDate: ''
+  moveInDate: '',
+  usageTypeCode: ''
 })
 
 const checkoutForm = reactive({
@@ -168,7 +181,8 @@ const registerRules = {
   employeeId: [{ required: true, message: '入居者を選択してください', trigger: 'change' }],
   dormitoryId: [{ required: true, message: '寮を選択してください', trigger: 'change' }],
   roomId: [{ required: true, message: '部屋を選択してください', trigger: 'change' }],
-  moveInDate: [{ required: true, message: '入居日を選択してください', trigger: 'change' }]
+  moveInDate: [{ required: true, message: '入居日を選択してください', trigger: 'change' }],
+  usageTypeCode: [{ required: true, message: '利用形態を選択してください', trigger: 'change' }]
 }
 
 const checkoutRules = {
@@ -198,8 +212,24 @@ function buildRegisterPayload() {
     employeeId: registerForm.employeeId,
     dormitoryId: registerForm.dormitoryId,
     roomId: registerForm.roomId,
-    moveInDate: registerForm.moveInDate
+    moveInDate: registerForm.moveInDate,
+    usageTypeCode: registerForm.usageTypeCode
   }
+}
+
+function resetRegisterForm() {
+  registerForm.employeeId = ''
+  registerForm.dormitoryId = ''
+  registerForm.roomId = ''
+  registerForm.moveInDate = ''
+  registerForm.usageTypeCode = ''
+  employeeCategory.value = ''
+  firstUseDate.value = ''
+  calendarPreset.value = null
+  dormitoryOptions.value = []
+  assignableRooms.value = []
+  registerFormRef.value?.resetFields()
+  ensureDefaultMoveInDate()
 }
 
 function clearDormitorySelection() {
@@ -364,10 +394,9 @@ async function handleRegister() {
       moveOutDate: null,
       moveOutReason: null
     })
-    if (result?.firstUseDate) {
-      firstUseDate.value = formatDate(result.firstUseDate)
-    }
     ElMessage.success('入居を登録しました')
+    await fetchEmployeeOptions()
+    resetRegisterForm()
   } finally {
     registerLoading.value = false
   }
@@ -385,6 +414,8 @@ async function handleCheckout() {
     checkoutForm.residenceHistoryId = ''
     checkoutForm.moveOutDate = ''
     checkoutForm.moveOutReason = ''
+    checkoutPrefillInfo.value = ''
+    checkoutFormRef.value?.resetFields()
   } finally {
     checkoutLoading.value = false
   }
@@ -452,6 +483,7 @@ async function applyRouteQuery() {
 }
 
 onMounted(async () => {
+  usageTypeOptions.value = await loadUsageTypeOptions({ silent: true })
   await fetchEmployeeOptions()
   await applyRouteQuery()
   ensureDefaultMoveInDate()

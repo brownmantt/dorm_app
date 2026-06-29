@@ -34,8 +34,6 @@ import java.util.List;
 @Service
 public class UnitPriceServiceImpl implements UnitPriceService {
 
-    private static final int MAX_USAGE_DAYS_UNLIMITED = -1;
-
     private final UnitPriceMapper unitPriceMapper;
     private final RegionMapper regionMapper;
     private final DormitoryMapper dormitoryMapper;
@@ -159,18 +157,7 @@ public class UnitPriceServiceImpl implements UnitPriceService {
         entity.setRoomId(blankToNull(dto.getRoomId()));
         entity.setUsageTypeCode(dto.getUsageTypeCode());
         entity.setDailyUnitPrice(dto.getDailyUnitPrice());
-        entity.setMaxUsageDays(resolveMaxUsageDays(dto.getMaxUsageDays()));
         return entity;
-    }
-
-    private Integer resolveMaxUsageDays(Integer maxUsageDays) {
-        if (maxUsageDays == null) {
-            return MAX_USAGE_DAYS_UNLIMITED;
-        }
-        if (maxUsageDays < 1) {
-            throw new BusinessException("UNIT_PRICE_MAX_DAYS_INVALID", "最大利用日数は1以上を入力してください");
-        }
-        return maxUsageDays;
     }
 
     private String blankToNull(String value) {

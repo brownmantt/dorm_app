@@ -1,5 +1,7 @@
 package com.dom.project.entity.view;
 
+import java.time.LocalDateTime;
+
 /**
  * 社員一覧表示用 View。
  */
@@ -16,6 +18,10 @@ public class EmployeeListView {
     private String nearestStation2;
     private String nearestStation3;
     private String contactInfo;
+    /** 入居中フラグ（当日時点で有効な入居履歴あり） */
+    private Boolean residing;
+    /** 更新日時 */
+    private LocalDateTime updatedAt;
 
     public String getEmployeeId() {
         return employeeId;
@@ -103,5 +109,21 @@ public class EmployeeListView {
 
     public void setContactInfo(String contactInfo) {
         this.contactInfo = contactInfo;
+    }
+
+    public Boolean getResiding() {
+        return residing;
+    }
+
+    public void setResiding(Boolean residing) {
+        this.residing = residing;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

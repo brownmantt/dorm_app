@@ -11,9 +11,27 @@
         <result column="move_in_date" property="moveInDate"/>
         <result column="move_out_date" property="moveOutDate"/>
         <result column="move_out_reason" property="moveOutReason"/>
+        <result column="usage_type_code" property="usageTypeCode"/>
         <result column="created_at" property="createdAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
         <result column="updated_at" property="updatedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
         <result column="deleted_at" property="deletedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+    </resultMap>
+
+    <resultMap id="DormFeeResidenceViewMap" type="com.dom.project.entity.view.DormFeeResidenceView">
+        <result column="residence_history_id" property="residenceHistoryId"/>
+        <result column="employee_id" property="employeeId"/>
+        <result column="employee_name" property="employeeName"/>
+        <result column="dormitory_id" property="dormitoryId"/>
+        <result column="dormitory_name" property="dormitoryName"/>
+        <result column="region" property="region"/>
+        <result column="room_id" property="roomId"/>
+        <result column="room_name" property="roomName"/>
+        <result column="area_sqm" property="roomAreaSqm"/>
+        <result column="room_type" property="roomType"/>
+        <result column="move_in_date" property="moveInDate"/>
+        <result column="move_out_date" property="moveOutDate"/>
+        <result column="usage_type_code" property="usageTypeCode"/>
+        <result column="usage_type_name" property="usageTypeName"/>
     </resultMap>
 
     <resultMap id="ResidenceHistoryViewMap" type="com.dom.project.entity.view.ResidenceHistoryView">
@@ -27,6 +45,8 @@
         <result column="move_in_date" property="moveInDate"/>
         <result column="move_out_date" property="moveOutDate"/>
         <result column="move_out_reason" property="moveOutReason"/>
+        <result column="usage_type_code" property="usageTypeCode"/>
+        <result column="usage_type_name" property="usageTypeName"/>
     </resultMap>
 
     <resultMap id="AllocationResidenceViewMap" type="com.dom.project.entity.view.AllocationResidenceView">
@@ -75,15 +95,22 @@
 
     <insert id="insert" parameterType="com.dom.project.entity.ResidenceHistory">
         INSERT INTO residence_history
-        (residence_history_id, employee_id, dormitory_id, room_id, move_in_date, move_out_date, move_out_reason, created_at, updated_at)
-        VALUES (#{residenceHistoryId}, #{employeeId}, #{dormitoryId}, #{roomId}, #{moveInDate}, #{moveOutDate}, #{moveOutReason}, #{createdAt}, #{updatedAt})
+        (residence_history_id, employee_id, dormitory_id, room_id, move_in_date, move_out_date, move_out_reason, usage_type_code, created_at, updated_at)
+        VALUES (#{residenceHistoryId}, #{employeeId}, #{dormitoryId}, #{roomId}, #{moveInDate}, #{moveOutDate}, #{moveOutReason}, #{usageTypeCode}, #{createdAt}, #{updatedAt})
     </insert>
 
     <update id="update" parameterType="com.dom.project.entity.ResidenceHistory">
         UPDATE residence_history
         SET employee_id = #{employeeId}, dormitory_id = #{dormitoryId}, room_id = #{roomId},
             move_in_date = #{moveInDate}, move_out_date = #{moveOutDate}, move_out_reason = #{moveOutReason},
+            usage_type_code = #{usageTypeCode},
             updated_at = #{updatedAt}
+        WHERE residence_history_id = #{residenceHistoryId} AND deleted_at IS NULL
+    </update>
+
+    <update id="updateCheckout" parameterType="com.dom.project.entity.ResidenceHistory">
+        UPDATE residence_history
+        SET move_out_date = #{moveOutDate}, move_out_reason = #{moveOutReason}, updated_at = #{updatedAt}
         WHERE residence_history_id = #{residenceHistoryId} AND deleted_at IS NULL
     </update>
 
@@ -94,7 +121,7 @@
 
     <select id="findById" resultMap="ResidenceHistoryMap">
         SELECT residence_history_id, employee_id, dormitory_id, room_id, move_in_date, move_out_date,
-               move_out_reason, created_at, updated_at, deleted_at
+               move_out_reason, usage_type_code, created_at, updated_at, deleted_at
         FROM residence_history
         WHERE residence_history_id = #{residenceHistoryId} AND deleted_at IS NULL
     </select>
@@ -102,11 +129,13 @@
     <select id="searchList" resultMap="ResidenceHistoryViewMap">
         SELECT rh.residence_history_id, rh.employee_id, e.name AS employee_name,
                rh.dormitory_id, d.name AS dormitory_name, rh.room_id, r.room_name,
-               rh.move_in_date, rh.move_out_date, rh.move_out_reason
+               rh.move_in_date, rh.move_out_date, rh.move_out_reason,
+               rh.usage_type_code, ut.name AS usage_type_name
         FROM residence_history rh
         JOIN employee e ON e.employee_id = rh.employee_id AND e.deleted_at IS NULL
         JOIN dormitory d ON d.dormitory_id = rh.dormitory_id AND d.deleted_at IS NULL
         JOIN room r ON r.room_id = rh.room_id AND r.deleted_at IS NULL
+        LEFT JOIN usage_type ut ON ut.code = rh.usage_type_code AND ut.deleted_at IS NULL
         WHERE rh.deleted_at IS NULL
         <if test="name != null and name != ''">
             AND e.name ILIKE CONCAT('%', #{name}, '%')
@@ -176,7 +205,7 @@
 
     <select id="findOverlappingInPeriod" resultMap="ResidenceHistoryMap">
         SELECT residence_history_id, employee_id, dormitory_id, room_id, move_in_date, move_out_date,
-               move_out_reason, created_at, updated_at, deleted_at
+               move_out_reason, usage_type_code, created_at, updated_at, deleted_at
         FROM residence_history
         WHERE room_id = #{roomId} AND deleted_at IS NULL
           AND daterange(move_in_date, COALESCE(move_out_date, 'infinity'::date), '[]')
@@ -284,7 +313,7 @@
 
     <select id="findFirstByDormitoryId" resultMap="ResidenceHistoryMap">
         SELECT residence_history_id, employee_id, dormitory_id, room_id, move_in_date, move_out_date,
-               move_out_reason, created_at, updated_at, deleted_at
+               move_out_reason, usage_type_code, created_at, updated_at, deleted_at
         FROM residence_history
         WHERE dormitory_id = #{dormitoryId}
           AND deleted_at IS NULL
@@ -294,7 +323,7 @@
 
     <select id="findFirstActiveByDormitoryId" resultMap="ResidenceHistoryMap">
         SELECT residence_history_id, employee_id, dormitory_id, room_id, move_in_date, move_out_date,
-               move_out_reason, created_at, updated_at, deleted_at
+               move_out_reason, usage_type_code, created_at, updated_at, deleted_at
         FROM residence_history
         WHERE dormitory_id = #{dormitoryId}
           AND deleted_at IS NULL
@@ -306,7 +335,7 @@
 
     <select id="findActiveByDormitoryAndEmployee" resultMap="ResidenceHistoryMap">
         SELECT residence_history_id, employee_id, dormitory_id, room_id, move_in_date, move_out_date,
-               move_out_reason, created_at, updated_at, deleted_at
+               move_out_reason, usage_type_code, created_at, updated_at, deleted_at
         FROM residence_history
         WHERE dormitory_id = #{dormitoryId}
           AND employee_id = #{employeeId}
@@ -315,5 +344,31 @@
           AND (move_out_date IS NULL OR move_out_date &gt;= #{asOfDate})
         ORDER BY move_in_date DESC, residence_history_id DESC
         LIMIT 1
+    </select>
+
+    <select id="findForDormFeeCalculation" resultMap="DormFeeResidenceViewMap">
+        SELECT rh.residence_history_id, rh.employee_id, e.name AS employee_name,
+               rh.dormitory_id, d.name AS dormitory_name, d.region,
+               rh.room_id, r.room_name, r.area_sqm, r.room_type,
+               rh.move_in_date, rh.move_out_date,
+               rh.usage_type_code, ut.name AS usage_type_name
+        FROM residence_history rh
+        JOIN employee e ON e.employee_id = rh.employee_id AND e.deleted_at IS NULL
+        JOIN dormitory d ON d.dormitory_id = rh.dormitory_id AND d.deleted_at IS NULL
+        JOIN room r ON r.room_id = rh.room_id AND r.deleted_at IS NULL
+        LEFT JOIN usage_type ut ON ut.code = rh.usage_type_code AND ut.deleted_at IS NULL
+        WHERE rh.deleted_at IS NULL
+          AND rh.move_in_date &lt;= #{monthEnd}
+          AND (rh.move_out_date IS NULL OR rh.move_out_date &gt;= #{monthStart})
+        <if test="employeeId != null and employeeId != ''">
+            AND rh.employee_id = #{employeeId}
+        </if>
+        <if test="dormitoryId != null and dormitoryId != ''">
+            AND rh.dormitory_id = #{dormitoryId}
+        </if>
+        <if test="roomId != null and roomId != ''">
+            AND rh.room_id = #{roomId}
+        </if>
+        ORDER BY e.name, d.name, r.room_name, rh.move_in_date
     </select>
 </mapper>

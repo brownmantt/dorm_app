@@ -10,7 +10,7 @@
 
 ---
 
-## API 一覧（62 エンドポイント）
+## API 一覧（60 エンドポイント）
 
 | # | メソッド | URL | Controller | Service |
 |---|---------|-----|------------|---------|
@@ -38,15 +38,18 @@
 | 22 | GET | `/alerts/long-term-usage` | AlertController | VacancyService |
 | 23 | GET | `/dorm-fees` | DormFeeController | DormFeeService |
 | 24 | POST | `/dorm-fees/calculate` | DormFeeController | DormFeeService |
-| 25 | POST | `/dorm-fees` | DormFeeController | DormFeeService |
-| 26 | PUT | `/dorm-fees/{id}/confirm` | DormFeeController | DormFeeService |
-| 27 | GET | `/equipments` | EquipmentController | EquipmentService |
-| 28 | POST | `/equipments` | EquipmentController | EquipmentService |
-| 29 | PUT | `/equipments/{id}` | EquipmentController | EquipmentService |
+| 25 | GET | `/equipments` | EquipmentController | EquipmentService |
+| 26 | POST | `/equipments` | EquipmentController | EquipmentService |
+| 27 | PUT | `/equipments/{id}` | EquipmentController | EquipmentService |
+| 28 | DELETE | `/equipments/{id}` | EquipmentController | EquipmentService |
 | 30 | POST | `/equipment-moveouts` | EquipmentController | EquipmentService |
 | 31 | GET | `/equipment-storages` | EquipmentController | EquipmentService |
 | 32 | POST | `/equipment-storages` | EquipmentController | EquipmentService |
-| 33 | GET | `/vacancies` | VacancyController | VacancyService |
+| 33 | GET | `/equipment-assets` | EquipmentAssetController | EquipmentAssetService |
+| 34 | POST | `/equipment-assets` | EquipmentAssetController | EquipmentAssetService |
+| 35 | PUT | `/equipment-assets/{id}` | EquipmentAssetController | EquipmentAssetService |
+| 36 | DELETE | `/equipment-assets/{id}` | EquipmentAssetController | EquipmentAssetService |
+| 37 | GET | `/vacancies` | VacancyController | VacancyService |
 | 34 | GET | `/vacancies/assignable` | VacancyController | VacancyService |
 | 35 | POST | `/imports/excel/preview` | ImportController | ExcelImportService |
 | 36 | POST | `/imports/excel/execute` | ImportController | ExcelImportService |
@@ -85,7 +88,7 @@
 - `POST /auth/login` — ユーザー名・パスワード認証、トークン返却
 
 ### EmployeeController
-- `GET /employees` — 社員一覧（キーワード・性別・区分・所属・`notResidingOnly`・ページング）。`notResidingOnly=true` 時は現在未入居の社員のみ、`updated_at` 降順
+- `GET /employees` — 社員一覧（キーワード・性別・区分・所属・`notResidingOnly`・`targetYearMonth`・`dormitoryId`・`roomId`・ページング）。`notResidingOnly=true` 時は現在未入居の社員のみ、`updated_at` 降順。寮費算定コンボは `dormFeeComboSort=true` と `targetYearMonth` で対象月入居者を絞込
 - `GET /employees/{empId}` — 社員詳細
 - `POST /employees` — 社員新規登録（管理者）
 - `PUT /employees/{empId}` — 社員更新（管理者）
@@ -133,10 +136,14 @@
 - 入居履歴 CSV / 寮費 CSV エクスポート
 
 ### DormFeeController
-- 寮費一覧、算定、登録、確定
+- 寮費一覧、算定（入居履歴×単価マスタから算出・`dorm_fee` 保存）
 
 ### EquipmentController
-- 備品 CRUD、退去備品処理、備品保管一覧・登録
+- 品目マスタ CRUD（品目ID・品目名称・論理削除）、退去備品処理、備品保管一覧・登録
+
+### EquipmentAssetController
+- 備品（個体）一覧・登録・更新・削除（論理削除）
+- 備品番号は `EB` プレフィックスで自動採番
 
 ### VacancyController
 - 空き室一覧、割当可能部屋一覧
@@ -179,13 +186,15 @@
 - 利用形態一覧（`name` 部分一致）
 - 利用形態登録・更新・論理削除
 - コード値重複チェック（`USAGE_TYPE_CODE_DUPLICATE`）
+- 最小利用日数未指定時は 1、最大利用日数未指定時は -1（制限なし）
+- 最小利用日数は 1 以上、最大利用日数は 1 以上または -1。min ≤ max（max ≠ -1 時）
 - ID プレフィックス: `UT`
 
 ### UnitPriceService / UnitPriceServiceImpl
 - 単価一覧（コード部分一致・地域・寮・利用形態で絞込、名称は JOIN 表示）
 - 単価登録・更新・論理削除
 - 登録時単価コード自動採番（プレフィックス `UC`）、更新時は既存コードを維持
-- 寮・部屋・最大利用日数は任意（最大利用日数未指定時は -1）
+- 寮・部屋は任意
 - 地域/寮/部屋/利用形態の存在・整合検証（部屋指定時は寮必須）
 - ID プレフィックス: `UP`
 
@@ -211,7 +220,7 @@
 - 初回利用日、通算利用日数
 
 ### ResidenceService / ResidenceServiceImpl
-- 入居履歴一覧、業務検証（性別・定員・期間内最大同時入居数）、入居登録、退寮
+- 入居履歴一覧（利用形態名称は `usage_type` JOIN）、業務検証（性別・定員・期間内最大同時入居数・**利用形態マスタ存在**）、入居登録（`usage_type_code` 永続化）、退寮
 - 日本社員の初回利用日自動登録
 - ID プレフィックス: `RH`
 
@@ -219,12 +228,21 @@
 - 空き室一覧、割当可能部屋、長期利用警告
 
 ### DormFeeService / DormFeeServiceImpl
-- 寮費一覧、面積×日額×請求日数による算定、下書き登録、確定
+- 寮費一覧、入居履歴×単価マスタによる算定・保存（日単価×利用日数）
+- 入居履歴は対象月と重なる入居中データを抽出
+- 単価は A（地域・利用形態・寮・部屋）→ B（寮まで）→ C（地域のみ）の順で検索
+- 利用日数は利用形態マスタの min/max **範囲内**であること（範囲外は ERROR）
+- 算定成功時ステータス `PROVISIONAL`（仮定）、失敗時 `ERROR`（エラー）
 - ID プレフィックス: `DF`
 
 ### EquipmentService / EquipmentServiceImpl
-- 備品 CRUD、退去備品処理、備品保管
+- 品目マスタ CRUD（品目ID・品目名称・論理削除。退去処理・保管参照時は削除不可）、退去備品処理、備品保管
 - ID プレフィックス: `EQ`、`MO`、`ST`
+
+### EquipmentAssetService / EquipmentAssetServiceImpl
+- 備品（個体）CRUD（品目マスタ参照・備品番号自動採番・論理削除）
+- 購入日・購入金額必須。購入店・連絡先・郵便番号・住所・保証期限は任意
+- ID プレフィックス: `EB`
 
 ### OperationLogService / OperationLogServiceImpl
 - 操作ログ一覧、`writeLog()` ヘルパー
@@ -385,9 +403,10 @@ ResidenceServiceImpl.create()
   │   EmployeeMapper.findById()
   │   DormitoryMapper.findById()
   │   RoomMapper.findById()
+  │   UsageTypeMapper.findByCode()
   │   ResidenceHistoryMapper.findOverlappingInPeriod() → 期間内最大同時入居数と room.capacity 比較
   ↓
-ResidenceHistoryMapper.insert()
+ResidenceHistoryMapper.insert()（usage_type_code 含む）
 EmployeeFirstDormUseMapper.insert()（日本社員・初回のみ）
   ↓
 residence_history / employee_first_dorm_use テーブル
@@ -399,10 +418,11 @@ DormFeeController.calculate()
   ↓
 DormFeeServiceImpl.calculate()
   ↓
-RoomMapper.findById()
-FeeRateConfigMapper.findLatestByRoomType()
+ResidenceHistoryMapper.findForDormFeeCalculation()
+UnitPriceMapper.findRoomLevelMatch() / findDormitoryLevelMatch() / findRegionLevelMatch()
+UsageTypeMapper.findByCode()
   ↓
-room / fee_rate_config テーブル
+residence_history / dormitory / room / unit_price / usage_type テーブル
 ```
 
 ### 空き室一覧
@@ -459,6 +479,7 @@ excel_import_job テーブル
 | DormFeeMapper | dorm_fee |
 | FeeRateConfigMapper | fee_rate_config |
 | EquipmentMapper | equipment |
+| EquipmentAssetMapper | equipment_asset |
 | EquipmentMoveoutMapper | equipment_moveout |
 | EquipmentStorageMapper | equipment_storage |
 | OperationLogMapper | operation_log |
@@ -472,7 +493,7 @@ excel_import_job テーブル
 |--------|------|
 | PageResult | ページング応答（content / totalElements / totalPages） |
 | PageUtils | offset / limit 計算 |
-| IdGenerator | 業務 ID 生成（D/R/RH/DF/EQ/MO/ST/JOB） |
+| IdGenerator | 業務 ID 生成（D/R/RH/DF/EQ/EB/MO/ST/JOB） |
 | JsonUtils | JSON シリアライズ（basisDetail 等） |
 | DormAllocationHelper | 寮割カレンダー日付計算・重複判定ヘルパー |
 | GlobalExceptionHandler | 業務例外・検証例外を統一処理 |
@@ -488,7 +509,7 @@ excel_import_job テーブル
 
 | Enum | 値 | 用途 |
 |------|-----|------|
-| DormFeeStatusEnum | DRAFT / CONFIRMED | 寮費ステータス |
+| DormFeeStatusEnum | PROVISIONAL / ERROR | 寮費ステータス（仮定 / エラー） |
 | EquipmentStorageStatusEnum | IN_STORAGE / REUSED | 備品保管ステータス |
 | EmployeeCategoryEnum | JAPAN / CHINA_ASSIGN | 社員区分 |
 | ExcelImportJobStatusEnum | PENDING / PREVIEWED / SUCCESS / FAILED | Excel 取込ジョブ |
@@ -512,7 +533,7 @@ excel_import_job テーブル
 |------|----------|
 | 公開 | `POST /auth/login` |
 | ROLE_ADMIN + ROLE_USER | GET `/employees/**`, `/dormitories/**`, `/dorm-allocation/**`, `/affiliations`, `/regions`, `/usage-types`, `/postal-codes/**`, `/residences`, `/alerts/**`, `/vacancies/**` |
-| ROLE_ADMIN のみ | `/dorm-fees/**`, `/unit-prices/**`, `/equipments/**`, `/equipment-moveouts/**`, `/equipment-storages/**`, `/operation-logs/**`, `/imports/**`, `/exports/**`, POST/PUT `/residences/**`, POST/PUT/DELETE `/dormitories/**`, `/rooms/**`, POST/PUT/DELETE `/affiliations/**`, POST/PUT/DELETE `/regions/**`, POST/PUT/DELETE `/usage-types/**`, PUT/DELETE `/dormitories/*/manager` |
+| ROLE_ADMIN のみ | `/dorm-fees/**`, `/unit-prices/**`, `/equipments/**`, `/equipment-assets/**`, `/equipment-moveouts/**`, `/equipment-storages/**`, `/operation-logs/**`, `/imports/**`, `/exports/**`, POST/PUT `/residences/**`, POST/PUT/DELETE `/dormitories/**`, `/rooms/**`, POST/PUT/DELETE `/affiliations/**`, POST/PUT/DELETE `/regions/**`, POST/PUT/DELETE `/usage-types/**`, PUT/DELETE `/dormitories/*/manager` |
 
 ---
 
@@ -525,8 +546,9 @@ excel_import_job テーブル
 | AuthServiceImpl | ログイン成功 |
 | DormitoryServiceImpl | 寮 CRUD、部屋 CRUD |
 | ResidenceServiceImpl | 入居登録、退寮 |
-| DormFeeServiceImpl | 寮費登録、確定 |
-| EquipmentServiceImpl | 備品 CRUD、退去処理、保管登録 |
+| DormFeeServiceImpl | 寮費算定・一覧 |
+| EquipmentServiceImpl | 品目マスタ CRUD、退去処理、保管登録 |
+| EquipmentAssetServiceImpl | 備品（個体）CRUD |
 | ExcelImportServiceImpl | 取込実行 |
 
 ---
@@ -537,4 +559,4 @@ excel_import_job テーブル
 |------|-----------|-----|
 | DTO | `entity.dto` | LoginDTO, ResidenceSaveDTO, AffiliationSaveDTO, RegionSaveDTO, UsageTypeSaveDTO, UnitPriceSaveDTO, DormitoryManagerSaveDTO |
 | VO | `entity.vo` | LoginVO, ValidateVO, DormFeeCalculateVO, DormAllocationCalendarVO, MoveOutWarningVO |
-| View | `entity.view` | RoomListView, VacancyListView, AllocationResidenceView, UnitPriceListView（一覧 JOIN 結果） |
+| View | `entity.view` | RoomListView, VacancyListView, AllocationResidenceView, UnitPriceListView, EquipmentAssetListView（一覧 JOIN 結果） |

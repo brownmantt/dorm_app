@@ -38,6 +38,8 @@
       "code": "NORMAL",
       "name": "通常利用",
       "displayOrder": 1,
+      "minUsageDays": 1,
+      "maxUsageDays": -1,
       "createdAt": "2026-06-27T10:00:00",
       "updatedAt": "2026-06-27T10:00:00"
     }
@@ -54,6 +56,8 @@
 | content.code | string | はい | コード値 | NORMAL |
 | content.name | string | はい | 名称 | 通常利用 |
 | content.displayOrder | integer | いいえ | 表示順 | 1 |
+| content.minUsageDays | integer | はい | 最小利用日数 | 1 |
+| content.maxUsageDays | integer | はい | 最大利用日数（-1 は制限なし） | -1 |
 | content.createdAt | string | はい | 作成日時 | 2026-06-27T10:00:00 |
 | content.updatedAt | string | はい | 更新日時 | 2026-06-27T10:00:00 |
 | totalElements | integer | はい | 総件数 | 3 |
@@ -71,7 +75,7 @@
 ---
 
 ### 機能説明
-コード値の重複をチェックし、利用形態マスタを登録する。管理者のみ実行可能。
+コード値の重複をチェックし、利用形態マスタを登録する。最小利用日数は未指定時 1、最大利用日数は未指定時 -1（制限なし）とする。管理者のみ実行可能。
 
 ---
 
@@ -80,7 +84,9 @@
 {
   "code": "NORMAL",
   "name": "通常利用",
-  "displayOrder": 1
+  "displayOrder": 1,
+  "minUsageDays": 1,
+  "maxUsageDays": 365
 }
 ```
 
@@ -89,6 +95,8 @@
 | code | string | はい | コード値（最大 30 文字） | NORMAL |
 | name | string | はい | 名称（最大 100 文字） | 通常利用 |
 | displayOrder | integer | はい | 表示順 | 1 |
+| minUsageDays | integer | いいえ | 最小利用日数（1以上。未指定時は 1） | 1 |
+| maxUsageDays | integer | いいえ | 最大利用日数（1以上。未指定時は -1） | 365 |
 
 ---
 
@@ -99,6 +107,8 @@
   "code": "NORMAL",
   "name": "通常利用",
   "displayOrder": 1,
+  "minUsageDays": 1,
+  "maxUsageDays": -1,
   "createdAt": "2026-06-27T10:00:00",
   "updatedAt": "2026-06-27T10:00:00"
 }
@@ -110,6 +120,8 @@
 | code | string | はい | コード値 | NORMAL |
 | name | string | はい | 名称 | 通常利用 |
 | displayOrder | integer | いいえ | 表示順 | 1 |
+| minUsageDays | integer | いいえ | 最小利用日数 | 1 |
+| maxUsageDays | integer | いいえ | 最大利用日数（-1 は制限なし） | -1 |
 | createdAt | string | はい | 作成日時 | 2026-06-27T10:00:00 |
 | updatedAt | string | はい | 更新日時 | 2026-06-27T10:00:00 |
 
@@ -134,7 +146,9 @@
 {
   "code": "NORMAL",
   "name": "通常利用",
-  "displayOrder": 1
+  "displayOrder": 1,
+  "minUsageDays": 1,
+  "maxUsageDays": 365
 }
 ```
 
@@ -143,6 +157,8 @@
 | code | string | はい | コード値 | NORMAL |
 | name | string | はい | 名称 | 通常利用 |
 | displayOrder | integer | はい | 表示順 | 1 |
+| minUsageDays | integer | いいえ | 最小利用日数（1以上。未指定時は 1） | 1 |
+| maxUsageDays | integer | いいえ | 最大利用日数（1以上。未指定時は -1） | 365 |
 
 ---
 

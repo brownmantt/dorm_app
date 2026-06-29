@@ -29,6 +29,9 @@ public class ResidenceHistory {
     /** 退寮理由 */
     private String moveOutReason;
 
+    /** 利用形態コード（usage_type.code 参照） */
+    private String usageTypeCode;
+
     /** 作成日時 */
     private LocalDateTime createdAt;
 
@@ -92,6 +95,14 @@ public class ResidenceHistory {
 
     public void setMoveOutReason(String moveOutReason) {
         this.moveOutReason = moveOutReason;
+    }
+
+    public String getUsageTypeCode() {
+        return usageTypeCode;
+    }
+
+    public void setUsageTypeCode(String usageTypeCode) {
+        this.usageTypeCode = usageTypeCode;
     }
 
     public LocalDateTime getCreatedAt() {

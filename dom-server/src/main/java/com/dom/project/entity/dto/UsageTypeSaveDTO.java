@@ -20,6 +20,12 @@ public class UsageTypeSaveDTO {
     @NotNull(message = "表示順を入力してください")
     private Integer displayOrder;
 
+    /** 未指定時は業務層で 1 を設定 */
+    private Integer minUsageDays;
+
+    /** 未指定時は業務層で -1 を設定 */
+    private Integer maxUsageDays;
+
     public String getCode() {
         return code;
     }
@@ -42,5 +48,21 @@ public class UsageTypeSaveDTO {
 
     public void setDisplayOrder(Integer displayOrder) {
         this.displayOrder = displayOrder;
+    }
+
+    public Integer getMinUsageDays() {
+        return minUsageDays;
+    }
+
+    public void setMinUsageDays(Integer minUsageDays) {
+        this.minUsageDays = minUsageDays;
+    }
+
+    public Integer getMaxUsageDays() {
+        return maxUsageDays;
+    }
+
+    public void setMaxUsageDays(Integer maxUsageDays) {
+        this.maxUsageDays = maxUsageDays;
     }
 }

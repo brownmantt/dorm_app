@@ -200,7 +200,19 @@ const router = createRouter({
 
           component: () => import('@/views/equipment/EquipmentMasterList.vue'),
 
-          meta: { title: '備品マスタ', roles: [ROLE_ADMIN] }
+          meta: { title: '品目マスタ', roles: [ROLE_ADMIN] }
+
+        },
+
+        {
+
+          path: 'equipment-assets',
+
+          name: 'EquipmentAssetList',
+
+          component: () => import('@/views/equipment/EquipmentAssetList.vue'),
+
+          meta: { title: '備品管理', roles: [ROLE_ADMIN] }
 
         },
 

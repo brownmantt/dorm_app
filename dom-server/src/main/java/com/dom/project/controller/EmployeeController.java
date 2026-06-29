@@ -40,9 +40,14 @@ public class EmployeeController {
                                              @RequestParam(required = false) String employeeCategory,
                                              @RequestParam(required = false) String affiliationId,
                                              @RequestParam(required = false) Boolean notResidingOnly,
+                                             @RequestParam(required = false) Boolean dormFeeComboSort,
+                                             @RequestParam(required = false) String targetYearMonth,
+                                             @RequestParam(required = false) String dormitoryId,
+                                             @RequestParam(required = false) String roomId,
                                              @RequestParam(required = false) Integer page,
                                              @RequestParam(required = false) Integer size) {
-        return employeeService.list(keyword, gender, employeeCategory, affiliationId, notResidingOnly, page, size);
+        return employeeService.list(keyword, gender, employeeCategory, affiliationId, notResidingOnly,
+                dormFeeComboSort, targetYearMonth, dormitoryId, roomId, page, size);
     }
 
     /**

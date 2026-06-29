@@ -40,9 +40,10 @@ public class DormitoryController {
                                       @RequestParam(required = false) String genderType,
                                       @RequestParam(required = false) String region,
                                       @RequestParam(required = false) String address,
+                                      @RequestParam(required = false) Boolean dormFeeComboSort,
                                       @RequestParam(required = false) Integer page,
                                       @RequestParam(required = false) Integer size) {
-        return dormitoryService.list(dormitoryId, name, genderType, region, address, page, size);
+        return dormitoryService.list(dormitoryId, name, genderType, region, address, dormFeeComboSort, page, size);
     }
 
     /**

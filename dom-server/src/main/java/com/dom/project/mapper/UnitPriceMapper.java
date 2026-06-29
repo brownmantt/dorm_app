@@ -35,4 +35,25 @@ public interface UnitPriceMapper {
                      @Param("region") String region,
                      @Param("dormitoryId") String dormitoryId,
                      @Param("usageTypeCode") String usageTypeCode);
+
+    /**
+     * 単価マスタ一致検索（A: 地域・利用形態・寮・部屋）。
+     */
+    UnitPrice findRoomLevelMatch(@Param("region") String region,
+                                 @Param("usageTypeCode") String usageTypeCode,
+                                 @Param("dormitoryId") String dormitoryId,
+                                 @Param("roomId") String roomId);
+
+    /**
+     * 単価マスタ一致検索（B: 地域・利用形態・寮。部屋は未指定行）。
+     */
+    UnitPrice findDormitoryLevelMatch(@Param("region") String region,
+                                      @Param("usageTypeCode") String usageTypeCode,
+                                      @Param("dormitoryId") String dormitoryId);
+
+    /**
+     * 単価マスタ一致検索（C: 地域・利用形態のみ。寮・部屋は未指定行）。
+     */
+    UnitPrice findRegionLevelMatch(@Param("region") String region,
+                                   @Param("usageTypeCode") String usageTypeCode);
 }
