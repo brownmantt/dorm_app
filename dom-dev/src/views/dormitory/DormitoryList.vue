@@ -51,19 +51,29 @@
       </el-form>
     </el-card>
 
-    <el-card class="toolbar-card">
-      <el-button v-if="userStore.isAdmin" type="primary" @click="openDialog()">新規登録</el-button>
-      <el-button
-        v-if="userStore.isAdmin"
-        type="danger"
-        :disabled="!selectedRows.length"
-        @click="handleBatchDelete"
-      >
-        一括削除
-      </el-button>
-    </el-card>
-
     <el-card v-loading="loading" class="table-card">
+      <div class="table-card-toolbar">
+        <div class="table-card-toolbar__actions">
+          <el-button v-if="userStore.isAdmin" type="primary" @click="openDialog()">新規登録</el-button>
+          <el-button
+            v-if="userStore.isAdmin"
+            type="danger"
+            :disabled="!selectedRows.length"
+            @click="handleBatchDelete"
+          >
+            一括削除
+          </el-button>
+        </div>
+        <el-pagination
+          v-model:current-page="pagination.page"
+          v-model:page-size="pagination.size"
+          :total="pagination.total"
+          :page-sizes="[10, 20, 50]"
+          layout="total, sizes, prev, pager, next"
+          @size-change="fetchList"
+          @current-change="fetchList"
+        />
+      </div>
       <el-table
         :data="tableData"
         class="data-table table-wrap-text"
@@ -126,17 +136,6 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="pagination-wrapper">
-        <el-pagination
-          v-model:current-page="pagination.page"
-          v-model:page-size="pagination.size"
-          :total="pagination.total"
-          :page-sizes="[10, 20, 50]"
-          layout="total, sizes, prev, pager, next"
-          @size-change="fetchList"
-          @current-change="fetchList"
-        />
-      </div>
     </el-card>
 
     <DormitoryFormDialog v-model="dialogVisible" :edit-data="editingDormitory" @saved="fetchList" />

@@ -4,8 +4,6 @@ import com.dom.project.entity.Equipment;
 import com.dom.project.entity.common.PageResult;
 import com.dom.project.entity.dto.EquipmentMoveoutDTO;
 import com.dom.project.entity.dto.EquipmentSaveDTO;
-import com.dom.project.entity.dto.EquipmentStorageSaveDTO;
-import com.dom.project.entity.view.EquipmentStorageView;
 import com.dom.project.service.EquipmentService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -70,22 +68,5 @@ public class EquipmentController {
     @PostMapping("/equipment-moveouts")
     public void processMoveout(@Valid @RequestBody EquipmentMoveoutDTO dto) {
         equipmentService.processMoveout(dto);
-    }
-
-    /**
-     * 備品保管一覧取得。
-     */
-    @GetMapping("/equipment-storages")
-    public PageResult<EquipmentStorageView> listStorages(@RequestParam(required = false) Integer page,
-                                                         @RequestParam(required = false) Integer size) {
-        return equipmentService.listStorages(page, size);
-    }
-
-    /**
-     * 備品保管登録。
-     */
-    @PostMapping("/equipment-storages")
-    public void createStorage(@Valid @RequestBody EquipmentStorageSaveDTO dto) {
-        equipmentService.createStorage(dto);
     }
 }

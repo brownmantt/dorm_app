@@ -182,6 +182,18 @@ const router = createRouter({
 
         {
 
+          path: 'storage-locations',
+
+          name: 'StorageLocationList',
+
+          component: () => import('@/views/storageLocation/StorageLocationList.vue'),
+
+          meta: { title: '保管場所マスタ', roles: [ROLE_ADMIN] }
+
+        },
+
+        {
+
           path: 'employees',
 
           name: 'EmployeeList',
@@ -218,13 +230,13 @@ const router = createRouter({
 
         {
 
-          path: 'equipment-moveouts',
+          path: 'equipment-usages',
 
-          name: 'MoveOutEquipment',
+          name: 'EquipmentUsageList',
 
-          component: () => import('@/views/equipment/MoveOutEquipment.vue'),
+          component: () => import('@/views/equipment/EquipmentUsageList.vue'),
 
-          meta: { title: '退去備品処理', roles: [ROLE_ADMIN] }
+          meta: { title: '備品利用・解除', roles: [ROLE_ADMIN] }
 
         },
 

@@ -175,85 +175,11 @@
 
 ---
 
-## 備品保管一覧取得
+## 備品保管 API
 
-**インターフェース名称：** 備品保管一覧取得  
-**機能説明：** 保管中の備品一覧をページング取得する  
-**インターフェースURL：** `/api/v1/equipment-storages`  
-**リクエスト方式：** GET
+備品保管の API 仕様は [equipmentStorage.md](./equipmentStorage.md) を参照。
 
----
-
-### リクエストパラメータ
-
-```json
-{
-  "page": 0,
-  "size": 20
-}
-```
-
-| パラメータ名 | 型 | 必須 | 説明 | 例 |
-|--------------|------|------|------|------|
-| page | int | いいえ | ページ番号（0 始まり） | 0 |
-| size | int | いいえ | 1 ページあたり件数 | 20 |
-
----
-
-### レスポンスパラメータ
-
-```json
-{
-  "content": [
-    {
-      "storageId": "ST001",
-      "equipmentName": "エアコン",
-      "storageLocation": "倉庫A-1",
-      "status": "IN_STORAGE"
-    }
-  ],
-  "totalElements": 1
-}
-```
-
-| パラメータ名 | 型 | 必須 | 説明 | 例 |
-|--------------|------|------|------|------|
-| content | object[] | はい | 保管一覧 | — |
-| content[].storageId | string | はい | 保管 ID | ST001 |
-| content[].equipmentName | string | はい | 備品名称 | エアコン |
-| content[].storageLocation | string | はい | 保管場所 | 倉庫A-1 |
-| content[].status | string | はい | ステータス（`IN_STORAGE`/`REUSED`） | IN_STORAGE |
-| totalElements | int | いいえ | 総件数 | 1 |
-
----
-
-## 備品保管登録
-
-**インターフェース名称：** 備品保管登録  
-**機能説明：** 備品の保管情報を新規登録する  
-**インターフェースURL：** `/api/v1/equipment-storages`  
-**リクエスト方式：** POST
-
----
-
-### リクエストパラメータ
-
-```json
-{
-  "equipmentId": "EQ001",
-  "storageLocation": "倉庫A-1",
-  "linkedMoveoutId": "MO001"
-}
-```
-
-| パラメータ名 | 型 | 必須 | 説明 | 例 |
-|--------------|------|------|------|------|
-| equipmentId | string | はい | 備品 ID | EQ001 |
-| storageLocation | string | はい | 保管場所 | 倉庫A-1 |
-| linkedMoveoutId | string | いいえ | 関連退去処理 ID | MO001 |
-
----
-
-### レスポンスパラメータ
-
-フロントは成功後に一覧を再取得する。
+- 一覧取得 `GET /equipment-storages`
+- 備品別明細取得 `GET /equipment-storages/by-asset/{equipmentAssetId}`
+- 一括保存 `PUT /equipment-storages/by-asset/{equipmentAssetId}`（保管数量合計 = 購入数量）
+- 明細削除 `DELETE /equipment-storages/{storageId}`

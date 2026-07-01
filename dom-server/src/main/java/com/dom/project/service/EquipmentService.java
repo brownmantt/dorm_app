@@ -4,8 +4,6 @@ import com.dom.project.entity.Equipment;
 import com.dom.project.entity.common.PageResult;
 import com.dom.project.entity.dto.EquipmentMoveoutDTO;
 import com.dom.project.entity.dto.EquipmentSaveDTO;
-import com.dom.project.entity.dto.EquipmentStorageSaveDTO;
-import com.dom.project.entity.view.EquipmentStorageView;
 
 /**
  * 備品業務サービスインターフェース。
@@ -21,8 +19,4 @@ public interface EquipmentService {
     void delete(String id);
 
     void processMoveout(EquipmentMoveoutDTO dto);
-
-    PageResult<EquipmentStorageView> listStorages(Integer page, Integer size);
-
-    void createStorage(EquipmentStorageSaveDTO dto);
 }

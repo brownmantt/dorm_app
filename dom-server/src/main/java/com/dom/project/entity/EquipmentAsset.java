@@ -18,6 +18,8 @@ public class EquipmentAsset {
     private String purchaseStorePostalCode;
     private String purchaseStoreAddress;
     private LocalDate warrantyExpiryDate;
+    private Integer purchaseQuantity;
+    private String remarks;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
@@ -92,6 +94,22 @@ public class EquipmentAsset {
 
     public void setWarrantyExpiryDate(LocalDate warrantyExpiryDate) {
         this.warrantyExpiryDate = warrantyExpiryDate;
+    }
+
+    public Integer getPurchaseQuantity() {
+        return purchaseQuantity;
+    }
+
+    public void setPurchaseQuantity(Integer purchaseQuantity) {
+        this.purchaseQuantity = purchaseQuantity;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
     }
 
     public LocalDateTime getCreatedAt() {

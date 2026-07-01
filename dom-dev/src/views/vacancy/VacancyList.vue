@@ -2,25 +2,32 @@
   <div class="page-container">
     <PageHeader title="空き室一覧" subtitle="Vacancy List" />
 
-    <el-card class="search-card">
-      <el-form :model="query" inline>
-        <el-form-item label="種別">
-          <el-select v-model="query.genderType" clearable placeholder="すべて">
-            <el-option
-              v-for="item in DORMITORY_GENDER_OPTIONS"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+    <el-card class="search-card search-form-grid-card search-form-single-row-card vacancy-list-search-card">
+      <el-form :model="query" label-width="72px" class="search-form-grid search-form-single-row">
+        <div class="search-form-grid__cols">
+          <el-form-item label="種別" class="search-field-gender">
+            <el-select v-model="query.genderType" clearable placeholder="すべて">
+              <el-option
+                v-for="item in DORMITORY_GENDER_OPTIONS"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="基準日" class="search-field-date">
+            <el-date-picker
+              v-model="query.asOfDate"
+              type="date"
+              value-format="YYYY-MM-DD"
+              class="iso-date-editor"
             />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="基準日">
-          <el-date-picker v-model="query.asOfDate" type="date" value-format="YYYY-MM-DD" />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="handleSearch">検索</el-button>
-          <el-button @click="handleReset">リセット</el-button>
-        </el-form-item>
+          </el-form-item>
+          <el-form-item class="search-form-grid__actions">
+            <el-button type="primary" @click="handleSearch">検索</el-button>
+            <el-button @click="handleReset">リセット</el-button>
+          </el-form-item>
+        </div>
       </el-form>
     </el-card>
 

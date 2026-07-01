@@ -1,7 +1,7 @@
 package com.dom.project.mapper;
 
-import com.dom.project.entity.view.EquipmentStorageView;
 import com.dom.project.entity.EquipmentStorage;
+import com.dom.project.entity.view.EquipmentStorageView;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -15,7 +15,19 @@ public interface EquipmentStorageMapper {
 
     int insert(EquipmentStorage storage);
 
-    List<EquipmentStorageView> searchList(@Param("offset") Integer offset, @Param("limit") Integer limit);
+    int deleteByAssetId(@Param("equipmentAssetId") String equipmentAssetId);
 
-    Long countSearch();
+    int deleteById(@Param("storageId") String storageId);
+
+    EquipmentStorage findById(@Param("storageId") String storageId);
+
+    List<EquipmentStorageView> findByAssetId(@Param("equipmentAssetId") String equipmentAssetId);
+
+    List<EquipmentStorageView> searchList(@Param("equipmentAssetId") String equipmentAssetId,
+                                          @Param("offset") Integer offset,
+                                          @Param("limit") Integer limit);
+
+    Long countSearch(@Param("equipmentAssetId") String equipmentAssetId);
+
+    Long countByAssetId(@Param("equipmentAssetId") String equipmentAssetId);
 }

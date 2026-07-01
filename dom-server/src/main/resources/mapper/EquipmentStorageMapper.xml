@@ -3,27 +3,104 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dom.project.mapper.EquipmentStorageMapper">
 
-    <resultMap id="StorageViewMap" type="com.dom.project.entity.view.EquipmentStorageView">
-        <result column="storage_id" property="storageId"/>
-        <result column="equipment_name" property="equipmentName"/>
-        <result column="storage_location" property="storageLocation"/>
+    <resultMap id="StorageEntityMap" type="com.dom.project.entity.EquipmentStorage">
+        <id column="storage_id" property="storageId"/>
+        <result column="equipment_asset_id" property="equipmentAssetId"/>
+        <result column="storage_location_id" property="storageLocationId"/>
+        <result column="storage_quantity" property="storageQuantity"/>
         <result column="status" property="status"/>
+        <result column="linked_moveout_id" property="linkedMoveoutId"/>
+        <result column="created_at" property="createdAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+        <result column="updated_at" property="updatedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
     </resultMap>
 
+    <resultMap id="StorageViewMap" type="com.dom.project.entity.view.EquipmentStorageView">
+        <result column="storage_id" property="storageId"/>
+        <result column="equipment_asset_id" property="equipmentAssetId"/>
+        <result column="equipment_name" property="equipmentName"/>
+        <result column="purchase_quantity" property="purchaseQuantity"/>
+        <result column="storage_location_id" property="storageLocationId"/>
+        <result column="storage_location_name" property="storageLocationName"/>
+        <result column="storage_quantity" property="storageQuantity"/>
+        <result column="status" property="status"/>
+        <result column="linked_moveout_id" property="linkedMoveoutId"/>
+    </resultMap>
+
+    <sql id="ViewSelectColumns">
+        s.storage_id,
+        s.equipment_asset_id,
+        e.name AS equipment_name,
+        ea.purchase_quantity,
+        s.storage_location_id,
+        sl.name AS storage_location_name,
+        s.storage_quantity,
+        s.status,
+        s.linked_moveout_id
+    </sql>
+
+    <sql id="ViewFromClause">
+        FROM equipment_storage s
+        JOIN equipment_asset ea ON ea.equipment_asset_id = s.equipment_asset_id AND ea.deleted_at IS NULL
+        JOIN equipment e ON e.equipment_id = ea.equipment_id AND e.deleted_at IS NULL
+        JOIN storage_location sl ON sl.storage_location_id = s.storage_location_id AND sl.deleted_at IS NULL
+    </sql>
+
     <insert id="insert" parameterType="com.dom.project.entity.EquipmentStorage">
-        INSERT INTO equipment_storage (storage_id, equipment_id, storage_location, status, linked_moveout_id, created_at, updated_at)
-        VALUES (#{storageId}, #{equipmentId}, #{storageLocation}, #{status}, #{linkedMoveoutId}, #{createdAt}, #{updatedAt})
+        INSERT INTO equipment_storage (
+            storage_id, equipment_asset_id, storage_location_id, storage_quantity,
+            status, linked_moveout_id, created_at, updated_at
+        )
+        VALUES (
+            #{storageId}, #{equipmentAssetId}, #{storageLocationId}, #{storageQuantity},
+            #{status}, #{linkedMoveoutId}, #{createdAt}, #{updatedAt}
+        )
     </insert>
 
+    <delete id="deleteByAssetId">
+        DELETE FROM equipment_storage WHERE equipment_asset_id = #{equipmentAssetId}
+    </delete>
+
+    <delete id="deleteById">
+        DELETE FROM equipment_storage WHERE storage_id = #{storageId}
+    </delete>
+
+    <select id="findById" resultMap="StorageEntityMap">
+        SELECT storage_id, equipment_asset_id, storage_location_id, storage_quantity,
+               status, linked_moveout_id, created_at, updated_at
+        FROM equipment_storage
+        WHERE storage_id = #{storageId}
+    </select>
+
+    <select id="findByAssetId" resultMap="StorageViewMap">
+        SELECT <include refid="ViewSelectColumns"/>
+        <include refid="ViewFromClause"/>
+        WHERE s.equipment_asset_id = #{equipmentAssetId}
+        ORDER BY s.created_at, s.storage_id
+    </select>
+
     <select id="searchList" resultMap="StorageViewMap">
-        SELECT s.storage_id, e.name AS equipment_name, s.storage_location, s.status
-        FROM equipment_storage s
-        JOIN equipment e ON e.equipment_id = s.equipment_id AND e.deleted_at IS NULL
-        ORDER BY s.created_at DESC
+        SELECT <include refid="ViewSelectColumns"/>
+        <include refid="ViewFromClause"/>
+        <where>
+            <if test="equipmentAssetId != null and equipmentAssetId != ''">
+                AND s.equipment_asset_id = #{equipmentAssetId}
+            </if>
+        </where>
+        ORDER BY s.created_at DESC, s.storage_id DESC
         LIMIT #{limit} OFFSET #{offset}
     </select>
 
     <select id="countSearch" resultType="long">
-        SELECT COUNT(1) FROM equipment_storage
+        SELECT COUNT(1)
+        FROM equipment_storage s
+        <where>
+            <if test="equipmentAssetId != null and equipmentAssetId != ''">
+                AND s.equipment_asset_id = #{equipmentAssetId}
+            </if>
+        </where>
+    </select>
+
+    <select id="countByAssetId" resultType="long">
+        SELECT COUNT(1) FROM equipment_storage WHERE equipment_asset_id = #{equipmentAssetId}
     </select>
 </mapper>

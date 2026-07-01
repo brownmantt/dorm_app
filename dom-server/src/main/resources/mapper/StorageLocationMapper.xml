@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dom.project.mapper.StorageLocationMapper">
+
+    <resultMap id="StorageLocationMap" type="com.dom.project.entity.StorageLocation">
+        <id column="storage_location_id" property="storageLocationId"/>
+        <result column="name" property="name"/>
+        <result column="created_at" property="createdAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+        <result column="updated_at" property="updatedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+        <result column="deleted_at" property="deletedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+    </resultMap>
+
+    <sql id="BaseColumns">
+        storage_location_id, name, created_at, updated_at, deleted_at
+    </sql>
+
+    <insert id="insert" parameterType="com.dom.project.entity.StorageLocation">
+        INSERT INTO storage_location (storage_location_id, name, created_at, updated_at)
+        VALUES (#{storageLocationId}, #{name}, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <update id="update" parameterType="com.dom.project.entity.StorageLocation">
+        UPDATE storage_location
+        SET name = #{name}, updated_at = #{updatedAt}
+        WHERE storage_location_id = #{storageLocationId} AND deleted_at IS NULL
+    </update>
+
+    <update id="logicalDelete">
+        UPDATE storage_location
+        SET deleted_at = #{deletedAt}, updated_at = #{deletedAt}
+        WHERE storage_location_id = #{storageLocationId} AND deleted_at IS NULL
+    </update>
+
+    <select id="findById" resultMap="StorageLocationMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM storage_location
+        WHERE storage_location_id = #{storageLocationId} AND deleted_at IS NULL
+    </select>
+
+    <select id="findByName" resultMap="StorageLocationMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM storage_location
+        WHERE name = #{name} AND deleted_at IS NULL
+    </select>
+
+    <select id="searchList" resultMap="StorageLocationMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM storage_location
+        WHERE deleted_at IS NULL
+        <if test="name != null and name != ''">
+            AND name ILIKE CONCAT('%', #{name}, '%')
+        </if>
+        ORDER BY name
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countSearch" resultType="long">
+        SELECT COUNT(1)
+        FROM storage_location
+        WHERE deleted_at IS NULL
+        <if test="name != null and name != ''">
+            AND name ILIKE CONCAT('%', #{name}, '%')
+        </if>
+    </select>
+
+    <select id="countEquipmentStoragesByLocationId" resultType="long">
+        SELECT COUNT(1)
+        FROM equipment_storage
+        WHERE storage_location_id = #{storageLocationId}
+    </select>
+</mapper>

@@ -25,13 +25,3 @@ export function deleteEquipment(id) {
 export function processEquipmentMoveout(data) {
   return request.post('/equipment-moveouts', data)
 }
-
-/** @param {Record<string, unknown>} params */
-export function getEquipmentStorages(params) {
-  return request.get('/equipment-storages', { params: buildQueryParams(params) })
-}
-
-/** @param {object} data */
-export function createEquipmentStorage(data) {
-  return request.post('/equipment-storages', data)
-}

@@ -2,23 +2,33 @@
   <div class="page-container">
     <PageHeader title="所属マスタ" subtitle="Affiliation Master" />
 
-    <el-card class="search-card">
-      <el-form :model="query" inline>
-        <el-form-item label="所属名称">
-          <el-input v-model="query.name" clearable placeholder="名称" />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="handleSearch">検索</el-button>
-          <el-button @click="handleReset">リセット</el-button>
-        </el-form-item>
+    <el-card class="search-card search-form-grid-card search-form-single-row-card master-list-search-card">
+      <el-form :model="query" label-width="84px" class="search-form-grid search-form-single-row">
+        <div class="search-form-grid__cols">
+          <el-form-item label="所属名称" class="search-field-name">
+            <el-input v-model="query.name" clearable placeholder="名称" />
+          </el-form-item>
+          <el-form-item class="search-form-grid__actions">
+            <el-button type="primary" @click="handleSearch">検索</el-button>
+            <el-button @click="handleReset">リセット</el-button>
+          </el-form-item>
+        </div>
       </el-form>
     </el-card>
 
-    <el-card class="toolbar-card">
-      <el-button type="primary" @click="openDialog()">新規登録</el-button>
-    </el-card>
-
     <el-card v-loading="loading" class="table-card">
+      <div class="table-card-toolbar">
+        <el-button type="primary" @click="openDialog()">新規登録</el-button>
+        <el-pagination
+          v-model:current-page="pagination.page"
+          v-model:page-size="pagination.size"
+          :total="pagination.total"
+          :page-sizes="[10, 20, 50]"
+          layout="total, sizes, prev, pager, next"
+          @size-change="fetchList"
+          @current-change="fetchList"
+        />
+      </div>
       <el-table :data="tableData" class="data-table" border stripe empty-text="データがありません">
         <el-table-column type="index" label="番号" width="60" />
         <el-table-column prop="affiliationId" label="所属ID" min-width="140" />
@@ -41,17 +51,6 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="pagination-wrapper">
-        <el-pagination
-          v-model:current-page="pagination.page"
-          v-model:page-size="pagination.size"
-          :total="pagination.total"
-          :page-sizes="[10, 20, 50]"
-          layout="total, sizes, prev, pager, next"
-          @size-change="fetchList"
-          @current-change="fetchList"
-        />
-      </div>
     </el-card>
 
     <el-dialog v-model="dialogVisible" :title="dialogTitle" width="480px" destroy-on-close>

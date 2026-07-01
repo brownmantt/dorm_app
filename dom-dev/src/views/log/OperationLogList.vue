@@ -2,24 +2,37 @@
   <div class="page-container">
     <PageHeader title="操作ログ" subtitle="Operation Log" />
 
-    <el-card class="search-card">
-      <el-form :model="query" inline>
-        <el-form-item label="操作種別">
-          <el-input v-model="query.operationType" clearable />
-        </el-form-item>
-        <el-form-item label="操作者">
-          <el-input v-model="query.operatedBy" clearable />
-        </el-form-item>
-        <el-form-item label="操作日（開始）">
-          <el-date-picker v-model="query.operatedAtFrom" type="date" value-format="YYYY-MM-DD" />
-        </el-form-item>
-        <el-form-item label="操作日（終了）">
-          <el-date-picker v-model="query.operatedAtTo" type="date" value-format="YYYY-MM-DD" />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="handleSearch">検索</el-button>
-          <el-button @click="handleReset">リセット</el-button>
-        </el-form-item>
+    <el-card class="search-card search-form-grid-card search-form-single-row-card operation-log-search-card">
+      <el-form :model="query" label-width="60px" class="search-form-grid search-form-single-row">
+        <div class="search-form-grid__cols">
+          <el-form-item label="操作種別" class="search-field-operation-type">
+            <el-input v-model="query.operationType" clearable />
+          </el-form-item>
+          <el-form-item label="操作者" class="search-field-operated-by">
+            <el-input v-model="query.operatedBy" clearable />
+          </el-form-item>
+          <el-form-item label="操作日" class="search-field-operated-at">
+            <div class="date-range-field">
+              <el-date-picker
+                v-model="query.operatedAtFrom"
+                type="date"
+                value-format="YYYY-MM-DD"
+                class="iso-date-editor"
+              />
+              <span class="date-range-separator">～</span>
+              <el-date-picker
+                v-model="query.operatedAtTo"
+                type="date"
+                value-format="YYYY-MM-DD"
+                class="iso-date-editor"
+              />
+            </div>
+          </el-form-item>
+          <el-form-item class="search-form-grid__actions">
+            <el-button type="primary" @click="handleSearch">検索</el-button>
+            <el-button @click="handleReset">リセット</el-button>
+          </el-form-item>
+        </div>
       </el-form>
     </el-card>
 

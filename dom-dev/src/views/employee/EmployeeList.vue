@@ -2,7 +2,7 @@
   <div class="page-container">
     <PageHeader title="社員マスタ" subtitle="Employee Master" />
 
-    <el-card class="search-card">
+    <el-card class="search-card search-form-single-row-card">
       <el-form :model="query" inline>
         <el-form-item label="キーワード">
           <el-input
@@ -56,11 +56,19 @@
       </el-form>
     </el-card>
 
-    <el-card class="toolbar-card">
-      <el-button type="primary" @click="openDialog()">新規登録</el-button>
-    </el-card>
-
     <el-card v-loading="loading" class="table-card">
+      <div class="table-card-toolbar">
+        <el-button type="primary" @click="openDialog()">新規登録</el-button>
+        <el-pagination
+          v-model:current-page="pagination.page"
+          v-model:page-size="pagination.size"
+          :total="pagination.total"
+          :page-sizes="[10, 20, 50]"
+          layout="total, sizes, prev, pager, next"
+          @size-change="fetchList"
+          @current-change="fetchList"
+        />
+      </div>
       <el-table :data="tableData" class="data-table table-wrap-text" border stripe empty-text="データがありません">
         <el-table-column type="index" label="番号" width="60" />
         <el-table-column prop="employeeId" label="社員ID" min-width="120" />
@@ -95,17 +103,6 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="pagination-wrapper">
-        <el-pagination
-          v-model:current-page="pagination.page"
-          v-model:page-size="pagination.size"
-          :total="pagination.total"
-          :page-sizes="[10, 20, 50]"
-          layout="total, sizes, prev, pager, next"
-          @size-change="fetchList"
-          @current-change="fetchList"
-        />
-      </div>
     </el-card>
 
     <el-dialog v-model="dialogVisible" :title="dialogTitle" width="560px" destroy-on-close>

@@ -91,6 +91,26 @@ a:hover {
   margin-bottom: 12px;
 }
 
+.table-card-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: nowrap;
+}
+
+.table-card-toolbar .el-pagination {
+  flex-shrink: 0;
+}
+
+.table-card-toolbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 .page-title {
   margin: 0;
   font-size: 22px;
@@ -123,6 +143,28 @@ a:hover {
 .search-card .el-card__body,
 .toolbar-card .el-card__body {
   padding: 16px 20px;
+}
+
+/* 検索カード（inline）：項目高さに合わせて余白を抑える（寮一覧 grid 形式と同等） */
+.search-card.search-form-single-row-card:not(.search-form-grid-card) .el-form--inline .el-form-item {
+  margin-bottom: 0;
+  margin-right: 12px;
+  vertical-align: middle;
+}
+
+.search-card.search-form-single-row-card:not(.search-form-grid-card) .el-form--inline .el-form-item__label {
+  padding-right: 4px;
+  height: 32px;
+  line-height: 32px;
+}
+
+.search-card.search-form-single-row-card:not(.search-form-grid-card) .el-form--inline .el-form-item__content {
+  line-height: 32px;
+}
+
+.search-card.search-form-single-row-card:not(.search-form-grid-card) .el-form--inline .search-form-grid__actions,
+.search-card.search-form-single-row-card:not(.search-form-grid-card) .el-form--inline .el-form-item:last-child {
+  margin-right: 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -281,6 +323,19 @@ a:hover {
 
 .date-range-separator {
   color: var(--el-text-color-regular);
+}
+
+/* 入居履歴一覧：検索条件の余白を詰め、不要な空白を削除 */
+.residence-history-search-card .el-form--inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.residence-history-search-card .el-form--inline .el-form-item {
+  margin-right: 0;
+  margin-bottom: 0;
 }
 
 .form-inline-date-range {
@@ -475,6 +530,188 @@ a:hover {
   gap: 6px;
 }
 
+/* 空き室一覧：検索1行 */
+.vacancy-list-search-card .search-form-grid__cols {
+  width: 100%;
+  min-width: 0;
+}
+
+.vacancy-list-search-card.search-form-single-row .el-form-item {
+  margin-right: 6px;
+}
+
+.vacancy-list-search-card.search-form-single-row .el-form-item__label {
+  padding-right: 2px;
+}
+
+.vacancy-list-search-card .search-field-gender .el-form-item__content > .el-select {
+  width: 108px;
+  min-width: 108px;
+  max-width: 108px;
+}
+
+.vacancy-list-search-card .search-field-date .el-form-item__content > .el-date-editor {
+  width: calc(10ch + 72px);
+  min-width: calc(10ch + 72px);
+  max-width: calc(10ch + 72px);
+}
+
+.vacancy-list-search-card .search-form-grid__actions {
+  flex-shrink: 0;
+  margin-right: 0;
+}
+
+.vacancy-list-search-card .search-form-grid__actions .el-form-item__content {
+  gap: 6px;
+}
+
+/* 初回利用日・長期利用：照会結果との間隔 */
+.first-use-long-term-search-card .detail-descriptions {
+  margin-top: 12px;
+}
+
+.first-use-long-term-search-card .search-form-grid__cols {
+  width: 100%;
+  min-width: 0;
+}
+
+.first-use-long-term-search-card.search-form-single-row .el-form-item {
+  margin-right: 6px;
+}
+
+.first-use-long-term-search-card .search-field-employee-id .el-form-item__content > .el-input {
+  width: 140px;
+  min-width: 140px;
+  max-width: 140px;
+}
+
+.first-use-long-term-search-card .search-form-grid__actions {
+  flex-shrink: 0;
+  margin-right: 0;
+}
+
+/* マスタ系（単一検索項目）：検索1行 */
+.master-list-search-card .search-form-grid__cols,
+.dorm-fee-list-search-card .search-form-grid__cols,
+.equipment-storage-search-card .search-form-grid__cols {
+  width: 100%;
+  min-width: 0;
+}
+
+.master-list-search-card.search-form-single-row .el-form-item,
+.dorm-fee-list-search-card.search-form-single-row .el-form-item,
+.equipment-storage-search-card.search-form-single-row .el-form-item {
+  margin-right: 6px;
+}
+
+.master-list-search-card.search-form-single-row .el-form-item__label,
+.dorm-fee-list-search-card.search-form-single-row .el-form-item__label,
+.equipment-storage-search-card.search-form-single-row .el-form-item__label {
+  padding-right: 2px;
+}
+
+.master-list-search-card .search-field-name {
+  flex: 0 0 auto;
+}
+
+.master-list-search-card .search-field-name .el-form-item__content > .el-input {
+  width: 220px;
+  min-width: 220px;
+  max-width: 220px;
+}
+
+.dorm-fee-list-search-card .search-field-employee-id .el-form-item__content > .el-input {
+  width: 140px;
+  min-width: 140px;
+  max-width: 140px;
+}
+
+.dorm-fee-list-search-card .search-field-year-month .el-form-item__content > .el-date-editor {
+  width: 140px;
+  min-width: 140px;
+  max-width: 140px;
+}
+
+.dorm-fee-list-search-card .search-field-status .el-form-item__content > .el-select {
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
+}
+
+.equipment-storage-search-card .search-field-equipment .el-form-item__content > .el-select {
+  width: calc(1em * 14 + 4em);
+  min-width: calc(1em * 14 + 4em);
+  max-width: calc(1em * 14 + 4em);
+}
+
+.master-list-search-card .search-form-grid__actions,
+.dorm-fee-list-search-card .search-form-grid__actions,
+.equipment-storage-search-card .search-form-grid__actions {
+  flex-shrink: 0;
+  margin-right: 0;
+}
+
+.master-list-search-card .search-form-grid__actions .el-form-item__content,
+.dorm-fee-list-search-card .search-form-grid__actions .el-form-item__content,
+.equipment-storage-search-card .search-form-grid__actions .el-form-item__content {
+  gap: 6px;
+}
+
+/* 操作ログ：検索1行 */
+.operation-log-search-card .search-form-grid__cols {
+  width: 100%;
+  min-width: 0;
+}
+
+.operation-log-search-card.search-form-single-row .el-form-item {
+  margin-right: 4px;
+}
+
+.operation-log-search-card.search-form-single-row .el-form-item__label {
+  padding-right: 2px;
+}
+
+.operation-log-search-card .search-field-operation-type .el-form-item__content > .el-input {
+  width: 130px;
+  min-width: 130px;
+  max-width: 130px;
+}
+
+.operation-log-search-card .search-field-operated-by .el-form-item__content > .el-input {
+  width: 100px;
+  min-width: 100px;
+  max-width: 100px;
+}
+
+.operation-log-search-card .search-field-operated-at {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.operation-log-search-card .date-range-field {
+  gap: 4px;
+}
+
+.operation-log-search-card .date-range-separator {
+  margin: 0 2px;
+}
+
+.operation-log-search-card .search-field-operated-at .iso-date-editor.el-date-editor.el-input {
+  --el-date-editor-width: calc(10ch + 72px);
+  width: calc(10ch + 72px);
+  min-width: calc(10ch + 72px);
+  max-width: calc(10ch + 72px);
+}
+
+.operation-log-search-card .search-form-grid__actions {
+  flex-shrink: 0;
+  margin-right: 0;
+}
+
+.operation-log-search-card .search-form-grid__actions .el-form-item__content {
+  gap: 4px;
+}
+
 /* 寮割カレンダー：検索1行の余白を詰め、横スクロールを防止 */
 .allocation-search-card .search-form-grid__cols {
   width: 100%;
@@ -571,6 +808,105 @@ a:hover {
 }
 
 .unit-price-list-search-card .search-form-grid__actions .el-form-item__content {
+  gap: 6px;
+}
+
+/* 備品利用：検索1行固定 */
+.equipment-usage-search-card .search-form-grid__cols {
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+}
+
+.equipment-usage-search-card.search-form-single-row .el-form-item {
+  margin-right: 6px;
+}
+
+.equipment-usage-search-card.search-form-single-row .el-form-item__label {
+  padding-right: 2px;
+  white-space: nowrap;
+}
+
+.equipment-usage-search-card .search-field-equipment .el-form-item__content > .el-select {
+  width: 112px;
+  min-width: 112px;
+  max-width: 112px;
+}
+
+.equipment-usage-search-card .search-field-dormitory .el-form-item__content > .el-select {
+  width: calc(1em * 8 + 3em);
+  min-width: calc(1em * 8 + 3em);
+  max-width: calc(1em * 8 + 3em);
+}
+
+.equipment-usage-search-card .search-field-room .el-form-item__content > .el-select {
+  width: 96px;
+  min-width: 96px;
+  max-width: 96px;
+}
+
+.equipment-usage-search-card .search-field-employee .el-form-item__content > .el-select {
+  width: calc(1em * 10 + 3em);
+  min-width: calc(1em * 10 + 3em);
+  max-width: calc(1em * 10 + 3em);
+}
+
+.equipment-usage-search-card .search-field-active-only {
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+
+.equipment-usage-search-card .search-field-active-only .el-form-item__label {
+  width: auto !important;
+  min-width: 5.5em;
+  padding-right: 4px;
+  white-space: nowrap;
+  overflow: visible;
+  line-height: 32px;
+}
+
+.equipment-usage-search-card .search-field-active-only .el-form-item__content {
+  width: auto;
+  flex-shrink: 0;
+}
+
+.equipment-usage-search-card .search-form-grid__actions {
+  flex-shrink: 0;
+  margin-right: 0;
+}
+
+.equipment-usage-search-card .search-form-grid__actions .el-form-item__content {
+  gap: 6px;
+}
+
+/* 備品管理：検索1行固定 */
+.equipment-asset-search-card .search-form-grid__cols {
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+}
+
+.equipment-asset-search-card.search-form-single-row .el-form-item {
+  margin-right: 6px;
+}
+
+.equipment-asset-search-card.search-form-single-row .el-form-item__label {
+  padding-right: 2px;
+  white-space: nowrap;
+}
+
+.equipment-asset-search-card .search-field-equipment-item .el-form-item__content > .el-select {
+  width: 220px;
+  min-width: 220px;
+  max-width: 220px;
+}
+
+.equipment-asset-search-card .search-form-grid__actions {
+  flex-shrink: 0;
+  margin-right: 0;
+}
+
+.equipment-asset-search-card .search-form-grid__actions .el-form-item__content {
   gap: 6px;
 }
 

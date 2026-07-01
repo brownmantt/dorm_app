@@ -333,12 +333,37 @@
         LIMIT 1
     </select>
 
+    <select id="findActiveByRoomAndEmployee" resultMap="ResidenceHistoryMap">
+        SELECT residence_history_id, employee_id, dormitory_id, room_id, move_in_date, move_out_date,
+               move_out_reason, usage_type_code, created_at, updated_at, deleted_at
+        FROM residence_history
+        WHERE room_id = #{roomId}
+          AND employee_id = #{employeeId}
+          AND deleted_at IS NULL
+          AND move_in_date &lt;= #{asOfDate}
+          AND (move_out_date IS NULL OR move_out_date &gt;= #{asOfDate})
+        ORDER BY move_in_date DESC, residence_history_id DESC
+        LIMIT 1
+    </select>
+
     <select id="findActiveByDormitoryAndEmployee" resultMap="ResidenceHistoryMap">
         SELECT residence_history_id, employee_id, dormitory_id, room_id, move_in_date, move_out_date,
                move_out_reason, usage_type_code, created_at, updated_at, deleted_at
         FROM residence_history
         WHERE dormitory_id = #{dormitoryId}
           AND employee_id = #{employeeId}
+          AND deleted_at IS NULL
+          AND move_in_date &lt;= #{asOfDate}
+          AND (move_out_date IS NULL OR move_out_date &gt;= #{asOfDate})
+        ORDER BY move_in_date DESC, residence_history_id DESC
+        LIMIT 1
+    </select>
+
+    <select id="findActiveByEmployee" resultMap="ResidenceHistoryMap">
+        SELECT residence_history_id, employee_id, dormitory_id, room_id, move_in_date, move_out_date,
+               move_out_reason, usage_type_code, created_at, updated_at, deleted_at
+        FROM residence_history
+        WHERE employee_id = #{employeeId}
           AND deleted_at IS NULL
           AND move_in_date &lt;= #{asOfDate}
           AND (move_out_date IS NULL OR move_out_date &gt;= #{asOfDate})

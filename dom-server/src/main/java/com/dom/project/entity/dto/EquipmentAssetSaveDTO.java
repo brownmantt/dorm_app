@@ -1,6 +1,8 @@
 package com.dom.project.entity.dto;
 
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -37,6 +39,14 @@ public class EquipmentAssetSaveDTO {
     private String purchaseStoreAddress;
 
     private LocalDate warrantyExpiryDate;
+
+    @NotNull(message = "購入数量を入力してください")
+    @Min(value = 1, message = "購入数量は1以上で入力してください")
+    @Max(value = 999, message = "購入数量は999以下で入力してください")
+    private Integer purchaseQuantity = 1;
+
+    @Size(max = 2000, message = "備考は2000文字以内で入力してください")
+    private String remarks;
 
     public String getEquipmentId() {
         return equipmentId;
@@ -100,5 +110,21 @@ public class EquipmentAssetSaveDTO {
 
     public void setWarrantyExpiryDate(LocalDate warrantyExpiryDate) {
         this.warrantyExpiryDate = warrantyExpiryDate;
+    }
+
+    public Integer getPurchaseQuantity() {
+        return purchaseQuantity;
+    }
+
+    public void setPurchaseQuantity(Integer purchaseQuantity) {
+        this.purchaseQuantity = purchaseQuantity;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
     }
 }

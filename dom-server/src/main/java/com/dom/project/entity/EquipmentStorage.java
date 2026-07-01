@@ -10,11 +10,14 @@ public class EquipmentStorage {
     /** 保管 ID */
     private String storageId;
 
-    /** 備品 ID */
-    private String equipmentId;
+    /** 備品（個体）ID */
+    private String equipmentAssetId;
 
-    /** 保管場所 */
-    private String storageLocation;
+    /** 保管場所 ID（保管場所マスタ参照） */
+    private String storageLocationId;
+
+    /** 保管数量 */
+    private Integer storageQuantity;
 
     /** ステータス：IN_STORAGE / REUSED 等 */
     private String status;
@@ -36,20 +39,28 @@ public class EquipmentStorage {
         this.storageId = storageId;
     }
 
-    public String getEquipmentId() {
-        return equipmentId;
+    public String getEquipmentAssetId() {
+        return equipmentAssetId;
     }
 
-    public void setEquipmentId(String equipmentId) {
-        this.equipmentId = equipmentId;
+    public void setEquipmentAssetId(String equipmentAssetId) {
+        this.equipmentAssetId = equipmentAssetId;
     }
 
-    public String getStorageLocation() {
-        return storageLocation;
+    public String getStorageLocationId() {
+        return storageLocationId;
     }
 
-    public void setStorageLocation(String storageLocation) {
-        this.storageLocation = storageLocation;
+    public void setStorageLocationId(String storageLocationId) {
+        this.storageLocationId = storageLocationId;
+    }
+
+    public Integer getStorageQuantity() {
+        return storageQuantity;
+    }
+
+    public void setStorageQuantity(Integer storageQuantity) {
+        this.storageQuantity = storageQuantity;
     }
 
     public String getStatus() {

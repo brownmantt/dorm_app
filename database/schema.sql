@@ -319,19 +319,39 @@ CREATE TABLE equipment_moveout (
 );
 COMMENT ON TABLE equipment_moveout IS '退去時備品処理';
 
+-- 4.2.1 保管場所マスタ
+CREATE TABLE storage_location (
+    storage_location_id VARCHAR(20)  NOT NULL,
+    name                VARCHAR(100) NOT NULL,
+    created_at          TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    updated_at          TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    deleted_at          TIMESTAMPTZ,
+    CONSTRAINT pk_storage_location PRIMARY KEY (storage_location_id)
+);
+CREATE UNIQUE INDEX uk_storage_location_name ON storage_location (name) WHERE deleted_at IS NULL;
+COMMENT ON TABLE storage_location IS '保管場所マスタ';
+
+INSERT INTO storage_location (storage_location_id, name) VALUES
+('SL202606300001', '本社倉庫1階'),
+('SL202606300002', '本社倉庫2階'),
+('SL202606300003', '女子寮A倉庫');
+
 -- 4.3 備品保管
 CREATE TABLE equipment_storage (
-    storage_id        VARCHAR(20)  NOT NULL,
-    equipment_id      VARCHAR(20)  NOT NULL,
-    storage_location  VARCHAR(100) NOT NULL,
-    status            VARCHAR(20)  NOT NULL DEFAULT 'IN_STORAGE',  -- IN_STORAGE / REUSED 等
-    linked_moveout_id VARCHAR(20),
-    created_at        TIMESTAMPTZ  NOT NULL DEFAULT now(),
-    updated_at        TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    storage_id           VARCHAR(20)  NOT NULL,
+    equipment_asset_id   VARCHAR(20)  NOT NULL,
+    storage_location_id  VARCHAR(20)  NOT NULL,
+    storage_quantity     INTEGER      NOT NULL DEFAULT 1,
+    status               VARCHAR(20)  NOT NULL DEFAULT 'IN_STORAGE',  -- IN_STORAGE / REUSED 等
+    linked_moveout_id    VARCHAR(20),
+    created_at           TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    updated_at           TIMESTAMPTZ  NOT NULL DEFAULT now(),
     CONSTRAINT pk_equipment_storage PRIMARY KEY (storage_id),
-    CONSTRAINT fk_storage_equipment FOREIGN KEY (equipment_id) REFERENCES equipment (equipment_id),
-    CONSTRAINT fk_storage_moveout   FOREIGN KEY (linked_moveout_id) REFERENCES equipment_moveout (moveout_id)
+    CONSTRAINT fk_storage_asset     FOREIGN KEY (equipment_asset_id) REFERENCES equipment_asset (equipment_asset_id),
+    CONSTRAINT fk_storage_moveout   FOREIGN KEY (linked_moveout_id) REFERENCES equipment_moveout (moveout_id),
+    CONSTRAINT fk_storage_location  FOREIGN KEY (storage_location_id) REFERENCES storage_location (storage_location_id)
 );
+CREATE UNIQUE INDEX uk_storage_asset_location ON equipment_storage (equipment_asset_id, storage_location_id);
 COMMENT ON TABLE equipment_storage IS '備品保管';
 
 -- ============================================================

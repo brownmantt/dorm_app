@@ -2,7 +2,7 @@
   <div class="page-container">
     <PageHeader title="入居履歴一覧" subtitle="Residence History" />
 
-    <el-card class="search-card">
+    <el-card class="search-card residence-history-search-card">
       <el-form :model="query" inline>
         <el-form-item label="入居者氏名">
           <el-input v-model="query.name" clearable placeholder="部分一致" />

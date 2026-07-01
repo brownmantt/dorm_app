@@ -59,11 +59,26 @@
               AND SUBSTRING(storage_id FROM LENGTH(storage_id) - 11 FOR 8) = #{datePart}
               AND RIGHT(storage_id, 4) ~ '^[0-9]{4}$'
             UNION ALL
-            SELECT CAST(RIGHT(equipment_asset_id, 4) AS INTEGER)
+            SELECT CAST(SUBSTRING(equipment_asset_id FROM 11 FOR 4) AS INTEGER)
             FROM equipment_asset
-            WHERE LENGTH(equipment_asset_id) &gt;= 13
-              AND SUBSTRING(equipment_asset_id FROM LENGTH(equipment_asset_id) - 11 FOR 8) = #{datePart}
-              AND RIGHT(equipment_asset_id, 4) ~ '^[0-9]{4}$'
+            WHERE LENGTH(equipment_asset_id) = 14
+              AND equipment_asset_id LIKE 'EB%'
+              AND SUBSTRING(equipment_asset_id FROM 3 FOR 8) = #{datePart}
+              AND SUBSTRING(equipment_asset_id FROM 11 FOR 4) ~ '^[0-9]{4}$'
+            UNION ALL
+            SELECT CAST(SUBSTRING(usage_id FROM 11 FOR 4) AS INTEGER)
+            FROM equipment_usage
+            WHERE LENGTH(usage_id) = 14
+              AND usage_id LIKE 'EU%'
+              AND SUBSTRING(usage_id FROM 3 FOR 8) = #{datePart}
+              AND SUBSTRING(usage_id FROM 11 FOR 4) ~ '^[0-9]{4}$'
+            UNION ALL
+            SELECT CAST(SUBSTRING(storage_location_id FROM 11 FOR 4) AS INTEGER)
+            FROM storage_location
+            WHERE LENGTH(storage_location_id) = 14
+              AND storage_location_id LIKE 'SL%'
+              AND SUBSTRING(storage_location_id FROM 3 FOR 8) = #{datePart}
+              AND SUBSTRING(storage_location_id FROM 11 FOR 4) ~ '^[0-9]{4}$'
         ) sequences
     </select>
 </mapper>

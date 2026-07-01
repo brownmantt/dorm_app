@@ -40,9 +40,10 @@
 | residence | `/first-use-long-term` | FirstUseLongTerm | `views/residence/FirstUseLongTerm.vue` | ADMIN/USER | 初回利用日・長期利用アラート |
 | dormFee | `/dorm-fees` | DormFeeList | `views/dormFee/DormFeeList.vue` | ADMIN | 寮費一覧・算定。一覧列：地域・寮・部屋（1列2行表示）・入居者・対象年月・入居日・退居日・利用形態・利用日数・日単価・**金額**（寮費ID・単価IDは非表示）。算定ダイアログは **対象年月 → 寮 → 部屋 → 社員** の順。社員コンボは対象年月・寮・部屋に連動（`loadDormFeeEmployeeOptions`）。算定は入居履歴×単価マスタから算出し `dorm_fee` に保存。ステータス：仮定（PROVISIONAL）/ エラー（ERROR） |
 | equipment | `/equipments` | EquipmentMasterList | `views/equipment/EquipmentMasterList.vue` | ADMIN | **品目マスタ CRUD** — 品目ID（自動採番）・品目名称のみ管理。論理削除（使用中は不可） |
-| equipment | `/equipment-assets` | EquipmentAssetList | `views/equipment/EquipmentAssetList.vue` | ADMIN | **備品管理 CRUD** — 品目（品目マスタコンボ）・備品番号（自動採番）・購入日・購入金額・購入店・購入店連絡先・購入店郵便番号・購入店住所・保証期限。品目で検索可 |
-| equipment | `/equipment-moveouts` | MoveOutEquipment | `views/equipment/MoveOutEquipment.vue` | ADMIN | 退去備品処理 |
-| equipment | `/equipment-storages` | EquipmentStorage | `views/equipment/EquipmentStorage.vue` | ADMIN | 備品保管 |
+| storageLocation | `/storage-locations` | StorageLocationList | `views/storageLocation/StorageLocationList.vue` | ADMIN | **保管場所マスタ CRUD** — 保管場所ID（自動採番）・保管場所名。使用中の保管場所は削除不可 |
+| equipment | `/equipment-assets` | EquipmentAssetList | `views/equipment/EquipmentAssetList.vue` | ADMIN | **備品管理 CRUD** — 品目（品目マスタコンボ）・備品番号（自動採番）・購入日・購入数量・購入金額・購入店・購入店連絡先・購入店郵便番号・購入店住所・保証期限・備考（テキストエリア）。品目で検索可 |
+| equipment | `/equipment-usages` | EquipmentUsageList | `views/equipment/EquipmentUsageList.vue` | ADMIN | **備品利用・解除** — 利用登録・一覧・利用解除（利用終了日を設定） |
+| equipment | `/equipment-storages` | EquipmentStorage | `views/equipment/EquipmentStorage.vue` | ADMIN | **備品保管 CRUD** — 備品（個体）・複数保管場所・保管数量。合計 = 購入数量 |
 | vacancy | `/vacancies` | VacancyList | `views/vacancy/VacancyList.vue` | ADMIN/USER | 空き室一覧（検索：種別・基準日）。寮名称→寮詳細、部屋名称→部屋編集。入居者列右「入居」、退寮予定日列右「退居」（ADMIN） |
 | affiliation | `/affiliations` | AffiliationList | `views/affiliation/AffiliationList.vue` | ADMIN | 所属マスタ CRUD |
 | region | `/regions` | RegionList | `views/region/RegionList.vue` | ADMIN | **地域マスタ CRUD** — 地域コード・名称・表示順。初期データ：東京/大阪/名古屋/その他 |
@@ -105,6 +106,15 @@
 | `createAffiliation(data)` | POST | `/affiliations` | 所属登録 |
 | `updateAffiliation(id, data)` | PUT | `/affiliations/:id` | 所属更新 |
 | `deleteAffiliation(id)` | DELETE | `/affiliations/:id` | 所属削除 |
+
+### `api/storageLocation.js`
+| 関数 | Method | Path | 説明 |
+|------|--------|------|------|
+| `getStorageLocations(params)` | GET | `/storage-locations` | 保管場所一覧（名称・ページング） |
+| `getStorageLocationsSilent(params)` | GET | `/storage-locations` | 保管場所一覧（エラー非表示・コンボ用） |
+| `createStorageLocation(data)` | POST | `/storage-locations` | 保管場所登録 |
+| `updateStorageLocation(id, data)` | PUT | `/storage-locations/:id` | 保管場所更新 |
+| `deleteStorageLocation(id)` | DELETE | `/storage-locations/:id` | 保管場所削除 |
 
 ### `api/region.js`
 | 関数 | メソッド | エンドポイント | 概要 |
@@ -174,6 +184,14 @@
 | `getDormFees(params)` | GET | `/dorm-fees` | 寮費一覧 |
 | `calculateDormFee(data)` | POST | `/dorm-fees/calculate` | 寮費算定（保存込み） |
 
+### `api/equipmentStorage.js`
+| 関数 | Method | Path | 説明 |
+|------|--------|------|------|
+| `getEquipmentStorages(params)` | GET | `/equipment-storages` | 保管一覧（備品番号・ページング） |
+| `getEquipmentStoragesByAsset(id)` | GET | `/equipment-storages/by-asset/:id` | 備品別保管明細 |
+| `saveEquipmentStoragesByAsset(id, data)` | PUT | `/equipment-storages/by-asset/:id` | 備品別保管一括保存 |
+| `deleteEquipmentStorage(id)` | DELETE | `/equipment-storages/:id` | 保管明細削除 |
+
 ### `api/equipment.js`
 | 関数 | メソッド | エンドポイント | 概要 |
 |---|---|---|---|
@@ -182,8 +200,6 @@
 | `updateEquipment(id, data)` | PUT | `/equipments/:id` | 品目更新（`name` のみ） |
 | `deleteEquipment(id)` | DELETE | `/equipments/:id` | 品目削除（論理削除） |
 | `processEquipmentMoveout(data)` | POST | `/equipment-moveouts` | 退去備品処理 |
-| `getEquipmentStorages(params)` | GET | `/equipment-storages` | 保管一覧 |
-| `createEquipmentStorage(data)` | POST | `/equipment-storages` | 保管登録 |
 
 ### `api/equipmentAsset.js`
 | 関数 | メソッド | エンドポイント | 概要 |
@@ -192,6 +208,13 @@
 | `createEquipmentAsset(data)` | POST | `/equipment-assets` | 備品登録（備品番号はサーバ採番） |
 | `updateEquipmentAsset(id, data)` | PUT | `/equipment-assets/:id` | 備品更新 |
 | `deleteEquipmentAsset(id)` | DELETE | `/equipment-assets/:id` | 備品削除（論理削除） |
+
+### `api/equipmentUsage.js`
+| 関数 | メソッド | エンドポイント | 概要 |
+|---|---|---|---|
+| `getEquipmentUsages(params)` | GET | `/equipment-usages` | 備品利用一覧（備品・寮・部屋・入居者・利用中のみ絞込可） |
+| `createEquipmentUsage(data)` | POST | `/equipment-usages` | 備品利用登録 |
+| `releaseEquipmentUsage(id, data)` | PUT | `/equipment-usages/:id/release` | 備品利用解除 |
 
 ### `api/vacancy.js`
 | 関数 | メソッド | エンドポイント | 概要 |
@@ -562,8 +585,28 @@ views/region/RegionList.vue  fetchList() / handleSubmit() / handleDelete()
 api/region.js  getRegions() / createRegion() / updateRegion() / deleteRegion()
  ↓
 RegionController → RegionServiceImpl → RegionMapper → region テーブル
+```
 
-# 各画面の地域コンボ（寮一覧・寮割カレンダー・寮登録ダイアログ等）
+保管場所マスタ:
+
+```
+views/storageLocation/StorageLocationList.vue  fetchList() / handleSubmit() / handleDelete()
+ ↓
+api/storageLocation.js  getStorageLocations() / createStorageLocation() / updateStorageLocation() / deleteStorageLocation()
+ ↓
+StorageLocationController → StorageLocationServiceImpl → StorageLocationMapper → storage_location テーブル
+
+# 備品保管画面の保管場所コンボ
+views/equipment/EquipmentStorage.vue  fetchStorageLocations()
+ ↓
+api/storageLocation.js  getStorageLocationsSilent({ page: 0, size: 1000 })
+ ↓
+GET /storage-locations
+```
+
+地域マスタ（各画面コンボ連携）:
+
+```
 views/* / components/DormitoryFormDialog.vue  onMounted / handleOpen
  ↓
 utils/region.js  loadRegionOptions()
@@ -608,6 +651,33 @@ EquipmentAssetController → EquipmentAssetServiceImpl → EquipmentAssetMapper 
 （品目参照：EquipmentMapper → equipment テーブル）
 ```
 
+備品利用:
+
+```
+views/equipment/EquipmentUsageList.vue  onMounted() / fetchList() / handleSubmit() / confirmRelease()
+ ↓
+api/equipmentUsage.js  getEquipmentUsages() / createEquipmentUsage() / releaseEquipmentUsage()
+api/equipmentAsset.js  getEquipmentAssets()（備品コンボ）
+api/dormitory.js  getDormitories() / getRoomsByDormitory()（寮→部屋連動）
+api/employee.js  getEmployees()（入居者コンボ）
+ ↓
+EquipmentUsageController → EquipmentUsageServiceImpl → EquipmentUsageMapper → equipment_usage テーブル
+（参照：EquipmentAssetMapper / DormitoryMapper / RoomMapper / EmployeeMapper）
+```
+
+備品保管:
+
+```
+views/equipment/EquipmentStorage.vue  onMounted() / fetchList() / openDialog() / handleSave() / handleDelete()
+ ↓
+api/equipmentStorage.js  getEquipmentStorages() / getEquipmentStoragesByAsset() / saveEquipmentStoragesByAsset() / deleteEquipmentStorage()
+api/equipmentAsset.js  getEquipmentAssets()（備品コンボ・検索）
+api/storageLocation.js  getStorageLocationsSilent()（保管場所コンボ）
+ ↓
+EquipmentStorageController → EquipmentStorageServiceImpl → EquipmentStorageMapper → equipment_storage テーブル
+（参照：EquipmentAssetMapper / StorageLocationMapper）
+```
+
 ---
 
 ## 8. 共通実装パターン（一覧画面）
@@ -616,7 +686,8 @@ EquipmentAssetController → EquipmentAssetServiceImpl → EquipmentAssetMapper 
 
 - `query`（検索条件 reactive）/ `pagination`（page・size・total）/ `loading`
 - `fetchList()` → `api.get*()` → `normalizePageResponse()` → `tableData` / `pagination.total`
-- UI: `el-card.search-card` → `toolbar-card` → `table-card`（`el-table.data-table` + `el-pagination`）
+- UI: `el-card.search-card`（`search-form-single-row-card` で項目高さに合わせた1行検索）→ `table-card`（`table-card-toolbar` に新規登録＋ページング、`el-table.data-table`）
+- 備品利用（`EquipmentUsageList`）は一覧 + 利用登録ダイアログ + 利用解除ダイアログ
 - 一覧テーブル（`.table-card .data-table`）は横スクロールバーを表示しない（`assets/styles/index.css`）
 - ロール制御は `userStore.isAdmin` でボタン表示を切替
 

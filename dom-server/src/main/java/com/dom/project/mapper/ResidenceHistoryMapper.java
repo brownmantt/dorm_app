@@ -95,10 +95,19 @@ public interface ResidenceHistoryMapper {
     ResidenceHistory findFirstActiveByDormitoryId(@Param("dormitoryId") String dormitoryId,
                                                    @Param("asOfDate") LocalDate asOfDate);
 
+    /** 部屋内の指定社員の現在有効入居履歴 */
+    ResidenceHistory findActiveByRoomAndEmployee(@Param("roomId") String roomId,
+                                                 @Param("employeeId") String employeeId,
+                                                 @Param("asOfDate") LocalDate asOfDate);
+
     /** 寮内の指定社員の現在有効入居履歴 */
     ResidenceHistory findActiveByDormitoryAndEmployee(@Param("dormitoryId") String dormitoryId,
                                                       @Param("employeeId") String employeeId,
                                                       @Param("asOfDate") LocalDate asOfDate);
+
+    /** 指定社員の現在有効入居履歴（いずれかの寮） */
+    ResidenceHistory findActiveByEmployee(@Param("employeeId") String employeeId,
+                                          @Param("asOfDate") LocalDate asOfDate);
 
     /** 寮費算定対象の入居履歴（対象月と重なる期間） */
     List<DormFeeResidenceView> findForDormFeeCalculation(@Param("monthStart") LocalDate monthStart,

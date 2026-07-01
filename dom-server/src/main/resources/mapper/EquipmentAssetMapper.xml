@@ -13,6 +13,8 @@
         <result column="purchase_store_postal_code" property="purchaseStorePostalCode"/>
         <result column="purchase_store_address" property="purchaseStoreAddress"/>
         <result column="warranty_expiry_date" property="warrantyExpiryDate"/>
+        <result column="purchase_quantity" property="purchaseQuantity"/>
+        <result column="remarks" property="remarks"/>
         <result column="created_at" property="createdAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
         <result column="updated_at" property="updatedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
         <result column="deleted_at" property="deletedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
@@ -29,6 +31,8 @@
         <result column="purchase_store_postal_code" property="purchaseStorePostalCode"/>
         <result column="purchase_store_address" property="purchaseStoreAddress"/>
         <result column="warranty_expiry_date" property="warrantyExpiryDate"/>
+        <result column="purchase_quantity" property="purchaseQuantity"/>
+        <result column="remarks" property="remarks"/>
         <result column="created_at" property="createdAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
         <result column="updated_at" property="updatedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
     </resultMap>
@@ -36,18 +40,18 @@
     <sql id="BaseColumns">
         equipment_asset_id, equipment_id, purchase_date, purchase_amount,
         purchase_store, purchase_store_contact, purchase_store_postal_code, purchase_store_address,
-        warranty_expiry_date, created_at, updated_at, deleted_at
+        warranty_expiry_date, purchase_quantity, remarks, created_at, updated_at, deleted_at
     </sql>
 
     <insert id="insert" parameterType="com.dom.project.entity.EquipmentAsset">
         INSERT INTO equipment_asset (
             equipment_asset_id, equipment_id, purchase_date, purchase_amount,
             purchase_store, purchase_store_contact, purchase_store_postal_code, purchase_store_address,
-            warranty_expiry_date, created_at, updated_at
+            warranty_expiry_date, purchase_quantity, remarks, created_at, updated_at
         ) VALUES (
             #{equipmentAssetId}, #{equipmentId}, #{purchaseDate}, #{purchaseAmount},
             #{purchaseStore}, #{purchaseStoreContact}, #{purchaseStorePostalCode}, #{purchaseStoreAddress},
-            #{warrantyExpiryDate}, #{createdAt}, #{updatedAt}
+            #{warrantyExpiryDate}, #{purchaseQuantity}, #{remarks}, #{createdAt}, #{updatedAt}
         )
     </insert>
 
@@ -61,6 +65,8 @@
             purchase_store_postal_code = #{purchaseStorePostalCode},
             purchase_store_address = #{purchaseStoreAddress},
             warranty_expiry_date = #{warrantyExpiryDate},
+            purchase_quantity = #{purchaseQuantity},
+            remarks = #{remarks},
             updated_at = #{updatedAt}
         WHERE equipment_asset_id = #{equipmentAssetId} AND deleted_at IS NULL
     </update>
@@ -82,7 +88,8 @@
                ea.purchase_date, ea.purchase_amount,
                ea.purchase_store, ea.purchase_store_contact,
                ea.purchase_store_postal_code, ea.purchase_store_address,
-               ea.warranty_expiry_date, ea.created_at, ea.updated_at
+               ea.warranty_expiry_date, ea.purchase_quantity, ea.remarks,
+               ea.created_at, ea.updated_at
         FROM equipment_asset ea
         INNER JOIN equipment e ON e.equipment_id = ea.equipment_id AND e.deleted_at IS NULL
         WHERE ea.deleted_at IS NULL

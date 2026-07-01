@@ -84,12 +84,12 @@ INSERT INTO equipment_moveout (moveout_id, residence_history_id, equipment_id, d
     ('MO00004', 'RH00005', 'EQ00004', 'DISCARD', '2024-07-31 19:00:00+09', NULL, 'admin'),
     ('MO00005', 'RH00005', 'EQ00005', 'STORE', '2024-07-31 19:00:00+09', '倉庫B', 'admin');
 
-INSERT INTO equipment_storage (storage_id, equipment_id, storage_location, status, linked_moveout_id, created_at, updated_at) VALUES
-    ('ST00001', 'EQ00002', '本社倉庫1階', 'IN_STORAGE', 'MO00002', '2025-04-01 09:00:00+09', '2025-04-01 09:00:00+09'),
-    ('ST00002', 'EQ00005', '本社倉庫2階', 'IN_STORAGE', 'MO00005', '2024-08-01 09:00:00+09', '2024-08-01 09:00:00+09'),
-    ('ST00003', 'EQ00003', '女子寮A倉庫', 'REUSED', 'MO00003', '2025-01-10 09:00:00+09', '2025-01-10 09:00:00+09'),
-    ('ST00004', 'EQ00004', '本社倉庫1階', 'IN_STORAGE', NULL, '2024-08-02 09:00:00+09', '2024-08-02 09:00:00+09'),
-    ('ST00005', 'EQ00001', '廃棄待ちエリア', 'IN_STORAGE', NULL, '2025-04-02 09:00:00+09', '2025-04-02 09:00:00+09');
+INSERT INTO equipment_storage (storage_id, equipment_asset_id, storage_location_id, storage_quantity, status, linked_moveout_id, created_at, updated_at) VALUES
+    ('ST00001', 'EB00002', 'SL202606300003', 1, 'IN_STORAGE', 'MO00002', '2025-04-01 09:00:00+09', '2025-04-01 09:00:00+09'),
+    ('ST00002', 'EB00005', 'SL202606300004', 1, 'IN_STORAGE', 'MO00005', '2024-08-01 09:00:00+09', '2024-08-01 09:00:00+09'),
+    ('ST00003', 'EB00003', 'SL202606300001', 1, 'REUSED', 'MO00003', '2025-01-10 09:00:00+09', '2025-01-10 09:00:00+09'),
+    ('ST00004', 'EB00004', 'SL202606300003', 1, 'IN_STORAGE', NULL, '2024-08-02 09:00:00+09', '2024-08-02 09:00:00+09'),
+    ('ST00005', 'EB00001', 'SL202606300002', 1, 'IN_STORAGE', NULL, '2025-04-02 09:00:00+09', '2025-04-02 09:00:00+09');
 
 INSERT INTO operation_log (operation_type, target_table, target_id, before_value, after_value, operated_by, operated_at) VALUES
     ('RESIDENCE_CHECKIN', 'residence_history', 'RH00002', NULL, '{"employeeId":"E00005","roomId":"R001"}'::jsonb, 'admin', '2025-06-01 10:00:00+09'),

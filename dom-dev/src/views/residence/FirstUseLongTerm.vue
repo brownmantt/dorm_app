@@ -2,14 +2,16 @@
   <div class="page-container">
     <PageHeader title="初回利用日・長期利用" subtitle="First Use & Long Term" />
 
-    <el-card class="search-card">
-      <el-form :model="query" inline>
-        <el-form-item label="社員ID">
-          <el-input v-model="query.employeeId" clearable />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="handleSearchEmployee">照会</el-button>
-        </el-form-item>
+    <el-card class="search-card search-form-grid-card search-form-single-row-card first-use-long-term-search-card">
+      <el-form :model="query" label-width="72px" class="search-form-grid search-form-single-row">
+        <div class="search-form-grid__cols">
+          <el-form-item label="社員ID" class="search-field-employee-id">
+            <el-input v-model="query.employeeId" clearable />
+          </el-form-item>
+          <el-form-item class="search-form-grid__actions">
+            <el-button type="primary" @click="handleSearchEmployee">照会</el-button>
+          </el-form-item>
+        </div>
       </el-form>
       <el-descriptions v-if="employeeInfo.employeeId" :column="2" border class="detail-descriptions employee-info">
         <el-descriptions-item label="社員ID">{{ employeeInfo.employeeId }}</el-descriptions-item>

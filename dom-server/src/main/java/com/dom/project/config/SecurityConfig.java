@@ -55,6 +55,7 @@ public class SecurityConfig {
                                 "/affiliations",
                                 "/regions",
                                 "/usage-types",
+                                "/storage-locations",
                                 "/postal-codes/**",
                                 "/residences",
                                 "/alerts/**",
@@ -63,6 +64,7 @@ public class SecurityConfig {
                                 "/unit-prices/**",
                                 "/equipments/**",
                                 "/equipment-assets/**",
+                                "/equipment-usages/**",
                                 "/equipment-moveouts/**",
                                 "/equipment-storages/**",
                                 "/operation-logs/**",
@@ -77,6 +79,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/usage-types/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/usage-types/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/usage-types/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/storage-locations/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/storage-locations/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/storage-locations/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/employees/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/employees/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/employees/**").hasRole("ADMIN")

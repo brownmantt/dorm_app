@@ -46,7 +46,6 @@
     <select id="countReferences" resultType="long">
         SELECT (
             (SELECT COUNT(1) FROM equipment_moveout WHERE equipment_id = #{equipmentId})
-            + (SELECT COUNT(1) FROM equipment_storage WHERE equipment_id = #{equipmentId})
         )
     </select>
 </mapper>

@@ -54,12 +54,12 @@ Backend /api/v1/*
 | 郵便番号 | [postalCode.md](./postalCode.md) | 1 |
 | 入退寮 | [residence.md](./residence.md) | 7 |
 | 寮費 | [dormFee.md](./dormFee.md) | 4 |
-| 備品 | [equipment.md](./equipment.md) | 6 |
+| 備品 | [equipment.md](./equipment.md), [equipmentAsset.md](./equipmentAsset.md), [equipmentUsage.md](./equipmentUsage.md), [equipmentStorage.md](./equipmentStorage.md), [storageLocation.md](./storageLocation.md) | 15 |
 | 空き室 | [vacancy.md](./vacancy.md) | 2 |
 | Excel 取込 | [import.md](./import.md) | 2 |
 | 操作ログ | [operationLog.md](./operationLog.md) | 1 |
 
-**合計: 34 エンドポイント**
+**合計: 39 エンドポイント**
 
 ## ソース対応表
 
@@ -71,7 +71,10 @@ Backend /api/v1/*
 | `api/postalCode.js` | `views/dormitory/DormitoryList.vue` |
 | `api/residence.js` | `views/residence/ResidenceHistoryList.vue`, `ResidenceRegister.vue`, `FirstUseLongTerm.vue` |
 | `api/dormFee.js` | `views/dormFee/DormFeeList.vue` |
-| `api/equipment.js` | `views/equipment/EquipmentMasterList.vue`, `MoveOutEquipment.vue`, `EquipmentStorage.vue` |
+| `api/equipment.js` | `views/equipment/EquipmentMasterList.vue` |
+| `api/equipmentStorage.js` | `views/equipment/EquipmentStorage.vue` |
+| `api/equipmentAsset.js` | `views/equipment/EquipmentAssetList.vue` |
+| `api/equipmentUsage.js` | `views/equipment/EquipmentUsageList.vue` |
 | `api/vacancy.js` | `views/vacancy/VacancyList.vue`, `views/residence/ResidenceRegister.vue` |
 | `api/import.js` | `views/import/ExcelImport.vue` |
 | `api/operationLog.js` | `views/log/OperationLogList.vue` |

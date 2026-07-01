@@ -10,7 +10,7 @@
 
 ---
 
-## API 一覧（60 エンドポイント）
+## API 一覧（62 エンドポイント）
 
 | # | メソッド | URL | Controller | Service |
 |---|---------|-----|------------|---------|
@@ -43,13 +43,18 @@
 | 27 | PUT | `/equipments/{id}` | EquipmentController | EquipmentService |
 | 28 | DELETE | `/equipments/{id}` | EquipmentController | EquipmentService |
 | 30 | POST | `/equipment-moveouts` | EquipmentController | EquipmentService |
-| 31 | GET | `/equipment-storages` | EquipmentController | EquipmentService |
-| 32 | POST | `/equipment-storages` | EquipmentController | EquipmentService |
-| 33 | GET | `/equipment-assets` | EquipmentAssetController | EquipmentAssetService |
-| 34 | POST | `/equipment-assets` | EquipmentAssetController | EquipmentAssetService |
-| 35 | PUT | `/equipment-assets/{id}` | EquipmentAssetController | EquipmentAssetService |
-| 36 | DELETE | `/equipment-assets/{id}` | EquipmentAssetController | EquipmentAssetService |
-| 37 | GET | `/vacancies` | VacancyController | VacancyService |
+| 31 | GET | `/equipment-storages` | EquipmentStorageController | EquipmentStorageService |
+| 32 | GET | `/equipment-storages/by-asset/{equipmentAssetId}` | EquipmentStorageController | EquipmentStorageService |
+| 33 | PUT | `/equipment-storages/by-asset/{equipmentAssetId}` | EquipmentStorageController | EquipmentStorageService |
+| 34 | DELETE | `/equipment-storages/{storageId}` | EquipmentStorageController | EquipmentStorageService |
+| 35 | GET | `/equipment-assets` | EquipmentAssetController | EquipmentAssetService |
+| 36 | POST | `/equipment-assets` | EquipmentAssetController | EquipmentAssetService |
+| 37 | PUT | `/equipment-assets/{id}` | EquipmentAssetController | EquipmentAssetService |
+| 38 | DELETE | `/equipment-assets/{id}` | EquipmentAssetController | EquipmentAssetService |
+| 39 | GET | `/equipment-usages` | EquipmentUsageController | EquipmentUsageService |
+| 40 | POST | `/equipment-usages` | EquipmentUsageController | EquipmentUsageService |
+| 41 | PUT | `/equipment-usages/{id}/release` | EquipmentUsageController | EquipmentUsageService |
+| 40 | GET | `/vacancies` | VacancyController | VacancyService |
 | 34 | GET | `/vacancies/assignable` | VacancyController | VacancyService |
 | 35 | POST | `/imports/excel/preview` | ImportController | ExcelImportService |
 | 36 | POST | `/imports/excel/execute` | ImportController | ExcelImportService |
@@ -71,6 +76,10 @@
 | 52 | POST | `/regions` | RegionController | RegionService |
 | 53 | PUT | `/regions/{id}` | RegionController | RegionService |
 | 54 | DELETE | `/regions/{id}` | RegionController | RegionService |
+| 55 | GET | `/storage-locations` | StorageLocationController | StorageLocationService |
+| 56 | POST | `/storage-locations` | StorageLocationController | StorageLocationService |
+| 57 | PUT | `/storage-locations/{id}` | StorageLocationController | StorageLocationService |
+| 58 | DELETE | `/storage-locations/{id}` | StorageLocationController | StorageLocationService |
 | 55 | GET | `/usage-types` | UsageTypeController | UsageTypeService |
 | 56 | POST | `/usage-types` | UsageTypeController | UsageTypeService |
 | 57 | PUT | `/usage-types/{id}` | UsageTypeController | UsageTypeService |
@@ -121,6 +130,11 @@
 - 地域マスタ CRUD（一覧・登録・更新・論理削除）
 - 寮マスタ `region` 列は地域コード（`code`）と連携
 
+### StorageLocationController
+- 保管場所マスタ CRUD（一覧・登録・更新・論理削除）
+- 保管場所 ID は `SL` プレフィックスで自動採番
+- 備品保管（`equipment_storage`）で参照中は削除不可
+
 ### UsageTypeController
 - 利用形態マスタ CRUD（一覧・登録・更新・論理削除）
 
@@ -139,11 +153,22 @@
 - 寮費一覧、算定（入居履歴×単価マスタから算出・`dorm_fee` 保存）
 
 ### EquipmentController
-- 品目マスタ CRUD（品目ID・品目名称・論理削除）、退去備品処理、備品保管一覧・登録
+- 品目マスタ CRUD（品目ID・品目名称・論理削除）、退去備品処理
+
+### EquipmentStorageController
+- 備品保管一覧（備品番号・ページング）
+- 備品別保管明細取得・一括保存・明細削除
+- 保管数量合計 = 備品購入数量を検証。購入数量 ≥ 2 のとき複数保管場所に分割可能
 
 ### EquipmentAssetController
 - 備品（個体）一覧・登録・更新・削除（論理削除）
-- 備品番号は `EB` プレフィックスで自動採番
+- 備品番号は `EB` プレフィックスで自動採番（14桁: `EB` + yyyyMMdd + 4桁連番）
+
+### EquipmentUsageController
+- 備品利用一覧・登録・解除
+- 利用 ID は `EU` プレフィックスで自動採番（14桁: `EU` + yyyyMMdd + 4桁連番）
+- 登録時: 利用中数量合計 ≤ 備品購入数量を検証
+- 解除時: 既存レコードに `usage_end_date` を設定
 
 ### VacancyController
 - 空き室一覧、割当可能部屋一覧
@@ -181,6 +206,12 @@
 - 地域登録・更新・論理削除
 - 地域コード重複チェック、使用中地域削除禁止（`REGION_IN_USE`：寮 `region` 列参照）
 - ID プレフィックス: `RG`
+
+### StorageLocationService / StorageLocationServiceImpl
+- 保管場所一覧（`name` 部分一致）
+- 保管場所登録・更新・論理削除
+- 保管場所名重複チェック（`STORAGE_LOCATION_NAME_DUPLICATE`）、使用中削除禁止（`STORAGE_LOCATION_IN_USE`）
+- ID プレフィックス: `SL`
 
 ### UsageTypeService / UsageTypeServiceImpl
 - 利用形態一覧（`name` 部分一致）
@@ -236,13 +267,27 @@
 - ID プレフィックス: `DF`
 
 ### EquipmentService / EquipmentServiceImpl
-- 品目マスタ CRUD（品目ID・品目名称・論理削除。退去処理・保管参照時は削除不可）、退去備品処理、備品保管
-- ID プレフィックス: `EQ`、`MO`、`ST`
+- 品目マスタ CRUD（品目ID・品目名称・論理削除。退去処理参照時は削除不可）、退去備品処理
+- ID プレフィックス: `EQ`、`MO`
+
+### EquipmentStorageService / EquipmentStorageServiceImpl
+- 備品保管一覧・備品別明細取得・一括保存・明細削除
+- 保管数量合計 = `equipment_asset.purchase_quantity` を検証
+- 同一備品内で保管場所の重複禁止
+- ID プレフィックス: `ST`
 
 ### EquipmentAssetService / EquipmentAssetServiceImpl
 - 備品（個体）CRUD（品目マスタ参照・備品番号自動採番・論理削除）
-- 購入日・購入金額必須。購入店・連絡先・郵便番号・住所・保証期限は任意
-- ID プレフィックス: `EB`
+- 購入日・購入金額・購入数量必須。購入店・連絡先・郵便番号・住所・保証期限・備考は任意
+- 登録時は購入数量の値に関わらず1件のみレコード作成
+- ID プレフィックス: `EB`（14桁固定）
+
+### EquipmentUsageService / EquipmentUsageServiceImpl
+- 備品利用一覧（備品・寮・部屋・入居者・利用中のみで絞込）
+- 備品利用登録（寮・部屋・入居者指定、利用開始日・個数管理）
+- 登録時: 利用中 `usage_quantity` 合計 + 新規個数 ≤ `equipment_asset.purchase_quantity` を検証
+- 備品利用解除: 既存レコードに `usage_end_date` を設定
+- ID プレフィックス: `EU`（14桁固定）
 
 ### OperationLogService / OperationLogServiceImpl
 - 操作ログ一覧、`writeLog()` ヘルパー
@@ -334,6 +379,31 @@ RegionMapper.searchList() / insert() / update() / logicalDelete()
 RegionMapper.countDormitoriesByRegionCode()（削除時）
   ↓
 region テーブル
+```
+
+### 保管場所マスタ CRUD
+```
+StorageLocationController.list() / create() / update() / delete()
+  ↓
+StorageLocationServiceImpl
+  ↓
+StorageLocationMapper.searchList() / insert() / update() / logicalDelete()
+StorageLocationMapper.countEquipmentStoragesByLocationId()（削除時）
+  ↓
+storage_location テーブル
+```
+
+### 備品保管 CRUD
+```
+EquipmentStorageController.list() / listByAsset() / saveByAsset() / delete()
+  ↓
+EquipmentStorageServiceImpl
+  ↓
+EquipmentAssetMapper.findById()（購入数量取得・存在チェック）
+EquipmentStorageMapper.searchList() / selectByAssetId() / deleteByAssetId() / insert() / deleteById()
+StorageLocationMapper（保管場所存在チェック）
+  ↓
+equipment_storage テーブル
 ```
 
 ### 利用形態マスタ CRUD
@@ -480,6 +550,7 @@ excel_import_job テーブル
 | FeeRateConfigMapper | fee_rate_config |
 | EquipmentMapper | equipment |
 | EquipmentAssetMapper | equipment_asset |
+| EquipmentUsageMapper | equipment_usage |
 | EquipmentMoveoutMapper | equipment_moveout |
 | EquipmentStorageMapper | equipment_storage |
 | OperationLogMapper | operation_log |
@@ -493,7 +564,7 @@ excel_import_job テーブル
 |--------|------|
 | PageResult | ページング応答（content / totalElements / totalPages） |
 | PageUtils | offset / limit 計算 |
-| IdGenerator | 業務 ID 生成（D/R/RH/DF/EQ/EB/MO/ST/JOB） |
+| IdGenerator | 業務 ID 生成（D/R/RH/DF/EQ/EB/EU/MO/ST/JOB） |
 | JsonUtils | JSON シリアライズ（basisDetail 等） |
 | DormAllocationHelper | 寮割カレンダー日付計算・重複判定ヘルパー |
 | GlobalExceptionHandler | 業務例外・検証例外を統一処理 |
@@ -533,7 +604,7 @@ excel_import_job テーブル
 |------|----------|
 | 公開 | `POST /auth/login` |
 | ROLE_ADMIN + ROLE_USER | GET `/employees/**`, `/dormitories/**`, `/dorm-allocation/**`, `/affiliations`, `/regions`, `/usage-types`, `/postal-codes/**`, `/residences`, `/alerts/**`, `/vacancies/**` |
-| ROLE_ADMIN のみ | `/dorm-fees/**`, `/unit-prices/**`, `/equipments/**`, `/equipment-assets/**`, `/equipment-moveouts/**`, `/equipment-storages/**`, `/operation-logs/**`, `/imports/**`, `/exports/**`, POST/PUT `/residences/**`, POST/PUT/DELETE `/dormitories/**`, `/rooms/**`, POST/PUT/DELETE `/affiliations/**`, POST/PUT/DELETE `/regions/**`, POST/PUT/DELETE `/usage-types/**`, PUT/DELETE `/dormitories/*/manager` |
+| ROLE_ADMIN のみ | `/dorm-fees/**`, `/unit-prices/**`, `/equipments/**`, `/equipment-assets/**`, `/equipment-usages/**`, `/equipment-moveouts/**`, `/equipment-storages/**`, `/operation-logs/**`, `/imports/**`, `/exports/**`, POST/PUT `/residences/**`, POST/PUT/DELETE `/dormitories/**`, `/rooms/**`, POST/PUT/DELETE `/affiliations/**`, POST/PUT/DELETE `/regions/**`, POST/PUT/DELETE `/usage-types/**`, POST/PUT/DELETE `/storage-locations/**`, PUT/DELETE `/dormitories/*/manager` |
 
 ---
 
@@ -547,8 +618,10 @@ excel_import_job テーブル
 | DormitoryServiceImpl | 寮 CRUD、部屋 CRUD |
 | ResidenceServiceImpl | 入居登録、退寮 |
 | DormFeeServiceImpl | 寮費算定・一覧 |
-| EquipmentServiceImpl | 品目マスタ CRUD、退去処理、保管登録 |
+| EquipmentServiceImpl | 品目マスタ CRUD、退去処理 |
+| EquipmentStorageServiceImpl | 備品保管 CRUD、保管数量合計検証 |
 | EquipmentAssetServiceImpl | 備品（個体）CRUD |
+| EquipmentUsageServiceImpl | 備品利用登録・解除 |
 | ExcelImportServiceImpl | 取込実行 |
 
 ---
@@ -559,4 +632,4 @@ excel_import_job テーブル
 |------|-----------|-----|
 | DTO | `entity.dto` | LoginDTO, ResidenceSaveDTO, AffiliationSaveDTO, RegionSaveDTO, UsageTypeSaveDTO, UnitPriceSaveDTO, DormitoryManagerSaveDTO |
 | VO | `entity.vo` | LoginVO, ValidateVO, DormFeeCalculateVO, DormAllocationCalendarVO, MoveOutWarningVO |
-| View | `entity.view` | RoomListView, VacancyListView, AllocationResidenceView, UnitPriceListView, EquipmentAssetListView（一覧 JOIN 結果） |
+| View | `entity.view` | RoomListView, VacancyListView, AllocationResidenceView, UnitPriceListView, EquipmentAssetListView, EquipmentUsageListView（一覧 JOIN 結果） |

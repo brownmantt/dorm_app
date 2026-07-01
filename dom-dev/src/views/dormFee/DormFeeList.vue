@@ -2,32 +2,42 @@
   <div class="page-container">
     <PageHeader title="寮費一覧・算定" subtitle="Dorm Fee" />
 
-    <el-card class="search-card">
-      <el-form :model="query" inline>
-        <el-form-item label="社員ID">
-          <el-input v-model="query.employeeId" clearable />
-        </el-form-item>
-        <el-form-item label="対象年月">
-          <el-date-picker v-model="query.targetYearMonth" type="month" value-format="YYYY-MM" />
-        </el-form-item>
-        <el-form-item label="ステータス">
-          <el-select v-model="query.status" clearable placeholder="すべて">
-            <el-option label="仮定" value="PROVISIONAL" />
-            <el-option label="エラー" value="ERROR" />
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="handleSearch">検索</el-button>
-          <el-button @click="handleReset">リセット</el-button>
-        </el-form-item>
+    <el-card class="search-card search-form-grid-card search-form-single-row-card dorm-fee-list-search-card">
+      <el-form :model="query" label-width="84px" class="search-form-grid search-form-single-row">
+        <div class="search-form-grid__cols">
+          <el-form-item label="社員ID" class="search-field-employee-id">
+            <el-input v-model="query.employeeId" clearable />
+          </el-form-item>
+          <el-form-item label="対象年月" class="search-field-year-month">
+            <el-date-picker v-model="query.targetYearMonth" type="month" value-format="YYYY-MM" />
+          </el-form-item>
+          <el-form-item label="ステータス" class="search-field-status">
+            <el-select v-model="query.status" clearable placeholder="すべて">
+              <el-option label="仮定" value="PROVISIONAL" />
+              <el-option label="エラー" value="ERROR" />
+            </el-select>
+          </el-form-item>
+          <el-form-item class="search-form-grid__actions">
+            <el-button type="primary" @click="handleSearch">検索</el-button>
+            <el-button @click="handleReset">リセット</el-button>
+          </el-form-item>
+        </div>
       </el-form>
     </el-card>
 
-    <el-card class="toolbar-card">
-      <el-button type="primary" @click="openCalcDialog">寮費算定</el-button>
-    </el-card>
-
     <el-card v-loading="loading" class="table-card">
+      <div class="table-card-toolbar">
+        <el-button type="primary" @click="openCalcDialog">寮費算定</el-button>
+        <el-pagination
+          v-model:current-page="pagination.page"
+          v-model:page-size="pagination.size"
+          :total="pagination.total"
+          :page-sizes="[10, 20, 50]"
+          layout="total, sizes, prev, pager, next"
+          @size-change="fetchList"
+          @current-change="fetchList"
+        />
+      </div>
       <div class="dorm-fee-table-scroll">
         <el-table
           :data="tableData"
@@ -81,17 +91,6 @@
             </template>
           </el-table-column>
         </el-table>
-      </div>
-      <div class="pagination-wrapper">
-        <el-pagination
-          v-model:current-page="pagination.page"
-          v-model:page-size="pagination.size"
-          :total="pagination.total"
-          :page-sizes="[10, 20, 50]"
-          layout="total, sizes, prev, pager, next"
-          @size-change="fetchList"
-          @current-change="fetchList"
-        />
       </div>
     </el-card>
 

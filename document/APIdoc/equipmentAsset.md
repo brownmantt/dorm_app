@@ -43,7 +43,7 @@
 {
   "content": [
     {
-      "equipmentAssetId": "EB00001",
+      "equipmentAssetId": "EB202604010001",
       "equipmentId": "EQ00001",
       "equipmentName": "シングルベッド",
       "purchaseDate": "2023-04-01",
@@ -52,7 +52,9 @@
       "purchaseStoreContact": "03-1234-5678",
       "purchaseStorePostalCode": "1600022",
       "purchaseStoreAddress": "東京都新宿区新宿3-1-1",
-      "warrantyExpiryDate": "2026-03-31"
+      "warrantyExpiryDate": "2026-03-31",
+      "purchaseQuantity": 3,
+      "remarks": "一括購入分"
     }
   ],
   "totalElements": 1
@@ -62,7 +64,7 @@
 | パラメータ名 | 型 | 必須 | 説明 | 例 |
 |--------------|------|------|------|------|
 | content | object[] | はい | 備品一覧 | — |
-| content[].equipmentAssetId | string | はい | 備品番号 | EB00001 |
+| content[].equipmentAssetId | string | はい | 備品番号 | EB202604010001 |
 | content[].equipmentId | string | はい | 品目 ID | EQ00001 |
 | content[].equipmentName | string | はい | 品目名称 | シングルベッド |
 | content[].purchaseDate | string | はい | 購入日（YYYY-MM-DD） | 2023-04-01 |
@@ -72,6 +74,8 @@
 | content[].purchaseStorePostalCode | string | いいえ | 購入店郵便番号（7桁） | 1600022 |
 | content[].purchaseStoreAddress | string | いいえ | 購入店住所 | 東京都新宿区… |
 | content[].warrantyExpiryDate | string | いいえ | 保証期限（YYYY-MM-DD） | 2026-03-31 |
+| content[].purchaseQuantity | int | はい | 購入数量 | 3 |
+| content[].remarks | string | いいえ | 備考 | 一括購入分 |
 | totalElements | int | いいえ | 総件数 | 1 |
 
 ---
@@ -87,7 +91,7 @@
 
 ### 機能説明
 
-品目マスタの存在を検証後、`equipment_asset` に INSERT する。
+品目マスタの存在を検証後、`equipment_asset` に1件 INSERT する。購入数量はデータ項目として保存するのみで、レコード件数には影響しない。
 
 ---
 
@@ -97,12 +101,14 @@
 {
   "equipmentId": "EQ00001",
   "purchaseDate": "2023-04-01",
+  "purchaseQuantity": 3,
   "purchaseAmount": 45000,
   "purchaseStore": "ニトリ 新宿店",
   "purchaseStoreContact": "03-1234-5678",
   "purchaseStorePostalCode": "1600022",
   "purchaseStoreAddress": "東京都新宿区新宿3-1-1",
-  "warrantyExpiryDate": "2026-03-31"
+  "warrantyExpiryDate": "2026-03-31",
+  "remarks": "一括購入分"
 }
 ```
 
@@ -110,12 +116,14 @@
 |--------------|------|------|------|------|
 | equipmentId | string | はい | 品目 ID | EQ00001 |
 | purchaseDate | string | はい | 購入日（YYYY-MM-DD） | 2023-04-01 |
+| purchaseQuantity | int | はい | 購入数量（1〜999） | 3 |
 | purchaseAmount | number | はい | 購入金額（0 以上） | 45000 |
 | purchaseStore | string | いいえ | 購入店 | ニトリ 新宿店 |
 | purchaseStoreContact | string | いいえ | 購入店連絡先 | 03-1234-5678 |
 | purchaseStorePostalCode | string | いいえ | 購入店郵便番号（7桁） | 1600022 |
 | purchaseStoreAddress | string | いいえ | 購入店住所 | 東京都新宿区… |
 | warrantyExpiryDate | string | いいえ | 保証期限（YYYY-MM-DD） | 2026-03-31 |
+| remarks | string | いいえ | 備考（2000文字以内） | 一括購入分 |
 
 ---
 
@@ -150,6 +158,7 @@
 |--------------|------|
 | EQUIPMENT_ASSET_NOT_FOUND | 備品が存在しない |
 | EQUIPMENT_NOT_FOUND | 品目が存在しない |
+| INVALID_PURCHASE_QUANTITY | 購入数量が範囲外 |
 
 ---
 

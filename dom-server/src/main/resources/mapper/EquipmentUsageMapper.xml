@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dom.project.mapper.EquipmentUsageMapper">
+
+    <resultMap id="EquipmentUsageMap" type="com.dom.project.entity.EquipmentUsage">
+        <id column="usage_id" property="usageId"/>
+        <result column="equipment_asset_id" property="equipmentAssetId"/>
+        <result column="dormitory_id" property="dormitoryId"/>
+        <result column="room_id" property="roomId"/>
+        <result column="employee_id" property="employeeId"/>
+        <result column="usage_start_date" property="usageStartDate"/>
+        <result column="usage_end_date" property="usageEndDate"/>
+        <result column="usage_quantity" property="usageQuantity"/>
+        <result column="remarks" property="remarks"/>
+        <result column="created_at" property="createdAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+        <result column="updated_at" property="updatedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+        <result column="deleted_at" property="deletedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+    </resultMap>
+
+    <resultMap id="EquipmentUsageListViewMap" type="com.dom.project.entity.view.EquipmentUsageListView">
+        <id column="usage_id" property="usageId"/>
+        <result column="equipment_asset_id" property="equipmentAssetId"/>
+        <result column="equipment_name" property="equipmentName"/>
+        <result column="purchase_quantity" property="purchaseQuantity"/>
+        <result column="dormitory_id" property="dormitoryId"/>
+        <result column="dormitory_name" property="dormitoryName"/>
+        <result column="room_id" property="roomId"/>
+        <result column="room_name" property="roomName"/>
+        <result column="employee_id" property="employeeId"/>
+        <result column="employee_name" property="employeeName"/>
+        <result column="usage_start_date" property="usageStartDate"/>
+        <result column="usage_end_date" property="usageEndDate"/>
+        <result column="usage_quantity" property="usageQuantity"/>
+        <result column="remarks" property="remarks"/>
+        <result column="created_at" property="createdAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+        <result column="updated_at" property="updatedAt" typeHandler="com.dom.project.config.PostgreSqlLocalDateTimeTypeHandler"/>
+    </resultMap>
+
+    <sql id="SearchFilters">
+        WHERE eu.deleted_at IS NULL
+        <if test="equipmentAssetId != null and equipmentAssetId != ''">
+            AND eu.equipment_asset_id = #{equipmentAssetId}
+        </if>
+        <if test="dormitoryId != null and dormitoryId != ''">
+            AND eu.dormitory_id = #{dormitoryId}
+        </if>
+        <if test="roomId != null and roomId != ''">
+            AND eu.room_id = #{roomId}
+        </if>
+        <if test="employeeId != null and employeeId != ''">
+            AND eu.employee_id = #{employeeId}
+        </if>
+        <if test="activeOnly != null and activeOnly">
+            AND eu.usage_end_date IS NULL
+        </if>
+    </sql>
+
+    <insert id="insert" parameterType="com.dom.project.entity.EquipmentUsage">
+        INSERT INTO equipment_usage (
+            usage_id, equipment_asset_id, dormitory_id, room_id, employee_id,
+            usage_start_date, usage_end_date, usage_quantity, remarks, created_at, updated_at
+        ) VALUES (
+            #{usageId}, #{equipmentAssetId}, #{dormitoryId}, #{roomId}, #{employeeId},
+            #{usageStartDate}, #{usageEndDate}, #{usageQuantity}, #{remarks}, #{createdAt}, #{updatedAt}
+        )
+    </insert>
+
+    <update id="updateRelease" parameterType="com.dom.project.entity.EquipmentUsage">
+        UPDATE equipment_usage
+        SET usage_end_date = #{usageEndDate},
+            updated_at = #{updatedAt}
+        WHERE usage_id = #{usageId}
+          AND deleted_at IS NULL
+          AND usage_end_date IS NULL
+    </update>
+
+    <select id="findById" resultMap="EquipmentUsageMap">
+        SELECT usage_id, equipment_asset_id, dormitory_id, room_id, employee_id,
+               usage_start_date, usage_end_date, usage_quantity, remarks,
+               created_at, updated_at, deleted_at
+        FROM equipment_usage
+        WHERE usage_id = #{usageId} AND deleted_at IS NULL
+    </select>
+
+    <select id="sumActiveUsageQuantity" resultType="java.lang.Integer">
+        SELECT COALESCE(SUM(usage_quantity), 0)
+        FROM equipment_usage
+        WHERE equipment_asset_id = #{equipmentAssetId}
+          AND deleted_at IS NULL
+          AND usage_end_date IS NULL
+        <if test="excludeUsageId != null and excludeUsageId != ''">
+            AND usage_id &lt;&gt; #{excludeUsageId}
+        </if>
+    </select>
+
+    <select id="searchList" resultMap="EquipmentUsageListViewMap">
+        SELECT eu.usage_id, eu.equipment_asset_id, e.name AS equipment_name, ea.purchase_quantity,
+               eu.dormitory_id, d.name AS dormitory_name,
+               eu.room_id, r.room_name AS room_name,
+               eu.employee_id, emp.name AS employee_name,
+               eu.usage_start_date, eu.usage_end_date, eu.usage_quantity, eu.remarks,
+               eu.created_at, eu.updated_at
+        FROM equipment_usage eu
+        INNER JOIN equipment_asset ea ON ea.equipment_asset_id = eu.equipment_asset_id AND ea.deleted_at IS NULL
+        INNER JOIN equipment e ON e.equipment_id = ea.equipment_id AND e.deleted_at IS NULL
+        LEFT JOIN dormitory d ON d.dormitory_id = eu.dormitory_id AND d.deleted_at IS NULL
+        LEFT JOIN room r ON r.room_id = eu.room_id AND r.deleted_at IS NULL
+        LEFT JOIN employee emp ON emp.employee_id = eu.employee_id AND emp.deleted_at IS NULL
+        <include refid="SearchFilters"/>
+        ORDER BY eu.usage_start_date DESC, eu.usage_id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countSearch" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM equipment_usage eu
+        <include refid="SearchFilters"/>
+    </select>
+</mapper>
